@@ -1,7 +1,8 @@
-package com.MusicPlatForm.profile_service;
+package com.devteria.profile;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 public class ProfileServiceApplication {
