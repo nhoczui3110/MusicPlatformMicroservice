@@ -1,7 +1,9 @@
 package com.MusicPlatForm.file_service.rescontroller;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -10,19 +12,25 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.MusicPlatForm.file_service.dto.ApiResponse;
+import com.MusicPlatForm.file_service.dto.request.AvatarRequest;
+import com.MusicPlatForm.file_service.dto.request.CoverRequest;
+import com.MusicPlatForm.file_service.dto.response.AvatarResponse;
 import com.MusicPlatForm.file_service.service.ImageService;
 
 @RestController
-@RequestMapping("/api/v1/image")
+@RequestMapping("/image")
 public class ImageRestController {
     private ImageService imageService;
     @Value("${file.upload-dir}")
@@ -31,8 +39,11 @@ public class ImageRestController {
         this.imageService =imageService;
     }
 
+    /*
+     * GET
+     */
     @GetMapping("avatar/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException{
+    public ResponseEntity<Resource> getAvatar(@PathVariable String filename) throws IOException{
 
         Path path = Paths.get(uploadDir).resolve("avatars").resolve(filename);
         byte[] imageBytes = Files.readAllBytes(path);
@@ -40,12 +51,29 @@ public class ImageRestController {
         ByteArrayResource resource = new ByteArrayResource(imageBytes);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG) // Thay đổi loại MIME nếu cần
+                .contentType(MediaType.IMAGE_JPEG)
+                .contentLength(imageBytes.length)
+                .body(resource);
+            
+    }
+    @GetMapping("cover/{filename}")
+    public ResponseEntity<Resource> getCoverImage(@PathVariable String filename) throws IOException{
+
+        Path path = Paths.get(uploadDir).resolve("covers").resolve(filename);
+        byte[] imageBytes = Files.readAllBytes(path);
+
+        ByteArrayResource resource = new ByteArrayResource(imageBytes);
+        
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
                 .contentLength(imageBytes.length)
                 .body(resource);
             
     }
 
+    /*
+     * ADD
+     */
     @PostMapping("add-avatar")
     public ResponseEntity<ApiResponse<String>> addAvatar(@RequestParam MultipartFile avatar) throws IOException{
         String avatarName = imageService.addAvatar(avatar);
@@ -53,9 +81,86 @@ public class ImageRestController {
                 ApiResponse.<String>
                     builder()
                         .code(200)
-                        .message("add successfully")
+                        .message("Added successfully")
                         .data(avatarName).build()
                 );
     }
+    @PostMapping("add-cover")
+    public ResponseEntity<ApiResponse<String>> addCoverImage(@RequestParam MultipartFile cover) throws IOException{
+        String coverName = imageService.addcoverImage(cover);
+        return ResponseEntity.ok().body(
+                ApiResponse.<String>
+                    builder()
+                        .code(200)
+                        .message("Added successfully")
+                        .data(coverName).build()
+                );
+    }
 
+    
+    /*
+     * DELETE
+     */
+    @DeleteMapping("delete-avatar")
+    public ResponseEntity<ApiResponse<String>> deleteAvatar(@RequestBody AvatarRequest avatarRequest) throws IOException, NoSuchFileException{
+        imageService.deleteAvatar(avatarRequest.getAvatarName());
+        return ResponseEntity.ok().body(
+            ApiResponse.<String>
+                builder()
+                    .code(200)
+                    .message("Deleted successfully")
+                    .build()
+            );
+    }
+    @DeleteMapping("delete-cover")
+    public ResponseEntity<ApiResponse<String>> deleteCover(@RequestBody CoverRequest coverRequest) throws IOException, NoSuchFileException{
+        imageService.deleteAvatar(coverRequest.getCoverName());
+        return ResponseEntity.ok().body(
+            ApiResponse.<String>
+                builder()
+                    .code(200)
+                    .message("Deleted successfully")
+                    .build()
+            );
+    }
+
+    
+    /*
+     * PUT
+     */
+
+    @PutMapping("replace-avatar")
+    public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestParam MultipartFile newAvatar,@RequestParam String oldAvatarName) throws IOException, NoSuchFileException{
+        String newAvatarName = imageService.replaceAvatar(newAvatar, oldAvatarName);
+        return ResponseEntity.ok().body(
+                ApiResponse.<AvatarResponse>
+                    builder()
+                        .code(200)
+                        .message("Replaced successfully")
+                        .data(
+                            AvatarResponse.
+                            builder().
+                            avatarName(newAvatarName)
+                            .build()
+                            )
+                        .build()
+                );
+    }
+    @PutMapping("replace-cover")
+    public ResponseEntity<ApiResponse<AvatarResponse>> replaceCover(@RequestParam MultipartFile newCover,@RequestParam String oldCoverName) throws IOException, NoSuchFileException{
+        String newCoverName = imageService.replaceCover(newCover, oldCoverName);
+        return ResponseEntity.ok().body(
+                ApiResponse.<AvatarResponse>
+                    builder()
+                        .code(200)
+                        .message("Replaced successfully")
+                        .data(
+                            AvatarResponse.
+                            builder().
+                            avatarName(newCoverName)
+                            .build()
+                            )
+                        .build()
+                );
+    }
 }
