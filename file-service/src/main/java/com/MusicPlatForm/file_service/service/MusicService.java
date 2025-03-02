@@ -3,6 +3,7 @@ package com.MusicPlatForm.file_service.service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -54,5 +55,11 @@ public class MusicService {
                             .duration(duration)
                             .track(name)
                             .build();
+    }
+
+    public void deleteTrack(String trackName) throws IOException, NoSuchFileException{
+        Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(trackName);
+        Boolean isDeleted = Files.deleteIfExists(filePath);
+        if(!isDeleted) throw new NoSuchFileException("Track File not found");
     }
 }

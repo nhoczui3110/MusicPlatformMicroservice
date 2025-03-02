@@ -1,6 +1,5 @@
 package com.MusicPlatForm.file_service.rescontroller;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -27,6 +26,7 @@ import com.MusicPlatForm.file_service.dto.ApiResponse;
 import com.MusicPlatForm.file_service.dto.request.AvatarRequest;
 import com.MusicPlatForm.file_service.dto.request.CoverRequest;
 import com.MusicPlatForm.file_service.dto.response.AvatarResponse;
+import com.MusicPlatForm.file_service.dto.response.CoverResponse;
 import com.MusicPlatForm.file_service.service.ImageService;
 
 @RestController
@@ -75,25 +75,29 @@ public class ImageRestController {
      * ADD
      */
     @PostMapping("add-avatar")
-    public ResponseEntity<ApiResponse<String>> addAvatar(@RequestParam MultipartFile avatar) throws IOException{
+    public ResponseEntity<ApiResponse<AvatarResponse>> addAvatar(@RequestParam MultipartFile avatar) throws IOException{
         String avatarName = imageService.addAvatar(avatar);
         return ResponseEntity.ok().body(
-                ApiResponse.<String>
+                ApiResponse.<AvatarResponse>
                     builder()
                         .code(200)
-                        .message("Added successfully")
-                        .data(avatarName).build()
+                        .message("Added avatar successfully")
+                        .data(
+                            AvatarResponse.builder().avatarName(avatarName).build()
+                        ).build()
                 );
     }
     @PostMapping("add-cover")
-    public ResponseEntity<ApiResponse<String>> addCoverImage(@RequestParam MultipartFile cover) throws IOException{
+    public ResponseEntity<ApiResponse<CoverResponse>> addCoverImage(@RequestParam MultipartFile cover) throws IOException{
         String coverName = imageService.addcoverImage(cover);
         return ResponseEntity.ok().body(
-                ApiResponse.<String>
+                ApiResponse.<CoverResponse>
                     builder()
                         .code(200)
-                        .message("Added successfully")
-                        .data(coverName).build()
+                        .message("Added cover successfully")
+                        .data(
+                            CoverResponse.builder().coverName(coverName).build()
+                        ).build()
                 );
     }
 
@@ -108,7 +112,7 @@ public class ImageRestController {
             ApiResponse.<String>
                 builder()
                     .code(200)
-                    .message("Deleted successfully")
+                    .message("Deleted avatar successfully")
                     .build()
             );
     }
@@ -119,7 +123,7 @@ public class ImageRestController {
             ApiResponse.<String>
                 builder()
                     .code(200)
-                    .message("Deleted successfully")
+                    .message("Deleted cover successfully")
                     .build()
             );
     }
@@ -136,7 +140,7 @@ public class ImageRestController {
                 ApiResponse.<AvatarResponse>
                     builder()
                         .code(200)
-                        .message("Replaced successfully")
+                        .message("Replaced avatar successfully")
                         .data(
                             AvatarResponse.
                             builder().
@@ -147,17 +151,17 @@ public class ImageRestController {
                 );
     }
     @PutMapping("replace-cover")
-    public ResponseEntity<ApiResponse<AvatarResponse>> replaceCover(@RequestParam MultipartFile newCover,@RequestParam String oldCoverName) throws IOException, NoSuchFileException{
+    public ResponseEntity<ApiResponse<CoverResponse>> replaceCover(@RequestParam MultipartFile newCover,@RequestParam String oldCoverName) throws IOException, NoSuchFileException{
         String newCoverName = imageService.replaceCover(newCover, oldCoverName);
         return ResponseEntity.ok().body(
-                ApiResponse.<AvatarResponse>
+                ApiResponse.<CoverResponse>
                     builder()
                         .code(200)
-                        .message("Replaced successfully")
+                        .message("Replaced cover successfully")
                         .data(
-                            AvatarResponse.
+                            CoverResponse.
                             builder().
-                            avatarName(newCoverName)
+                            coverName(newCoverName)
                             .build()
                             )
                         .build()
