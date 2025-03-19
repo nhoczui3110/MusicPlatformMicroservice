@@ -15,6 +15,7 @@ public enum ErrorCode {
     ALREADY_FOLLOWING(1008, "Already following!", HttpStatus.BAD_REQUEST),
     NOT_FOLLOWING(1009, "You don't follow this user!", HttpStatus.BAD_REQUEST),
     NOT_FOUND(404, "Not found", HttpStatus.NOT_FOUND),
+    PLAYLIST_NOT_FOUND(404, "Playlist not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

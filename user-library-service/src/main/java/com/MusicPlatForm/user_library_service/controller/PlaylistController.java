@@ -3,8 +3,9 @@ package com.MusicPlatForm.user_library_service.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylistInfoRequest;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
+import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.service.PlaylistService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -33,7 +35,7 @@ public class PlaylistController {
     private PlaylistService playlistService;
 
     @GetMapping("")
-    public ApiResponse<List<Playlist>> getPlaylist(){
+    public ApiResponse<List<PlaylistResponse>> getPlaylist(){
        return playlistService.getPlaylists();
     }
 
@@ -64,4 +66,13 @@ public class PlaylistController {
     //                 .data("Updated successfully")
     //                 .build();
     // }
+
+    @DeleteMapping("/delete/{id}")
+    public ApiResponse<String> deleteTrackById(@PathVariable String id){
+        playlistService.deletePlaylistById(id);
+        return ApiResponse.<String>builder()
+                    .code(200)
+                    .data("Delete successfully")
+                    .build();
+    }
 }
