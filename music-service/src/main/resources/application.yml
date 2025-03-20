@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: music-service
+  datasource:
+    url: jdbc:sqlserver://localhost:1435;databaseName=Music;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: YourStrong!Passw0rd
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    defer-datasource-initialization: true
+app:
+    services:
+        file: http://localhost:8080/file-service
+
+server:
+  port: 8082
+  servlet:
+    context-path: /music

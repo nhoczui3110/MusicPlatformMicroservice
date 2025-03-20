@@ -26,7 +26,18 @@ services:
     ports:
       - 1432:1433
     volumes:
-      - my-volume:/var/opt/mssql
-      
+      - library-volume:/var/opt/mssql
+  mssql_for_music:
+    container_name: sql-server-for-music
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+    ports:
+      - 1435:1433
+    volumes:
+      - music-volume:/var/opt/mssql
 volumes:
-  my-volume:  
+  library-volume:
+  music-volume:
