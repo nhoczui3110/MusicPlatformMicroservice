@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 // -> unique key
 @Table(
-    name = "Liked_Playlist",
+    name = "Liked_playlist",
     uniqueConstraints = @UniqueConstraint(columnNames = {"User_id", "Playlist_id"})
 )
 @Entity
