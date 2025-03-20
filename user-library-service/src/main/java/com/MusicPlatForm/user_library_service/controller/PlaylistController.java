@@ -34,9 +34,14 @@ import lombok.AllArgsConstructor;
 public class PlaylistController {
     private PlaylistService playlistService;
 
-    @GetMapping("")
+    @GetMapping("/all")
     public ApiResponse<List<PlaylistResponse>> getPlaylist(){
        return playlistService.getPlaylists();
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<PlaylistResponse> getPlaylistById(@PathVariable String id){
+        return this.playlistService.getPlaylistById(id);
     }
 
     @PostMapping("/add")

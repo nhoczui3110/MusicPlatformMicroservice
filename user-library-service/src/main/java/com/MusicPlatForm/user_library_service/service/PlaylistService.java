@@ -43,9 +43,20 @@ public class PlaylistService {
         return ApiResponse.<List<PlaylistResponse>>builder()
                                             .data(playlistResponse)
                                             .code(200)
-                                            .message("Playlist for user")
+                                            .message("Playlists for user")
                                             .build();
     }
+
+    public ApiResponse<PlaylistResponse> getPlaylistById(String id){
+        Playlist playlist = this.playlistRepository.findById(id)
+                    .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
+        PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(playlist);
+        return ApiResponse.<PlaylistResponse>builder()
+                                .data(playlistResponse)
+                                .code(200)
+                                .build();
+    }
+
 
     @Transactional
     public void addPlaylist(AddPlaylistRequest request){
