@@ -117,9 +117,32 @@ public class ImageRestController {
                     .build()
             );
     }
+    @DeleteMapping("delete-avatar/{avatarName}")
+    public ResponseEntity<ApiResponse<String>> deleteAvatarVer1(@PathVariable String avatarName) throws IOException, NoSuchFileException{
+        imageService.deleteAvatar(avatarName);
+        return ResponseEntity.ok().body(
+            ApiResponse.<String>
+                builder()
+                    .code(200)
+                    .message("Deleted avatar successfully")
+                    .build()
+            );
+    }
+
     @DeleteMapping("delete-cover")
     public ResponseEntity<ApiResponse<String>> deleteCover(@RequestBody CoverRequest coverRequest) throws IOException, NoSuchFileException{
         imageService.deleteAvatar(coverRequest.getCoverName());
+        return ResponseEntity.ok().body(
+            ApiResponse.<String>
+                builder()
+                    .code(200)
+                    .message("Deleted cover successfully")
+                    .build()
+            );
+    }
+    @DeleteMapping("delete-cover/{coverName}")
+    public ResponseEntity<ApiResponse<String>> deleteCoverVer1(@PathVariable String coverName) throws IOException, NoSuchFileException{
+        imageService.deleteAvatar(coverName);
         return ResponseEntity.ok().body(
             ApiResponse.<String>
                 builder()
