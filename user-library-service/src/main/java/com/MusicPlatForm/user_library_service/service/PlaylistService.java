@@ -1,8 +1,10 @@
 package com.MusicPlatForm.user_library_service.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +17,8 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylis
 import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
+import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
+import com.MusicPlatForm.user_library_service.entity.LikedPlaylist;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTag;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;
@@ -24,6 +28,7 @@ import com.MusicPlatForm.user_library_service.httpclient.FileClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTagMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTrackMapper;
+import com.MusicPlatForm.user_library_service.repository.LikedPlaylistRepository;
 import com.MusicPlatForm.user_library_service.repository.PlaylistRepository;
 
 import lombok.AllArgsConstructor;
@@ -36,18 +41,33 @@ public class PlaylistService {
     private PlaylistTagMapper playlistTagMapper;
     private PlaylistTrackMapper playlistTrackMapper;
     private FileClient fileClient;
-    
+    private LikedPlaylistRepository likedPlaylistRepository;
+
+    private List<PlaylistTypeResponse> toPlaylistTypeResponse(List<PlaylistResponse> playlistResponses,String type){
+        List<PlaylistTypeResponse> playlistTypeResponses = playlistResponses.stream().map((playlistResponse)->{
+            return new PlaylistTypeResponse(playlistResponse,type);
+        }).collect(Collectors.toList());
+        return playlistTypeResponses;
+    }
     //done
-    public ApiResponse<List<PlaylistResponse>> getPlaylists(){
+    public ApiResponse<List<PlaylistTypeResponse>> getPlaylists(){
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         
 
-        List<Playlist> playlists = playlistRepository.getPlaylists(userId);
-        List<PlaylistResponse> playlistResponse = playlistMapper.toPlaylistResponses(playlists);
-        return ApiResponse.<List<PlaylistResponse>>builder()
-                                            .data(playlistResponse)
+        List<Playlist> createdPlaylists = playlistRepository.getPlaylists(userId);
+        List<PlaylistTypeResponse> createdPlaylistResponse = toPlaylistTypeResponse(playlistMapper.toPlaylistResponses(createdPlaylists),"Created");
+        
+        List<Playlist> likedPlaylists = this.likedPlaylistRepository.findAllByUserId(userId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist()).toList();
+        List<PlaylistTypeResponse> likedPlaylistResponse = toPlaylistTypeResponse(playlistMapper.toPlaylistResponses(likedPlaylists),"Liked");
+
+        createdPlaylistResponse.addAll(likedPlaylistResponse);
+        List<PlaylistTypeResponse> all = createdPlaylistResponse;
+        all.sort((e1,e2)-> e2.getPlaylistResponse().getCreatedAt().compareTo(e1.getPlaylistResponse().getCreatedAt()));
+
+        return ApiResponse.<List<PlaylistTypeResponse>>builder()
+                                            .data(all)
                                             .code(200)
                                             .message("Playlists for user")
                                             .build();

@@ -51,6 +51,9 @@ public class Playlist {
     @Column(name = "Image_path")
     String imagePath;
 
+    @Column(name="created_at")
+    LocalDateTime createdAt;
+    
     // orphanRemoval = true -> delete automatically when remove playlist track out of list
     @OneToMany(mappedBy = "playlist",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     List<LikedPlaylist> likedPlaylists;

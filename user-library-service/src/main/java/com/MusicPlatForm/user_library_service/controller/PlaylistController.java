@@ -17,6 +17,7 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistRe
 import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylistInfoRequest;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
+import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
 import com.MusicPlatForm.user_library_service.service.PlaylistService;
 
 
@@ -31,7 +32,7 @@ public class PlaylistController {
 
     //Done
     @GetMapping("/all")
-    public ApiResponse<List<PlaylistResponse>> getPlaylist(){
+    public ApiResponse<List<PlaylistTypeResponse>> getPlaylist(){
        return playlistService.getPlaylists();
     }
     //Done

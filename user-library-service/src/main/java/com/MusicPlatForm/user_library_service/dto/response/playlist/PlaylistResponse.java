@@ -18,6 +18,7 @@ public class PlaylistResponse {
     private String userId;
     private String genreId;
     private String imagePath;
+    private LocalDateTime createdAt;
     private List<PlaylistTrackResponse> playlistTracks;
     private List<String> playlistTags;
 }

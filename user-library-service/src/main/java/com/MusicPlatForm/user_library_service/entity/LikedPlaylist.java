@@ -1,5 +1,6 @@
 package com.MusicPlatForm.user_library_service.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -30,6 +31,9 @@ public class LikedPlaylist {
 
     @Column(name = "User_id",nullable = false)
     String userId;
+    
+    @Column(name = "Liked_at")
+    LocalDateTime likedAt;
 
     @ManyToOne
     @JoinColumn(name = "Playlist_id",nullable = false)

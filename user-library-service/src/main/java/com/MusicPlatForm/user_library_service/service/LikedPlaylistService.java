@@ -44,6 +44,7 @@ public class LikedPlaylistService {
         String userId = authentication.getName();
         LikedPlaylist likedPlaylist = new LikedPlaylist();
         Playlist playlist = this.playlistRepository.findById(playlistId).orElseThrow(()->new AppException(ErrorCode.PLAYLIST_NOT_FOUND));
+        if(playlist.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         likedPlaylist.setPlaylist(playlist);
         likedPlaylist.setUserId(userId);
         this.likedPlaylistRepository.save(likedPlaylist);
