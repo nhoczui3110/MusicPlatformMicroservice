@@ -11,4 +11,5 @@ import lombok.NoArgsConstructor;
 public class LikedPlaylistResponse {
     private String id;
     private String userId;
+    PlaylistResponse playlist;
 }

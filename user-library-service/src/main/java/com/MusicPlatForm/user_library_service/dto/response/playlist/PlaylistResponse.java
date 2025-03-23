@@ -16,7 +16,8 @@ public class PlaylistResponse {
     private String description;
     private String privacy;
     private String userId;
-    private String generId;
+    private String genreId;
     private String imagePath;
     private List<PlaylistTrackResponse> playlistTracks;
+    private List<String> playlistTags;
 }

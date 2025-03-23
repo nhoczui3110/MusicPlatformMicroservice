@@ -2,6 +2,8 @@ package com.MusicPlatForm.user_library_service.httpclient;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -21,4 +23,6 @@ public interface FileClient {
     @PutMapping(value = "/image/replace-cover",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<AddCoverFileResponse> replaceCover(@RequestPart MultipartFile cover, @RequestPart String oldCoverName);
 
+    @DeleteMapping(value = "/image/delete-cover/{cover_name}")
+    public ApiResponse<String> deleteCoverImage(@PathVariable String coverName);
 }

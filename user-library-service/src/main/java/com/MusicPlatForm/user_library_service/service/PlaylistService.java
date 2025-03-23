@@ -4,21 +4,25 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylistInfoRequest;
+import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
+import com.MusicPlatForm.user_library_service.entity.PlaylistTag;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;
 import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
+import com.MusicPlatForm.user_library_service.httpclient.FileClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistMapper;
+import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTagMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTrackMapper;
 import com.MusicPlatForm.user_library_service.repository.PlaylistRepository;
 
@@ -29,9 +33,11 @@ import lombok.AllArgsConstructor;
 public class PlaylistService {
     private PlaylistRepository playlistRepository;
     private PlaylistMapper playlistMapper;
+    private PlaylistTagMapper playlistTagMapper;
     private PlaylistTrackMapper playlistTrackMapper;
-    private PlaylistTrackService playlistTrackService;
+    private FileClient fileClient;
     
+    //done
     public ApiResponse<List<PlaylistResponse>> getPlaylists(){
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -46,7 +52,7 @@ public class PlaylistService {
                                             .message("Playlists for user")
                                             .build();
     }
-
+    //done
     public ApiResponse<PlaylistResponse> getPlaylistById(String id){
         Playlist playlist = this.playlistRepository.findById(id)
                     .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
@@ -57,9 +63,9 @@ public class PlaylistService {
                                 .build();
     }
 
-
+    //done
     @Transactional
-    public void addPlaylist(AddPlaylistRequest request){
+    public PlaylistResponse addPlaylist(AddPlaylistRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         if(userId==null){
@@ -75,17 +81,26 @@ public class PlaylistService {
         });
         playlist.setPlaylistTracks(playlistTracks);
         playlist.setUserId(userId);
-        playlistRepository.save(playlist);
-        return;
+        Playlist savedPlaylist = playlistRepository.save(playlist);
+        PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(savedPlaylist);
+        return playlistResponse;
     }
 
+    //done
     @Transactional
-    public void updatePlaylistInfo(UpdatePlaylistInfoRequest request){
+    public PlaylistResponse updatePlaylistInfo(MultipartFile playlistCoverImage,UpdatePlaylistInfoRequest request){
 
         Playlist playlist = playlistRepository.findById(request.getId())
                                                 .orElseThrow(()->new AppException(ErrorCode.PLAYLIST_NOT_FOUND));
         playlistMapper.updatePlaylistFromRequest(request, playlist);
-        
+        if(playlistCoverImage!=null){
+            if(playlist.getImagePath()!=null&&playlist.getImagePath().length()>0){
+                this.fileClient.deleteCoverImage(playlist.getImagePath());
+            }
+            ApiResponse<AddCoverFileResponse> addPlaylistCoverResponse = fileClient.addCover(playlistCoverImage); 
+            playlist.setImagePath(addPlaylistCoverResponse.getData().getCoverName());
+        }
+
         List<PlaylistTrack>updatedTracks = playlistTrackMapper.toPlaylistTracks(request.getTracks());
         updatedTracks.forEach(track->{
             track.setPlaylist(playlist);
@@ -103,7 +118,13 @@ public class PlaylistService {
                 playlist.getPlaylistTracks().add(updatedTrack);
             }
         }
-        playlistRepository.save(playlist);
+
+        playlist.getPlaylistTags().clear();
+        List<PlaylistTag> playlistTags = this.playlistTagMapper.mapTagIdsToPlaylistTags(request.getTagIds());
+        playlist.getPlaylistTags().addAll(playlistTags);
+        Playlist savedPlaylist = playlistRepository.save(playlist);
+        PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(savedPlaylist);
+        return playlistResponse;
     }
 
     @Transactional
@@ -118,6 +139,9 @@ public class PlaylistService {
 
         if(!playlist.getUserId().equals(userId)){
             throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        if(playlist.getImagePath()!=null&&playlist.getImagePath().length()>0){
+            this.fileClient.deleteCoverImage(playlist.getImagePath());
         }
         this.playlistRepository.delete(playlist);
     }

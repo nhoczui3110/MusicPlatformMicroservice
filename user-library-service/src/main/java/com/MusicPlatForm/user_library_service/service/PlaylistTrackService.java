@@ -1,11 +1,13 @@
 package com.MusicPlatForm.user_library_service.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.MusicPlatForm.user_library_service.dto.request.playlist.PlaylistTrackRequest;
+import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistTrackRequest;
+import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTrackResponse;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;
 import com.MusicPlatForm.user_library_service.exception.AppException;
@@ -30,16 +32,20 @@ public class PlaylistTrackService {
         playlistTrackRepository.deleteAllPlaylistByPlaylistId(playlistId);
     }
 
-    public void deleteTrackFromPlaylist(PlaylistTrackRequest trackRequest){
+    public void deleteTrackFromPlaylist(AddPlaylistTrackRequest trackRequest){
         PlaylistTrack playlistTrack = this.playlistTrackRepository.findByTrackIdAndPlaylistId(trackRequest.getTrackId(), trackRequest.getPlaylistId());
-        
+        if(playlistTrack ==null) throw new AppException(ErrorCode.NOT_FOUND);
         this.playlistTrackRepository.delete(playlistTrack);
     }
-    public void addTrackToPlaylist(PlaylistTrackRequest trackRequest){
-        PlaylistTrack playlistTrack = playlistTrackMapper.playlistTrackRequestToPlaylistTrack(trackRequest);
+    public PlaylistTrackResponse addTrackToPlaylist(AddPlaylistTrackRequest trackRequest){
+        PlaylistTrack playlistTrack = playlistTrackMapper.toPlaylistTrack(trackRequest);
         Playlist playlist = playlistRepository.findById(trackRequest.getPlaylistId())
                                                 .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
         playlistTrack.setPlaylist(playlist);
-        this.playlistTrackRepository.save(playlistTrack);
+        playlistTrack.setAddedAt(LocalDateTime.now());
+        
+        PlaylistTrack savedPlaylistTrack = this.playlistTrackRepository.save(playlistTrack);
+        PlaylistTrackResponse playlistTrackResponse = this.playlistTrackMapper.toPlaylistTrackResponse(savedPlaylistTrack);
+        return playlistTrackResponse;
     }
 }

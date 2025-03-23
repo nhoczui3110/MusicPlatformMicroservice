@@ -12,11 +12,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Table(name = "Playlist")
+@Table(
+    name = "Playlist",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"Tag_id", "Playlist_id"})
+)
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,8 +45,8 @@ public class Playlist {
     @Column(name = "User_id",nullable = false)
     String userId;
 
-    @Column(name = "Gener_id")
-    String generId;
+    @Column(name = "Genre_id")
+    String genreId;
 
     @Column(name = "Image_path")
     String imagePath;
@@ -53,6 +57,9 @@ public class Playlist {
     
     @OneToMany(mappedBy = "playlist",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     List<PlaylistTrack> playlistTracks;
+    
+    @OneToMany(mappedBy = "playlist",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
+    List<PlaylistTag> playlistTags;
 
     
 
