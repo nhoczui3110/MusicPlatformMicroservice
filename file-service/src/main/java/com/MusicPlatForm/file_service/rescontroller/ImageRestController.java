@@ -76,7 +76,7 @@ public class ImageRestController {
      * ADD
      */
     @PostMapping("add-avatar")
-    public ResponseEntity<ApiResponse<AvatarResponse>> addAvatar(@RequestParam MultipartFile avatar) throws IOException{
+    public ResponseEntity<ApiResponse<AvatarResponse>> addAvatar(@RequestPart MultipartFile avatar) throws IOException{
         String avatarName = imageService.addAvatar(avatar);
         return ResponseEntity.ok().body(
                 ApiResponse.<AvatarResponse>
@@ -135,7 +135,7 @@ public class ImageRestController {
      */
 
     @PutMapping("replace-avatar")
-    public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestParam MultipartFile newAvatar,@RequestParam String oldAvatarName) throws IOException, NoSuchFileException{
+    public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestPart MultipartFile newAvatar,@RequestPart String oldAvatarName) throws IOException, NoSuchFileException{
         String newAvatarName = imageService.replaceAvatar(newAvatar, oldAvatarName);
         return ResponseEntity.ok().body(
                 ApiResponse.<AvatarResponse>
@@ -152,7 +152,7 @@ public class ImageRestController {
                 );
     }
     @PutMapping("replace-cover")
-    public ResponseEntity<ApiResponse<CoverResponse>> replaceCover(@RequestParam MultipartFile newCover,@RequestParam String oldCoverName) throws IOException, NoSuchFileException{
+    public ResponseEntity<ApiResponse<CoverResponse>> replaceCover(@RequestPart MultipartFile newCover,@RequestPart String oldCoverName) throws IOException, NoSuchFileException{
         String newCoverName = imageService.replaceCover(newCover, oldCoverName);
         return ResponseEntity.ok().body(
                 ApiResponse.<CoverResponse>

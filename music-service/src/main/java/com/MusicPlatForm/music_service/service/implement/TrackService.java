@@ -42,7 +42,7 @@ public class TrackService implements TrackServiceInterface{
     @Override
     @Transactional
     public TrackResponse uploadTrack(MultipartFile coverImage, MultipartFile trackAudio,TrackRequest trackRequest) {
-        ApiResponse<AddCoverFileResponse> uploadTrackCoverResponse = fileClient.addPlaylistCover(coverImage);
+        ApiResponse<AddCoverFileResponse> uploadTrackCoverResponse = fileClient.addCover(coverImage);
         ApiResponse<AddTrackFileResponse> uploadTrackMp3Response = fileClient.addTrack(trackAudio);
         Track track = trackMapper.toTrackFromTrackRequest(trackRequest);
         
