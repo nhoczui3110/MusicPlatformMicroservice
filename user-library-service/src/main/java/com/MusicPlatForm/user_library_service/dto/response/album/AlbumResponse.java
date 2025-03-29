@@ -23,4 +23,5 @@ public class AlbumResponse {
     String imagePath;
     String userId;
     String id;
+
 }

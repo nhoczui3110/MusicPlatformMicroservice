@@ -12,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -35,5 +37,18 @@ public class AuthAlbumController {
                                                   @Valid @RequestPart("meta-data") AlbumRequest request,
                                                   @RequestPart(value = "cover-album", required = false) MultipartFile coverAlbum) {
         return ApiResponse.<AlbumResponse>builder().data(albumService.editAlbum(request, coverAlbum, albumId)).build();
+    }
+
+    @PostMapping("/like/{albumId}")
+    public ApiResponse<Void> likeAlbum(@PathVariable("albumId") String albumId) {
+        albumService.likeAlbum(albumId);
+        return  ApiResponse.<Void>builder().build();
+    }
+
+    @DeleteMapping("/unlike/{albumId}")
+    public ApiResponse<Void> unLikeAlbum(@PathVariable("albumId") String albumId)
+    {
+        albumService.unLikeAlbum(albumId);
+        return  ApiResponse.<Void>builder().build();
     }
 }

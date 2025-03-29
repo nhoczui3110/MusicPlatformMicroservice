@@ -9,6 +9,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -24,9 +26,16 @@ public class AlbumController {
     }
 
     @GetMapping("/find-by-user-id/{userId}")
-    public ApiResponse<Page<AlbumResponse>> getAlbums(@RequestParam("page") int page, @RequestParam("size") int size
-            , @PathVariable("userId") String userId){
-        return  ApiResponse.<Page<AlbumResponse>>builder().data(albumService.getAlbumByUserId(page, size, userId)).build();
+    public ApiResponse<List<AlbumResponse>> getAlbums(@PathVariable("userId") String userId){
+        return  ApiResponse.<List<AlbumResponse>>builder().data(albumService.getAlbumByUserId(userId)).build();
+    }
+    @GetMapping("/liked-albums/{userId}")
+    public ApiResponse<List<AlbumResponse>> getLikedAlbums(@PathVariable("userId") String userId) {
+        return  ApiResponse.<List<AlbumResponse>>builder().data(albumService.getLikedAlbums(userId)).build();
     }
 
+    @GetMapping("/get-liked-created-album/{userId}")
+    public ApiResponse<List<AlbumResponse>> getAll(@PathVariable("userId") String userId) {
+        return ApiResponse.<List<AlbumResponse>>builder().data(albumService.getCreatedAndLikedAlbum(userId)).build();
+    }
 }

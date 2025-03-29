@@ -3,6 +3,7 @@ package com.MusicPlatForm.user_library_service.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +27,10 @@ public class Album {
 
     @Column(name = "Album_link", nullable = false)
     String albumLink;
+
+    @CreationTimestamp
+    @Column(name="created_at")
+    LocalDateTime createdAt;
 
     @Column(name = "Privacy", nullable = false)
     String privacy;
@@ -51,4 +56,6 @@ public class Album {
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AlbumTag> tags;  // ✅ Corrected from AlbumTrack to AlbumTag
 
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+    private  List<LikedAlbum> likedAlbums;
 }

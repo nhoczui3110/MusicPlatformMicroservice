@@ -13,5 +13,13 @@ import java.util.List;
 
 public interface AlbumRepository extends JpaRepository<Album, String> {
     Page<Album> findByUserId(Pageable pageable, String userid);
-    Page<Album> findByUserIdAndPrivacy(Pageable pageable, String userid, String privacy);
+    List<Album> findByUserId(String userid);
+    List<Album> findByUserIdAndPrivacy(String userid, String privacy);
+    @Query("""
+        SELECT a FROM Album a 
+        LEFT JOIN LikedAlbum la ON la.album.id = a.id AND la.userId = :userId
+        WHERE a.userId = :userId OR la.userId = :userId
+        ORDER BY COALESCE(la.likedAt, a.createdAt) DESC
+    """)
+    List<Album> findCreatedAndLikedAlbums(String userId);
 }

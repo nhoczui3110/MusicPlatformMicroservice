@@ -7,6 +7,7 @@ import com.MusicPlatForm.user_library_service.dto.response.CoverRequest;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
 import com.MusicPlatForm.user_library_service.entity.Album;
 import com.MusicPlatForm.user_library_service.entity.AlbumTag;
+import com.MusicPlatForm.user_library_service.entity.LikedAlbum;
 import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.FileClient;
@@ -14,6 +15,7 @@ import com.MusicPlatForm.user_library_service.mapper.Playlist.AlbumMapper;
 import com.MusicPlatForm.user_library_service.repository.AlbumRepository;
 import com.MusicPlatForm.user_library_service.repository.AlbumTagRepository;
 import com.MusicPlatForm.user_library_service.repository.AlbumTrackRepository;
+import com.MusicPlatForm.user_library_service.repository.LikedAlbumRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,9 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,6 +46,7 @@ public class AlbumService {
     AlbumRepository albumRepository;
     AlbumTrackRepository albumTrackRepository;
     AlbumTagRepository albumTagRepository;
+    LikedAlbumRepository likedAlbumRepository;
     AlbumMapper albumMapper;
     FileClient fileClient;
     @Value("${app.services.file}")
@@ -87,29 +90,28 @@ public class AlbumService {
         return response;
     }
 
-    public Page<AlbumResponse> getAlbumByUserId(int page, int size, String userId) {
+    public List<AlbumResponse> getAlbumByUserId(String userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         String loggingUserId = (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
                 ? null
                 : authentication.getName();
 
-        Pageable pageable = PageRequest.of(page, size);
 
-        Page<Album> albums;
+        List<Album> albums;
         if (loggingUserId == null || !loggingUserId.equals(userId)) {
             // If not logged in or viewing someone else's albums, only get public albums
-            albums = albumRepository.findByUserIdAndPrivacy(pageable, userId, "public");
+            albums = albumRepository.findByUserIdAndPrivacy(userId, "public");
         } else {
             // If viewing own albums, get all (public + private)
-            albums = albumRepository.findByUserId(pageable, userId);
+            albums = albumRepository.findByUserId(userId);
         }
 
-        return albums.map(album -> {
+        return albums.stream().map(album -> {
             AlbumResponse response = albumMapper.toAlbumResponse(album);
             response.setTagsId(album.getTags().stream().map(AlbumTag::getTagId).toList());
             return response;
-        });
+        }).toList();
     }
 
     @Transactional
@@ -176,5 +178,36 @@ public class AlbumService {
         return albumMapper.toAlbumResponse(album);
     }
 
+    public void likeAlbum(String albumId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        Album album = albumRepository.findById(albumId).orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_FOUND));
+        if (likedAlbumRepository.existsByUserIdAndAlbumId(userId, albumId)) {
+            throw new AppException(ErrorCode.ALBUM_ALREADY_LIKED);
+        }
+        LikedAlbum likedAlbum = LikedAlbum.builder().userId(userId).album(album).likedAt(LocalDateTime.now()).build();
+        likedAlbumRepository.save(likedAlbum);
+    }
+
+    public List<AlbumResponse> getLikedAlbums(String userId) {
+        List<LikedAlbum> likedAlbums = likedAlbumRepository.findByUserIdOrderByLikedAtDesc(userId);
+        return likedAlbums.stream()
+                .map(likedAlbum -> albumMapper.toAlbumResponse(likedAlbum.getAlbum()))
+                .toList();
+    }
+
+    public void unLikeAlbum(String albumId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        LikedAlbum likedAlbum = likedAlbumRepository.findByUserIdAndAlbumId(userId, albumId).orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_LIKED));  // Handle if the album is not liked
+
+        likedAlbumRepository.delete(likedAlbum);
+    }
+
+    public List<AlbumResponse> getCreatedAndLikedAlbum(String userId) {
+        List<Album> albums = albumRepository.findCreatedAndLikedAlbums(userId);
+        return albums.stream().map(albumMapper::toAlbumResponse).toList();
+    }
 
 }
