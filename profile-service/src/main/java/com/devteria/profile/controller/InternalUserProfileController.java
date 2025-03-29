@@ -22,6 +22,4 @@ public class InternalUserProfileController {
                 .data(userProfileService.create(request))
                 .build();
     }
-
-
 }

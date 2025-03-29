@@ -18,3 +18,22 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+
+#spring:
+#  datasource:
+#    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+#    url: "jdbc:sqlserver://LAPTOP-3KF7N80A\\SQLEXPRESS:1433;databaseName=identity_service;encrypt=true;trustServerCertificate=true"
+#    username: "sa"
+#    password: "123456789"
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+
+
+
+app:
+  services:
+    file: "http://localhost:8082/file-service"

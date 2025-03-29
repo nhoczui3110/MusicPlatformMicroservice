@@ -11,9 +11,9 @@ public enum ErrorCode {
     UNAUTHENTICATED(1004, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1005, "You dont have permission", HttpStatus.FORBIDDEN),
     PROFILE_NOT_FOUND(1006, "Profile not found", HttpStatus.NOT_FOUND),
-    EMAIL_EXISTED(1007, "Email is existed", HttpStatus.BAD_REQUEST),
+    NOT_FOLLOWING(1007, "You don't follow this user!", HttpStatus.BAD_REQUEST),
     ALREADY_FOLLOWING(1008, "Already following!", HttpStatus.BAD_REQUEST),
-    NOT_FOLLOWING(1009, "You don't follow this user!", HttpStatus.BAD_REQUEST)
+    EMAIL_EXISTED(1014, "Email is existed", HttpStatus.BAD_REQUEST)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: search-service
@@ -16,6 +17,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 server:
+  port: 8084
   servlet:
     context-path: /search
 

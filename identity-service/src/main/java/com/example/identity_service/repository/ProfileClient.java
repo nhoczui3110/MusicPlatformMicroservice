@@ -1,5 +1,6 @@
 package com.example.identity_service.repository;
 
+import com.example.identity_service.configuration.FeignClientConfig;
 import com.example.identity_service.dto.request.ProfileCreationRequest;
 import com.example.identity_service.dto.request.ProfileUpdateRequest;
 import com.example.identity_service.dto.response.UserProfileResponse;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Objects;
 
-@FeignClient(name = "profile-client", url = "${app.services.profile}")
+@FeignClient(name = "profile-client", url = "${app.services.profile}", configuration = FeignClientConfig.class)
 public interface ProfileClient {
     @PostMapping(value = "/internal/users", produces = MediaType.APPLICATION_JSON_VALUE)
     UserProfileResponse createProfile(@RequestBody ProfileCreationRequest request);

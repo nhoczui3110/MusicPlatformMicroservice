@@ -17,6 +17,7 @@ public class UserProfileResponse {
     LocalDate dob;
     Boolean gender;
     String email;
-    String profilePicture;
+    String cover;
+    String avatar;
     String userId;
 }

@@ -3,11 +3,11 @@ package com.MusicPlatForm.user_library_service.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistTrackRequest;
+import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTrackResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistTrackRequest;
-import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTrackResponse;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;
 import com.MusicPlatForm.user_library_service.exception.AppException;
@@ -40,10 +40,10 @@ public class PlaylistTrackService {
     public PlaylistTrackResponse addTrackToPlaylist(AddPlaylistTrackRequest trackRequest){
         PlaylistTrack playlistTrack = playlistTrackMapper.toPlaylistTrack(trackRequest);
         Playlist playlist = playlistRepository.findById(trackRequest.getPlaylistId())
-                                                .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
         playlistTrack.setPlaylist(playlist);
         playlistTrack.setAddedAt(LocalDateTime.now());
-        
+
         PlaylistTrack savedPlaylistTrack = this.playlistTrackRepository.save(playlistTrack);
         PlaylistTrackResponse playlistTrackResponse = this.playlistTrackMapper.toPlaylistTrackResponse(savedPlaylistTrack);
         return playlistTrackResponse;

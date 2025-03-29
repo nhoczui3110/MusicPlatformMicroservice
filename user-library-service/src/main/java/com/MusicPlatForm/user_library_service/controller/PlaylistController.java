@@ -2,6 +2,8 @@ package com.MusicPlatForm.user_library_service.controller;
 
 import java.util.List;
 
+import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,9 +19,11 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistRe
 import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylistInfoRequest;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
-import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
+import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.service.PlaylistService;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -33,7 +37,7 @@ public class PlaylistController {
     //Done
     @GetMapping("/all")
     public ApiResponse<List<PlaylistTypeResponse>> getPlaylist(){
-       return playlistService.getPlaylists();
+        return playlistService.getPlaylists();
     }
     //Done
     @GetMapping("/{id}")
@@ -45,9 +49,9 @@ public class PlaylistController {
     public ApiResponse<PlaylistResponse> savePlaylist(@Valid @RequestBody AddPlaylistRequest request){
         PlaylistResponse playlistResponse = playlistService.addPlaylist(request);
         return ApiResponse.<PlaylistResponse>builder()
-                    .code(200)
-                    .data(playlistResponse)
-                    .build();
+                .code(200)
+                .data(playlistResponse)
+                .build();
     }
 
     //done
@@ -55,9 +59,9 @@ public class PlaylistController {
     public ApiResponse<PlaylistResponse> updatePlaylistInfo(@RequestPart(name = "image") MultipartFile image, @RequestPart(name = "playlist") UpdatePlaylistInfoRequest updatePlaylistInfoRequest){
         PlaylistResponse playlistResponse =  playlistService.updatePlaylistInfo(image, updatePlaylistInfoRequest);
         return ApiResponse.<PlaylistResponse>builder()
-                    .code(200)
-                    .data(playlistResponse)
-                    .build();
+                .code(200)
+                .data(playlistResponse)
+                .build();
     }
 
     //done
@@ -65,8 +69,8 @@ public class PlaylistController {
     public ApiResponse<String> deleteTrackById(@PathVariable String id){
         playlistService.deletePlaylistById(id);
         return ApiResponse.<String>builder()
-                    .code(200)
-                    .data("Delete successfully")
-                    .build();
+                .code(200)
+                .data("Delete successfully")
+                .build();
     }
 }

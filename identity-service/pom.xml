@@ -48,16 +48,16 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!--		<dependency>-->
-		<!--			<groupId>com.microsoft.sqlserver</groupId>-->
-		<!--			<artifactId>mssql-jdbc</artifactId>-->
-		<!--			<scope>runtime</scope>-->
-		<!--		</dependency>-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+				<dependency>
+					<groupId>com.microsoft.sqlserver</groupId>
+					<artifactId>mssql-jdbc</artifactId>
+					<scope>runtime</scope>
+				</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-test</artifactId>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
@@ -126,5 +126,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
+<!--	<lastname></lastname>-->
 </project>

@@ -5,7 +5,9 @@ import com.example.identity_service.dto.request.IntrospectRequest;
 import com.example.identity_service.dto.request.LogoutRequest;
 import com.example.identity_service.dto.request.RefreshTokenRequest;
 import com.example.identity_service.dto.response.AuthenticatedResponse;
+import com.example.identity_service.dto.response.CheckUsernameResponse;
 import com.example.identity_service.dto.response.IntrospectResponse;
+import com.example.identity_service.dto.response.UrlLoginGoogleResponse;
 import com.example.identity_service.entity.InvalidatedToken;
 import com.example.identity_service.entity.Role;
 import com.example.identity_service.entity.User;
@@ -27,16 +29,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.UUID;
+import java.util.*;
 
 
 @Slf4j
@@ -56,6 +58,7 @@ public class AuthenticateService {
     protected Long VALID_DURATION;
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
+    ClientRegistrationRepository clientRegistrationRepository;
     public AuthenticatedResponse authenticate(AuthenticatedRequest authenticatedRequest) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         String username = authenticatedRequest.getUsername();
@@ -147,5 +150,35 @@ public class AuthenticateService {
             });
         }
         return stringJoiner.toString();
+    }
+
+    public UrlLoginGoogleResponse getUrlGoogle() {
+        ClientRegistration google = clientRegistrationRepository.findByRegistrationId("google");
+
+        if (google == null) {
+            throw new IllegalStateException("Google client registration not found");
+        }
+
+        String authorizationUri = google.getProviderDetails().getAuthorizationUri();
+        String clientId = google.getClientId();
+        String redirectUri = google.getRedirectUri();
+        String scope = String.join(" ", google.getScopes());
+
+        String googleLoginUrl = UriComponentsBuilder.fromHttpUrl(authorizationUri)
+                .queryParam("client_id", clientId)
+                .queryParam("redirect_uri", redirectUri)
+                .queryParam("response_type", "code")
+                .queryParam("scope", scope)
+                .queryParam("access_type", "offline")
+                .queryParam("prompt", "consent")
+                .toUriString();
+
+
+        return UrlLoginGoogleResponse.builder().url(googleLoginUrl).build();
+    }
+    public CheckUsernameResponse checkUsername(String username) {
+        if ( userRepository.findByUsername(username).isEmpty()) {
+            return  CheckUsernameResponse.builder().isExisted(false).build();
+        } return  CheckUsernameResponse.builder().isExisted(true).build();
     }
 }

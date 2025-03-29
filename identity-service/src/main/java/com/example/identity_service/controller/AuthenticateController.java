@@ -2,7 +2,9 @@ package com.example.identity_service.controller;
 
 import com.example.identity_service.dto.request.*;
 import com.example.identity_service.dto.response.AuthenticatedResponse;
+import com.example.identity_service.dto.response.CheckUsernameResponse;
 import com.example.identity_service.dto.response.IntrospectResponse;
+import com.example.identity_service.dto.response.UrlLoginGoogleResponse;
 import com.example.identity_service.service.AuthenticateService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.validation.Valid;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +27,7 @@ import java.util.Map;
 @Slf4j
 public class AuthenticateController {
     AuthenticateService authenticateService;
+    ClientRegistrationRepository clientRegistrationRepository;
     @PostMapping("/login")
     ApiResponse<AuthenticatedResponse> login(@RequestBody @Valid AuthenticatedRequest request) {
         AuthenticatedResponse result = authenticateService.authenticate(request);
@@ -44,7 +48,7 @@ public class AuthenticateController {
         return ApiResponse.<AuthenticatedResponse>builder().data(authenticateService.refreshToken(request)).build();
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public String home() {
         return "Welcome! <a href='/oauth2/authorization/google'>Login with Google</a>";
     }
@@ -52,5 +56,15 @@ public class AuthenticateController {
     @GetMapping("/user")
     public Map<String, Object> getUserInfo(@AuthenticationPrincipal OAuth2User user) {
         return user.getAttributes();
+    }
+
+    @GetMapping("/google-url")
+    public ApiResponse<UrlLoginGoogleResponse> getGoogleLoginUrl() {
+        return ApiResponse.<UrlLoginGoogleResponse>builder().data(authenticateService.getUrlGoogle()).build();
+    }
+
+    @GetMapping("/check-username/{username}")
+    ApiResponse<CheckUsernameResponse> isUsernameExisted(@PathVariable("username") String username) {
+        return ApiResponse.<CheckUsernameResponse>builder().data(authenticateService.checkUsername(username)).build();
     }
 }

@@ -16,7 +16,15 @@ public enum ErrorCode {
     NOT_FOLLOWING(1009, "You don't follow this user!", HttpStatus.BAD_REQUEST),
     NOT_FOUND(404, "Not found", HttpStatus.NOT_FOUND),
     PLAYLIST_NOT_FOUND(404, "Playlist not found", HttpStatus.NOT_FOUND),
-    LIKED_NOT_ALLOWED(405,"You can not like your track",HttpStatus.NOT_MODIFIED),
+    ALBUM_TITLE_REQUIRED(1010, "Album title is required", HttpStatus.BAD_REQUEST),
+    ALBUM_LINK_REQUIRED(1011, "Album link is required", HttpStatus.BAD_REQUEST),
+    ALBUM_GENRE_ID_REQUIRED(1012, "Genre Id is required", HttpStatus.BAD_REQUEST),
+    ALBUM_TYPE_REQUIRED(1013, "Album type is required", HttpStatus.BAD_REQUEST),
+    ALBUM_PRIVACY_REQUIRED(1014, "Album privacy is required", HttpStatus.BAD_REQUEST),
+    ALBUM_MAIN_ARTIST_REQUIRED(1015, "Main artists is required", HttpStatus.BAD_REQUEST),
+    ALBUM_PRIVACY_INVALID(1016, "Album privacy must be either 'private' or 'public'", HttpStatus.BAD_REQUEST),
+    ALBUM_NOT_FOUND(1017, "Album not found", HttpStatus.NOT_FOUND),
+    TAG_NOT_FOUND(1018, "Tag not found", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

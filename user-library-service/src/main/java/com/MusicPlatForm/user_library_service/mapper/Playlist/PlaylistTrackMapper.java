@@ -12,11 +12,12 @@ import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;
 @Mapper(componentModel = "spring")
 public interface PlaylistTrackMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "addedAt", ignore = true) 
+    @Mapping(target = "addedAt", ignore = true)
     @Mapping(target = "playlist", ignore = true)
     PlaylistTrack toPlaylistTrack(AddPlaylistTrackRequest addPlaylistTrackRequest);
 
     List<PlaylistTrack> toPlaylistTracks(List<AddPlaylistTrackRequest> addPlaylistTrackRequests);
     List<PlaylistTrackResponse> toPlaylistTracksResponse(List<PlaylistTrack> playlistTracks);
     PlaylistTrackResponse toPlaylistTrackResponse(PlaylistTrack playlistTrack);
+    
 }

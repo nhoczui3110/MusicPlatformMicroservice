@@ -1,0 +1,54 @@
+package com.MusicPlatForm.user_library_service.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Entity
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
+public class Album {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    String id;
+
+    @Column(name = "Album_title", nullable = false)
+    String albumTitle;
+
+    @Column(name = "Description", nullable = true)
+    String description;
+
+    @Column(name = "Album_link", nullable = false)
+    String albumLink;
+
+    @Column(name = "Privacy", nullable = false)
+    String privacy;
+
+    @Column(name = "User_id", nullable = false)
+    String userId;
+
+    @Column(name = "Image_path", nullable = false)
+    String imagePath;
+
+    @Column(name = "Album_type", nullable = false)
+    String albumType;
+
+    @Column(name = "Genre_id", nullable = false)
+    String genreId;
+
+    @Column(name = "Main_artists", nullable = false)
+    String mainArtists;
+
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AlbumTrack> tracks;
+
+    @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AlbumTag> tags;  // ✅ Corrected from AlbumTrack to AlbumTag
+
+}

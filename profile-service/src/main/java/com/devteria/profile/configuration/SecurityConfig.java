@@ -14,20 +14,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private  final  String[] PUBLIC_ENDPOINT = {"/follows/**"};
+    private final String[] PUBLIC_ENDPOINT = {"/follows/**", "/internal/users"};
+
     @Autowired
     private  CustomJwtDecoder customJwtDecoder;
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception  {
-        httpSecurity.authorizeHttpRequests(request ->
-                request.requestMatchers(PUBLIC_ENDPOINT).permitAll()
-                        .anyRequest().authenticated());
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+                .csrf(csrf -> csrf.disable()) // Tắt CSRF trước để đảm bảo nó không bị ghi đè
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                                .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
+                                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                );
 
-        httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
-                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-        );
         return httpSecurity.build();
     }
 

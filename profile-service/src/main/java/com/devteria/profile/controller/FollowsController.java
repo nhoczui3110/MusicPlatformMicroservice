@@ -2,10 +2,12 @@ package com.devteria.profile.controller;
 
 import com.devteria.profile.dto.request.AddFollowRequest;
 import com.devteria.profile.dto.request.ApiResponse;
+import com.devteria.profile.dto.request.ProfileCreationRequest;
 import com.devteria.profile.dto.response.UserProfileResponse;
 import com.devteria.profile.entity.Follows;
 import com.devteria.profile.entity.UserProfile;
 import com.devteria.profile.service.FollowsService;
+import com.devteria.profile.service.UserProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -35,4 +37,6 @@ public class FollowsController {
                                                                 @PathVariable("userId") String userId) {
         return ApiResponse.<Page<UserProfileResponse>>builder().data(followsService.getFollowing(page, size, userId)).build();
     }
+
+
 }

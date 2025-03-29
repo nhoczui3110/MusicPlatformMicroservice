@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,7 +25,7 @@ import javax.crypto.spec.SecretKeySpec;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private  final String[] PUBLIC_ENDPOINT = {"/authenticate/*", "/users/registration"};
+    private  final String[] PUBLIC_ENDPOINT = {"/authenticate/**", "/users/registration"};
     @Value("${jwt.signerKey}")
     private String signerKey;
 
@@ -34,17 +35,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINT).permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINT).permitAll()
+                        .requestMatchers("/login/**").permitAll()  // Cho phép tất cả request vào `/login/**`
                         .anyRequest().authenticated()
                 )
-
-                // Enable OAuth2 Login (for Google, GitHub, etc.)
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/user", true) // Redirect after login
+                        .defaultSuccessUrl("/user", true) // Redirect to /user after successful login
                         .failureUrl("/login?error=true")  // Redirect if login fails
                 )
-
-                // OAuth2 Resource Server (for JWT authentication)
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer
                                 .decoder(customJwtDecoder)
@@ -52,8 +50,6 @@ public class SecurityConfig {
                         )
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
-
-                // Disable CSRF for APIs (if needed)
                 .csrf(AbstractHttpConfigurer::disable);
 
         return httpSecurity.build();

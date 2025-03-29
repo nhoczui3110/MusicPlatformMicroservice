@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     INVALID_KEY(9998, "Invalid key", HttpStatus.BAD_REQUEST),
     UNCATEGORIZED(9999, "Uncategorized Exception", HttpStatus.INTERNAL_SERVER_ERROR),
-    USER_EXISTED(1000, "User existed!", HttpStatus.BAD_REQUEST),
     PASSWORD_MIN(1001, "Password must be at least {min} character", HttpStatus.BAD_REQUEST),
     USERNAME_MIN(1002, "Username must be at least {min} character", HttpStatus.BAD_REQUEST),
     USER_NOT_EXISTED(1003, "User not existed", HttpStatus.NOT_FOUND),
@@ -22,7 +21,9 @@ public enum ErrorCode {
     USER_ID_REQUIRED(1011, "User Id is required!", HttpStatus.BAD_REQUEST),
     OLD_PASSWORD_REQUIRED(1012, "Old password is required!", HttpStatus.BAD_REQUEST),
     NEW_PASSWORD_REQUIRED(1013, "New password is required!", HttpStatus.BAD_REQUEST),
-    CONFIRM_NEW_PASSWORD_REQUIRED(1014, "Confirm new password is required!", HttpStatus.BAD_REQUEST),
+    EMAIL_EXISTED(1014, "Email existed!", HttpStatus.BAD_REQUEST),
+    CONFIRM_NEW_PASSWORD_REQUIRED(1015, "Confirm new password is required!", HttpStatus.BAD_REQUEST),
+    USER_EXISTED(1016, "User existed!", HttpStatus.BAD_REQUEST),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

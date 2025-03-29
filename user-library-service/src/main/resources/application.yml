@@ -1,10 +1,14 @@
+server:
+  port: 8085
+  servlet:
+    context-path: /user-library
 spring:
   application:
     name: user-library-service
   datasource:
-    url: jdbc:sqlserver://localhost:1432;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
+    url: jdbc:sqlserver://localhost:1433;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
     username: sa
-    password: YourStrong!Passw0rd
+    password: 123456789
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
@@ -14,4 +18,4 @@ spring:
     defer-datasource-initialization: true
 app:
     services:
-        file: http://localhost:8081/file-service
+        file: http://localhost:8083/file-service

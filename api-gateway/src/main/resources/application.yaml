@@ -20,3 +20,9 @@ spring:
             - Path=${app.api-prefix}/profile/**
           filters:
             - StripPrefix=1
+        - id: user-library-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=${app.api-prefix}/user-library/**
+          filters:
+            - StripPrefix=1

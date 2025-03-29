@@ -131,7 +131,7 @@ public class ImageRestController {
 
     @DeleteMapping("delete-cover")
     public ResponseEntity<ApiResponse<String>> deleteCover(@RequestBody CoverRequest coverRequest) throws IOException, NoSuchFileException{
-        imageService.deleteAvatar(coverRequest.getCoverName());
+        imageService.deleteCover(coverRequest.getCoverName());
         return ResponseEntity.ok().body(
             ApiResponse.<String>
                 builder()

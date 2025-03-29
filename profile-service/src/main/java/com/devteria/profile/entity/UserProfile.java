@@ -25,7 +25,8 @@ public class UserProfile {
     LocalDate dob;
     Boolean gender;
     String email;
-    String profilePicture;
+    String cover;
+    String avatar;
     LocalDateTime updateAt;
     LocalDateTime createdAt;
     @OneToMany(mappedBy = "follower",targetEntity = Follows.class ,cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
