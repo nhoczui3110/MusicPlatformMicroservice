@@ -13,7 +13,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrackRequest{
-    private String name;
+    private String id;
+    private String title;
     private String description;
     private String userId;
     private String privacy;

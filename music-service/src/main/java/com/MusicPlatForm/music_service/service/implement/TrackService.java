@@ -1,6 +1,7 @@
 package com.MusicPlatForm.music_service.service.implement;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -18,6 +19,8 @@ import com.MusicPlatForm.music_service.entity.Genre;
 import com.MusicPlatForm.music_service.entity.Tag;
 import com.MusicPlatForm.music_service.entity.Track;
 import com.MusicPlatForm.music_service.entity.TrackTag;
+import com.MusicPlatForm.music_service.exception.AppException;
+import com.MusicPlatForm.music_service.exception.ErrorCode;
 import com.MusicPlatForm.music_service.httpclient.FileClient;
 import com.MusicPlatForm.music_service.mapper.GenreMapper;
 import com.MusicPlatForm.music_service.mapper.TagMapper;
@@ -67,6 +70,33 @@ public class TrackService implements TrackServiceInterface{
         return trackResponse;
     }
 
+    public List<TrackResponse> uploadTracks(List<MultipartFile> trackFiles, List<TrackRequest> trackRequests){
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        ApiResponse<List<AddTrackFileResponse>> addTrackFilesResponse = fileClient.addTracks(trackFiles);
+        int index = 0;
+        for(TrackRequest trackRequest: trackRequests){
+            Track track = trackMapper.toTrackFromTrackRequest(trackRequest);
+            track.setCreatedAt(LocalDateTime.now());
+            track.setDuration(addTrackFilesResponse.getData().get(index).getDuration());
+            track.setFileName(addTrackFilesResponse.getData().get(index).getTrack());
+            List<Tag> tags = this.tagRepository.findAllById(trackRequest.getTagIds());
+            List<TrackTag> trackTags = tags.stream()
+                                        .map(tag-> new TrackTag(tag,track))
+                                        .collect(Collectors.toList());
+            track.setTrackTags(trackTags);
+            
+            Genre genre = this.genreRepository.findById(trackRequest.getGenreId()).orElse(null);
+            track.setGenre(genre);
+            Track savedTrack =  trackRepository.save(track);
+    
+            TrackResponse trackResponse = this.trackMapper.toTrackResponseFromTrack(savedTrack);
+            trackResponse.setTags(this.tagMapper.toTagResponsesFromTags(tags));
+            trackResponse.setGenre(this.genreMapper.toGenreResponseFromGenre(genre));
+            trackResponses.add(trackResponse);
+        }
+        return trackResponses;
+    }
+
     @Override
     public TrackResponse getTrackById(String id) {
 
@@ -82,6 +112,17 @@ public class TrackService implements TrackServiceInterface{
     public List<TrackResponse> getTracksByIds(List<String> ids) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'getTracksByIds'");
+    }
+
+    public void deleteTrack(String trackId){
+        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // String userId = authentication.getName();
+        String userId = "user1";
+        Track track = trackRepository.findById(trackId).orElseThrow(()->new AppException(ErrorCode.TRACK_NOT_FOUND));
+        if(!track.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
+        trackRepository.delete(track);
+
+        
     }
     
 }

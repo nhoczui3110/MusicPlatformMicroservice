@@ -5,10 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -60,6 +62,15 @@ public class MusicRestController {
                                     .build()
                                 );
     }
+
+    @PostMapping("/add-tracks")
+    public ApiResponse<List<TrackResponse>> addTracks(@RequestPart List<MultipartFile> trackFiles)throws IOException{
+        List<TrackResponse> trackResponses = musicService.addTracks(trackFiles);
+        return ApiResponse.<List<TrackResponse>>builder()
+                                .code(HttpStatus.OK.value())
+                                .data(trackResponses)
+                                .build();
+    } 
     @DeleteMapping("delete-track/{trackName}")
     public ResponseEntity<ApiResponse<String>> deleteTrack(@PathVariable String trackName) throws IOException,NoSuchFileException{
         musicService.deleteTrack(trackName);

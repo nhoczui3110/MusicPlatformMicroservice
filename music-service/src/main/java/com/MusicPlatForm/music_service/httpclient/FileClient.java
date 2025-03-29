@@ -1,5 +1,7 @@
 package com.MusicPlatForm.music_service.httpclient;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,5 +30,8 @@ public interface FileClient {
     public ApiResponse<AddCoverFileResponse> addCover(@RequestPart MultipartFile cover);
     @PostMapping(value = "/music/add-track",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<AddTrackFileResponse> addTrack(@RequestPart MultipartFile track);
+    @PostMapping(value = "/music/add-tracks",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<List<AddTrackFileResponse>> addTracks(@RequestPart List<MultipartFile> tracks);
+    
 
 }

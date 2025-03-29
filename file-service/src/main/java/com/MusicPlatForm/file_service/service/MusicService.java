@@ -7,6 +7,8 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -55,6 +57,21 @@ public class MusicService {
                             .duration(duration)
                             .track(name)
                             .build();
+    }
+
+    public List<TrackResponse> addTracks(List<MultipartFile> trackFiles) throws IOException{
+           List<TrackResponse> trackResponses = new ArrayList<>();
+           for(MultipartFile trackFile: trackFiles){
+                String name = Instant.now().getEpochSecond() + trackFile.getOriginalFilename();
+                Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(name);
+                Files.write(filePath, trackFile.getBytes());
+                String duration = getDuration(filePath.toString());
+                trackResponses.add(TrackResponse.builder()
+                                .duration(duration)
+                                .track(name)
+                                .build());
+           }
+           return trackResponses;
     }
 
     public void deleteTrack(String trackName) throws IOException, NoSuchFileException{

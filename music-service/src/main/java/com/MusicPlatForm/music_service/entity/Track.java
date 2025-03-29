@@ -31,8 +31,8 @@ public class Track {
     @Column(name = "Id")
     String id;
 
-    @Column(name = "Name", nullable = false)
-    String name;
+    @Column(name = "Title", nullable = false)
+    String title;
 
     @Column(name = "Description")
     String description;
