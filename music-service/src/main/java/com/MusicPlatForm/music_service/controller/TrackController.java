@@ -43,8 +43,8 @@ public class TrackController {
                         .build();
     }
 
-    @PostMapping(value = "/add/multi")
-    public ApiResponse<List<TrackResponse>> addTracks(@RequestPart List<MultipartFile> trackFiles,List<TrackRequest> trackRequests){
+    @PostMapping(value = "/add/multi", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<List<TrackResponse>> addTracks(@RequestPart List<MultipartFile> trackFiles, @RequestPart List<TrackRequest> trackRequests){
         List<TrackResponse> trackResponses = trackService.uploadTracks(trackFiles, trackRequests);
         return ApiResponse.<List<TrackResponse>>builder()
                     .code(HttpStatus.OK.value())

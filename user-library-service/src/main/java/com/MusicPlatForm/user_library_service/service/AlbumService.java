@@ -1,16 +1,19 @@
 package com.MusicPlatForm.user_library_service.service;
 
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
+import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.CoverRequest;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.entity.Album;
 import com.MusicPlatForm.user_library_service.entity.AlbumTag;
 import com.MusicPlatForm.user_library_service.entity.LikedAlbum;
 import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.FileClient;
+import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.AlbumMapper;
 import com.MusicPlatForm.user_library_service.repository.AlbumRepository;
 import com.MusicPlatForm.user_library_service.repository.AlbumTagRepository;
@@ -49,11 +52,12 @@ public class AlbumService {
     LikedAlbumRepository likedAlbumRepository;
     AlbumMapper albumMapper;
     FileClient fileClient;
+    MusicClient musicClient;
     @Value("${app.services.file}")
     @NonFinal
     String fileServiceUrl;
     @Transactional
-    public AlbumResponse addAlbum(AlbumRequest request, MultipartFile coverAlbum) {
+    public AlbumResponse addAlbum(AlbumRequest request, MultipartFile coverAlbum, List<MultipartFile> trackFiles, List<TrackRequest> trackRequests) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -63,6 +67,11 @@ public class AlbumService {
             ApiResponse<AddCoverFileResponse> coverFileResponse = fileClient.addCover(coverAlbum);
             String nameImage = coverFileResponse.getData().getCoverName();
             newAlbum.setImagePath(fileServiceUrl + "/image/" + "cover/" + nameImage);
+        }
+        if (trackFiles != null && !trackFiles.isEmpty()) {
+            ApiResponse<List<TrackResponse>> tracksResponse = musicClient.addMultiTrack(trackFiles
+                            .toArray(new MultipartFile[0]),
+                            trackRequests.toArray(new TrackRequest[0]));
         }
         List<String> tagsId = request.getTagsId();
         List<AlbumTag> albumTags = tagsId.stream()

@@ -1,4 +1,4 @@
-package com.MusicPlatForm.music_service.dto.reponse;
+package com.MusicPlatForm.user_library_service.dto.response.client;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,9 +12,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TagResponse {
+public class GenreResponse {
     String id;
     String name;
     LocalDateTime createdAt;
-    String userId;   
 }

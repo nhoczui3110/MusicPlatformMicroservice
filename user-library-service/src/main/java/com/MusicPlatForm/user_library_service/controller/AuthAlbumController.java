@@ -1,6 +1,7 @@
 package com.MusicPlatForm.user_library_service.controller;
 
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
+import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
 import com.MusicPlatForm.user_library_service.service.AlbumService;
@@ -22,8 +23,12 @@ public class AuthAlbumController {
     AlbumService  albumService;
 
     @PostMapping(path = "/add-album", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ApiResponse<AlbumResponse> addAlbum(@Valid @RequestPart("meta-data") AlbumRequest request, @RequestPart(value = "cover-album", required = false) MultipartFile coverAlbum) {
-        return  ApiResponse.<AlbumResponse>builder().data(albumService.addAlbum(request, coverAlbum)).build();
+    public ApiResponse<AlbumResponse> addAlbum(@Valid @RequestPart("meta-data") AlbumRequest request,
+                                               @RequestPart(value = "cover-album", required = false) MultipartFile coverAlbum,
+                                               @RequestPart(value = "track-request") List<TrackRequest> trackRequests,
+                                               @RequestPart(value = "track-files") List<MultipartFile> trackFiles
+                                               ) {
+        return  ApiResponse.<AlbumResponse>builder().data(albumService.addAlbum(request, coverAlbum, trackFiles, trackRequests)).build();
     }
 
     @DeleteMapping(path = "/{albumId}")

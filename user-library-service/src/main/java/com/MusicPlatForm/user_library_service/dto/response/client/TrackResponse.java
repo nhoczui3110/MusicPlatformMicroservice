@@ -1,4 +1,4 @@
-package com.MusicPlatForm.music_service.dto.reponse;
+package com.MusicPlatForm.user_library_service.dto.response.client;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -7,14 +7,27 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TagResponse {
+public class TrackResponse {
     String id;
     String name;
+    String description;
+    String fileName;
+    String coverImageName;
     LocalDateTime createdAt;
-    String userId;   
+    String userId;
+
+    String duration;
+    String privacy;
+
+
+    GenreResponse genre;
+
+    List<TagResponse> tags;
+
 }

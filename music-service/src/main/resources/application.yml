@@ -2,9 +2,9 @@ spring:
   application:
     name: music-service
   datasource:
-    url: jdbc:sqlserver://localhost:1435;databaseName=Music;encrypt=true;trustServerCertificate=true
+    url: jdbc:sqlserver://localhost:1433;databaseName=Music;encrypt=true;trustServerCertificate=true
     username: sa
-    password: YourStrong!Passw0rd
+    password: 123456789
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
@@ -15,9 +15,9 @@ spring:
     defer-datasource-initialization: true
 app:
     services:
-        file: http://localhost:8080/file-service
+        file: http://localhost:8083/file-service
 
 server:
   port: 8082
   servlet:
-    context-path: /music
+    context-path: /music-service

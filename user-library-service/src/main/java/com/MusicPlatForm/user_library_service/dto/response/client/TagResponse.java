@@ -1,4 +1,4 @@
-package com.MusicPlatForm.music_service.dto.reponse;
+package com.MusicPlatForm.user_library_service.dto.response.client;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,5 +16,5 @@ public class TagResponse {
     String id;
     String name;
     LocalDateTime createdAt;
-    String userId;   
+    String userId;
 }

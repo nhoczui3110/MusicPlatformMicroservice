@@ -19,3 +19,4 @@ spring:
 app:
     services:
         file: http://localhost:8083/file-service
+        music: http://localhost:8082/music-service
