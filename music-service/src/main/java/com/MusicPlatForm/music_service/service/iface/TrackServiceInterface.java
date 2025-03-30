@@ -19,6 +19,13 @@ public interface TrackServiceInterface {
     public TrackResponse uploadTrack(MultipartFile coverImage,MultipartFile trackAudio,TrackRequest trackRequest);
     
     /**
+     *Upload multi tracks 
+     * @param trackFiles
+     * @param trackRequests
+     * @return
+     */
+    public List<TrackResponse> uploadTracks(List<MultipartFile> trackFiles, List<TrackRequest> trackRequests);
+    /**
      * Get track by id
      * @param id
      * @return TrackDto
@@ -26,10 +33,17 @@ public interface TrackServiceInterface {
      */
     public TrackResponse getTrackById(String id);
 
+    public List<TrackResponse>getTrackByIds(List<String> ids);
     /**
      * Get list of tracks by their id
      * @param ids
      * @return List TrackDto
      */
     public List<TrackResponse> getTracksByIds(List<String> ids);
+
+    /**
+     * Delete track by track id
+     * @param trackId
+     */
+    public void deleteTrack(String trackId);
 }

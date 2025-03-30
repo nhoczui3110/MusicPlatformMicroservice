@@ -3,7 +3,6 @@ package com.MusicPlatForm.music_service.service.implement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -106,6 +105,20 @@ public class TrackService implements TrackServiceInterface{
         trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
         trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
         return trackResponse;
+    }
+
+    public List<TrackResponse> getTrackByIds(List<String> ids) {
+
+        List<Track> tracks = this.trackRepository.findAllById(ids);
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        for(Track track:tracks){
+            TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
+            List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
+            trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
+            trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponses.add(trackResponse);
+        }
+        return trackResponses;
     }
 
     @Override

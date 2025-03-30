@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.MusicPlatForm.music_service.dto.reponse.ApiResponse;
 import com.MusicPlatForm.music_service.dto.reponse.TrackResponse;
 import com.MusicPlatForm.music_service.dto.request.TrackRequest;
-import com.MusicPlatForm.music_service.service.implement.TrackService;
+import com.MusicPlatForm.music_service.service.iface.TrackServiceInterface;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrackController {
-    TrackService trackService;
+    TrackServiceInterface trackService;
     @GetMapping("/test")
     public void a(){}
     @PostMapping(value = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -62,5 +63,10 @@ public class TrackController {
     public ApiResponse<?> getTrackById(@PathVariable String id){
         TrackResponse track = this.trackService.getTrackById(id);
         return ApiResponse.<TrackResponse> builder().code(HttpStatus.OK.value()).data(track).build();
+    }
+    @GetMapping("/list")
+    public ApiResponse<List<TrackResponse>> getTrackByIds(@RequestBody List<String> ids){
+        List<TrackResponse> tracks = this.trackService.getTrackByIds(ids);
+        return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
     }
 }
