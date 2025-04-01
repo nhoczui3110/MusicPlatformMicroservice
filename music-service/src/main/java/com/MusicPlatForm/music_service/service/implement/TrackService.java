@@ -24,9 +24,7 @@ import com.MusicPlatForm.music_service.httpclient.FileClient;
 import com.MusicPlatForm.music_service.mapper.GenreMapper;
 import com.MusicPlatForm.music_service.mapper.TagMapper;
 import com.MusicPlatForm.music_service.mapper.TrackMapper;
-import com.MusicPlatForm.music_service.repository.GenreRepository;
-import com.MusicPlatForm.music_service.repository.TagRepository;
-import com.MusicPlatForm.music_service.repository.TrackRepository;
+import com.MusicPlatForm.music_service.repository.*;
 import com.MusicPlatForm.music_service.service.iface.TrackServiceInterface;
 
 import lombok.AllArgsConstructor;
@@ -107,7 +105,8 @@ public class TrackService implements TrackServiceInterface{
         return trackResponse;
     }
 
-    public List<TrackResponse> getTrackByIds(List<String> ids) {
+    @Override
+    public List<TrackResponse> getTracksByIds(List<String> ids) {
 
         List<Track> tracks = this.trackRepository.findAllById(ids);
         List<TrackResponse> trackResponses = new ArrayList<>();
@@ -122,11 +121,6 @@ public class TrackService implements TrackServiceInterface{
     }
 
     @Override
-    public List<TrackResponse> getTracksByIds(List<String> ids) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTracksByIds'");
-    }
-
     public void deleteTrack(String trackId){
         // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         // String userId = authentication.getName();
@@ -137,5 +131,55 @@ public class TrackService implements TrackServiceInterface{
 
         
     }
+
+    @Override
+    public List<TrackResponse> getTracksByGenre(String genreId,int limit) {
+        List<Track> tracks= trackRepository.findRandomTracksByGenre(genreId,limit);
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        for(Track track:tracks){
+            TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
+            List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
+            trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
+            // trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponses.add(trackResponse);
+        }
+        return trackResponses;
+    }
+
+    @Override
+    public List<List<TrackResponse>> getRelatedTracksForIds(List<String> ids,int limit) {
+        List<Track> tracks = this.trackRepository.findAllById(ids);
+        List<List<TrackResponse>> listOfListTrackResponses = new ArrayList<>();
+        List<TrackResponse> trackResponses;
+        TrackResponse trackResponse;
+        for(Track track:tracks){
+            Genre genre = track.getGenre();
+            if(genre !=null){
+                trackResponses= getTracksByGenre(genre.getId(), limit-1);
+                trackResponses.addFirst(trackMapper.toTrackResponseFromTrack(track));
+            }
+            else{
+                trackResponse = trackMapper.toTrackResponseFromTrack(track);
+                trackResponses = List.of(trackResponse);
+            }
+            listOfListTrackResponses.add(trackResponses);
+        }
+        return listOfListTrackResponses;
+    }
+
+    @Override
+    public List<TrackResponse> getRandomTracks(int limit) {
+        List<Track> tracks = this.trackRepository.findRandomTracks(limit);
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        for(Track track:tracks){
+            TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
+            List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
+            trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
+            trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponses.add(trackResponse);
+        }
+        return trackResponses;
+    }
+
     
 }

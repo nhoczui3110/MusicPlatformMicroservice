@@ -33,7 +33,6 @@ public interface TrackServiceInterface {
      */
     public TrackResponse getTrackById(String id);
 
-    public List<TrackResponse>getTrackByIds(List<String> ids);
     /**
      * Get list of tracks by their id
      * @param ids
@@ -46,4 +45,10 @@ public interface TrackServiceInterface {
      * @param trackId
      */
     public void deleteTrack(String trackId);
+
+    public List<TrackResponse> getTracksByGenre(String genreId,int limit);
+
+    public List<List<TrackResponse>> getRelatedTracksForIds(List<String>ids,int limit);
+
+    public List<TrackResponse> getRandomTracks(int limit);
 }

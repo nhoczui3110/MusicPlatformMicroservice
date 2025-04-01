@@ -2,16 +2,15 @@ package com.MusicPlatForm.music_service.controller;
 
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -65,8 +64,26 @@ public class TrackController {
         return ApiResponse.<TrackResponse> builder().code(HttpStatus.OK.value()).data(track).build();
     }
     @GetMapping("/list")
-    public ApiResponse<List<TrackResponse>> getTrackByIds(@RequestBody List<String> ids){
-        List<TrackResponse> tracks = this.trackService.getTrackByIds(ids);
+    public ApiResponse<List<TrackResponse>> getTracksByIds(@RequestParam List<String> ids){
+        List<TrackResponse> tracks = this.trackService.getTracksByIds(ids);
         return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
     }
+    @GetMapping("/list-by-genre")
+    public ApiResponse<List<TrackResponse>> getTracksByGenre(@RequestParam String genreId,@RequestParam int limit){
+        List<TrackResponse> tracks = this.trackService.getTracksByGenre(genreId, limit);
+        return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
+    }
+    @GetMapping("/list-ids-related")
+    public ApiResponse<?> getRelatedTracksForIds(@RequestParam(name = "track-ids") List<String> trackIds, @RequestParam(name = "limit") int limit) {
+        return ApiResponse.builder()
+            .data(trackService.getRelatedTracksForIds(trackIds, limit))
+            .code(200).build();
+    }
+    @GetMapping("/random")
+    public ApiResponse<?> getRandomTracks( @RequestParam(name = "limit") int limit) {
+        return ApiResponse.builder()
+            .data(trackService.getRandomTracks(limit))
+            .code(200).build();
+    }
+    
 }
