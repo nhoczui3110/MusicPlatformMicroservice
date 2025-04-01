@@ -6,9 +6,9 @@ spring:
   application:
     name: user-library-service
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
+    url: jdbc:sqlserver://localhost:1432;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
     username: sa
-    password: 123456789
+    password: YourStrong!Passw0rd
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
@@ -20,3 +20,11 @@ app:
     services:
         file: http://localhost:8083/file-service
         music: http://localhost:8082/music-service
+
+track:
+  related:
+    limit: 20
+history:
+  top-recentlyplayed:
+    limit: 30
+  size-of-list: 10
