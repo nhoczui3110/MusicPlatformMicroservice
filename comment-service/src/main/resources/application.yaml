@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: comment-service
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=Comment-Service;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: 123
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    defer-datasource-initialization: true
+app:
+  services:
+
+server:
+  port: 8086
+  servlet:
+    context-path: /comment-service

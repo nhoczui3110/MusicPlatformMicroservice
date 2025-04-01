@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class LikedCommentRequest {
-     String id;
-     String commentID;
-     String userID;
+     String commentId;
+     String userId;
      LocalDateTime likeAt;
 }

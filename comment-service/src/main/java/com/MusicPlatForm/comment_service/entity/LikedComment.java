@@ -13,17 +13,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "LikedComment")
+@Table(name = "liked_comments")
 public class LikedComment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    String likeCommentId;
-    @Column(nullable = false)
-    String userID;
+    String id;
+    @Column(name = "user_id",nullable = false)
+    String userId;
     @Column(nullable = false)
     LocalDateTime likeAt;
 //    @Column(nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn (name = "commentId",  nullable = false)
+    @JoinColumn (name = "comment_id",  nullable = false)
     Comment comment;
 }

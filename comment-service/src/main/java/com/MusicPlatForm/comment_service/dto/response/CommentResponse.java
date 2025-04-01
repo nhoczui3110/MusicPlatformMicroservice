@@ -1,6 +1,5 @@
 package com.MusicPlatForm.comment_service.dto.response;
 
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
@@ -10,11 +9,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CommentRespone {
-    String commentId;
-    String trackID;
-    String userID;
+public class CommentResponse {
+    String id;
+    String trackId;
+    String userId;
     String content;
-    LocalDateTime commentAt = LocalDateTime.now();
+    LocalDateTime commentAt;
     int likeCount;
 }

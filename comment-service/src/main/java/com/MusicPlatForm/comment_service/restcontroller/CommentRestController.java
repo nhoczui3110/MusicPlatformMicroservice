@@ -2,12 +2,13 @@ package com.MusicPlatForm.comment_service.restcontroller;
 
 import com.MusicPlatForm.comment_service.dto.ApiResponse;
 import com.MusicPlatForm.comment_service.dto.request.CommentRequest;
-import com.MusicPlatForm.comment_service.dto.response.CommentRespone;
+import com.MusicPlatForm.comment_service.dto.response.CommentResponse;
 import com.MusicPlatForm.comment_service.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,50 +21,75 @@ public class CommentRestController {
     CommentService commentService;
 
     @PostMapping("/add")
-    public ApiResponse<CommentRespone> addComment(@RequestBody @Valid CommentRequest request){
-        ApiResponse<CommentRespone> apiResponse = new ApiResponse<>();
-        apiResponse.setData(commentService.addComment(request));
-        return apiResponse;
+    public ApiResponse<CommentResponse> addComment(@RequestBody @Valid CommentRequest request) {
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Comment added successfully")
+                .data(commentService.addComment(request))
+                .build();
     }
 
-    @GetMapping("/track/{trackID}")
-    public ApiResponse<List<CommentRespone>> getComments(@PathVariable String trackID) {
-        ApiResponse<List<CommentRespone>> apiResponse = new ApiResponse<>();
-        apiResponse.setData(commentService.getCommentsByTrackId(trackID));
-        return apiResponse;
+    @GetMapping("/track/{trackId}")
+    public ApiResponse<List<CommentResponse>> getComments(@PathVariable String trackId) {
+        List<CommentResponse> comments = commentService.getCommentsByTrackId(trackId);
+        return ApiResponse.<List<CommentResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Success") 
+                .data(comments)
+                .build();
     }
 
-    @PostMapping("/like/{commentID}/{userID}")
-    public ApiResponse<Void> likeComment(@PathVariable String commentID, @PathVariable String userID) {
-        ApiResponse<Void> apiResponse = new ApiResponse<>();
-        commentService.likeComment(commentID, userID);
-        return apiResponse;
+    @GetMapping("/likes/{commentId}")
+    public ApiResponse<Integer> getCommentLikeCount(@PathVariable String commentId) {
+        return ApiResponse.<Integer>builder()
+                .code(HttpStatus.OK.value())
+                .message("Success")
+                .data(commentService.getCommentLikeCount(commentId))
+                .build();
     }
 
-    @DeleteMapping("/unlike/{commentID}/{userID}")
-    public ApiResponse<Void> unlikeComment(@PathVariable String commentID, @PathVariable String userID) {
-        ApiResponse<Void> apiResponse = new ApiResponse<>();
-        commentService.unlikeComment(commentID, userID);
-        return apiResponse;
+    @PostMapping("/like/{commentId}/{userId}")
+    public ApiResponse<Void> likeComment(@PathVariable String commentId, @PathVariable String userId) {
+        commentService.likeComment(commentId, userId);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Comment liked successfully")
+                .build();
+    }
+
+    @DeleteMapping("/unlike/{commentId}/{userId}")
+    public ApiResponse<Void> unlikeComment(@PathVariable String commentId, @PathVariable String userId) {
+        commentService.unlikeComment(commentId, userId);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Comment unliked successfully")
+                .build();
     }
 
     @PutMapping("/update/{id}")
-    public ApiResponse<CommentRespone> updateComment(@PathVariable String id, @RequestBody String content) {
-        ApiResponse<CommentRespone> apiResponse = new ApiResponse<>();
-        apiResponse.setData(commentService.updateComment(id, content));
-        return apiResponse;
+    public ApiResponse<CommentResponse> updateComment(@PathVariable String id, @RequestBody String content) {
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.OK.value())
+                .message("Comment updated successfully")
+                .data(commentService.updateComment(id, content))
+                .build();
     }
 
     @DeleteMapping("/delete/{id}")
     public ApiResponse<Void> deleteComment(@PathVariable String id) {
-        ApiResponse<Void> apiResponse = new ApiResponse<>();
         commentService.deleteComment(id);
-        return apiResponse;
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Comment deleted successfully")
+                .build();
     }
-    @PostMapping("/reply/{commentID}")
-    public ApiResponse<CommentRespone> replyToComment(@PathVariable String commentID, @RequestBody @Valid CommentRequest request) {
-        ApiResponse<CommentRespone> apiResponse = new ApiResponse<>();
-        apiResponse.setData(commentService.replyToComment(commentID, request));
-        return apiResponse;
+
+    @PostMapping("/reply/{commentId}")
+    public ApiResponse<CommentResponse> replyToComment(@PathVariable String commentId, @RequestBody @Valid CommentRequest request) {
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Reply added successfully")
+                .data(commentService.replyToComment(commentId, request))
+                .build();
     }
 }

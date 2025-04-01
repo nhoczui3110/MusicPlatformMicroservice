@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -12,12 +11,9 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class CommentRequest {
-    String commentId;
-    String trackID;
-    String userID;
+    String trackId;
+    String userId;
     @Size (min = 1, message = "Xin hãy nhập ký tự")
     String content;
-    LocalDateTime commentAt = LocalDateTime.now();
     int likeCount;
-//    private List<LikedCommentDto> likedComments;
 }
