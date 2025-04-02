@@ -30,7 +30,9 @@ public enum ErrorCode {
     ALBUM_NOT_LIKED(1020, "Album not liked", HttpStatus.NOT_FOUND),
     TRACK_N0T_FOUND(1021, "Track not found", HttpStatus.NOT_FOUND),
     ALREADY_LIKED(1022, "Already liked", HttpStatus.BAD_REQUEST),
-    COMMENT_NOT_FOUND(1023,"Comment not found", HttpStatus.NOT_FOUND)
+    COMMENT_NOT_FOUND(1023,"Comment not found", HttpStatus.NOT_FOUND),
+    PARENT_COMMENT_NOT_FOUND(1024,"Parent comment not found", HttpStatus.NOT_FOUND),
+    LIKE_NOT_FOUND(1025,"Like not found",HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

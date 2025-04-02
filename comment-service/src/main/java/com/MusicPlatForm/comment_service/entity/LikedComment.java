@@ -22,7 +22,6 @@ public class LikedComment {
     String userId;
     @Column(nullable = false)
     LocalDateTime likeAt;
-//    @Column(nullable = false)
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn (name = "comment_id",  nullable = false)
     Comment comment;

@@ -4,6 +4,8 @@ import com.MusicPlatForm.comment_service.dto.request.CommentRequest;
 import com.MusicPlatForm.comment_service.dto.response.CommentResponse;
 import com.MusicPlatForm.comment_service.entity.Comment;
 import com.MusicPlatForm.comment_service.entity.LikedComment;
+import com.MusicPlatForm.comment_service.exception.AppException;
+import com.MusicPlatForm.comment_service.exception.ErrorCode;
 import com.MusicPlatForm.comment_service.mapper.CommentMapper;
 import com.MusicPlatForm.comment_service.repository.CommentRepository;
 import com.MusicPlatForm.comment_service.repository.LikedCommentRepository;
@@ -44,25 +46,25 @@ public class CommentService {
         LikedComment likedComment = new LikedComment(null, userId, LocalDateTime.now(), null);
         likedCommentRepository.save(likedComment);
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
         comment.setLikeCount(comment.getLikeCount() + 1);
         commentRepository.save(comment);
     }
 
     public void unlikeComment(String commentId, String userId) {
         LikedComment likedComment = likedCommentRepository.findByCommentIdAndUserId(commentId, userId)
-                .orElseThrow(() -> new RuntimeException("Like not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.LIKE_NOT_FOUND));
         likedCommentRepository.delete(likedComment);
 
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
         comment.setLikeCount(Math.max(0, comment.getLikeCount() - 1));
         commentRepository.save(comment);
     }
 
     public CommentResponse updateComment(String id, String content) {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
         comment.setContent(content);
         comment = commentRepository.save(comment);
         return commentMapper.toCommentResponse(comment);
@@ -70,13 +72,13 @@ public class CommentService {
 
     public void deleteComment(String id) {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
         commentRepository.delete(comment);
     }
 
     public CommentResponse replyToComment(String commentId, CommentRequest request) {
         Comment parentComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.PARENT_COMMENT_NOT_FOUND));
         Comment replyComment = commentMapper.toComment(request);
         replyComment.setCommentAt(LocalDateTime.now());
         replyComment.setLikeCount(0);

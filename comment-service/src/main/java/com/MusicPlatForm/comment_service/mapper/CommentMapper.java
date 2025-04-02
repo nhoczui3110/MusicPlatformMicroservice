@@ -38,11 +38,11 @@ public interface CommentMapper {
 
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "likeAt", target = "likeAt")
-    @Mapping(source = "comment.id", target = "commentId")  // Lấy id của comment
+    @Mapping(source = "comment.id", target = "commentId")
     LikedCommentResponse toLikedCommentResponse(LikedComment likedComment);
 
     @Mapping(source = "userId", target = "userId")
     @Mapping(source = "likeAt", target = "likeAt")
-    @Mapping(source = "commentId", target = "comment.id")  // Chuyển id của comment
+    @Mapping(source = "commentId", target = "comment.id")
     LikedComment toLikedComment(LikedCommentRequest likedCommentRequest);
 }
