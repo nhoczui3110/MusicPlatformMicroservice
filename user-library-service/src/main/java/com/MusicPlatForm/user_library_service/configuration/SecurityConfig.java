@@ -14,7 +14,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/album/**" // This makes all /album/** routes public
+            "/album/**", // This makes all /album/** routes public
+            "/liked/**",
+            "/comments/**"
     };
 
     @Autowired

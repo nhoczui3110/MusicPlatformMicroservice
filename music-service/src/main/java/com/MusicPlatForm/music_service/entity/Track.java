@@ -57,6 +57,8 @@ public class Track {
     @Column(name = "Privacy",nullable = false)
     String privacy;
 
+    @Column(name = "Play",nullable = false)
+    int countPlay;
 
     @ManyToOne
     @JoinColumn(name = "Genre_id")

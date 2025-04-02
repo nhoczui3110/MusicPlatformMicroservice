@@ -14,6 +14,7 @@ public interface TrackMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "duration", ignore = true)
     @Mapping(target = "fileName", ignore = true)
+    @Mapping(target = "countPlay", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "trackTags", ignore=true) // Map tags thành trackTags
     Track toTrackFromTrackRequest(TrackRequest trackDto);

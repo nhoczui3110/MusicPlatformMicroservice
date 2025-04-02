@@ -24,6 +24,12 @@ public class LikedTrackController {
         return ApiResponse.<List<TrackResponse>>builder().data(likedTracks).code(200).build();
     }
 
+    @GetMapping("/count/{trackId}")
+    public ApiResponse<Integer> getTrackLikeCount(@PathVariable String trackId) {
+        int likeCount = likedTrackService.getTrackLikeCount(trackId);
+        return ApiResponse.<Integer>builder().code(200).data(likeCount).build();
+    }
+
     @GetMapping("/is_liked/{trackId}")
     public ApiResponse<Boolean> isLiked(@PathVariable String trackId) {
         return ApiResponse.<Boolean>builder().data(likedTrackService.isLiked(trackId)).code(200).build();

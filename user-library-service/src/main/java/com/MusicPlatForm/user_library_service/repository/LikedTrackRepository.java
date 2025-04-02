@@ -11,4 +11,5 @@ import java.util.List;
 public interface LikedTrackRepository extends JpaRepository<LikedTrack,String> {
     public List<LikedTrack> findAllByUserId(String userId);
     LikedTrack findByUserIdAndTrackId(String userId, String trackId);
+    int countByTrackId(String trackId);
 }

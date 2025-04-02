@@ -16,7 +16,8 @@ spring:
 app:
     services:
         file: http://localhost:8083/file-service
-
+        comment: http://localhost:8086/comment-service
+        user-library:  http://localhost:8085/user-library
 server:
   port: 8082
   servlet:

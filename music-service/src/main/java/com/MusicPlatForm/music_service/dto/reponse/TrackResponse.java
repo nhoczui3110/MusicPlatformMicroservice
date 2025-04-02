@@ -25,7 +25,7 @@ public class TrackResponse {
 
     String duration;
     String privacy;
-
+    int countPlay;
 
     GenreResponse genre;
 

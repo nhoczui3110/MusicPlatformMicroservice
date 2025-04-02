@@ -48,6 +48,7 @@ public class TrackService implements TrackServiceInterface{
         
         track.setCoverImageName(uploadTrackCoverResponse.getData().getCoverName());
         track.setCreatedAt(LocalDateTime.now());
+        track.setCountPlay(0);
         track.setDuration(uploadTrackMp3Response.getData().getDuration());
         track.setFileName(uploadTrackMp3Response.getData().getTrack());
 
@@ -74,6 +75,7 @@ public class TrackService implements TrackServiceInterface{
         for(TrackRequest trackRequest: trackRequests){
             Track track = trackMapper.toTrackFromTrackRequest(trackRequest);
             track.setCreatedAt(LocalDateTime.now());
+            track.setCountPlay(0);
             track.setDuration(addTrackFilesResponse.getData().get(index).getDuration());
             track.setFileName(addTrackFilesResponse.getData().get(index).getTrack());
             List<Tag> tags = this.tagRepository.findAllById(trackRequest.getTagIds());

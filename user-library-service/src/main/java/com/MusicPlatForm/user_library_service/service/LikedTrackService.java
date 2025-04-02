@@ -45,6 +45,10 @@ public class LikedTrackService {
         return response.getData();
     }
 
+    public int getTrackLikeCount(String trackId) {
+        return likedTrackRepository.countByTrackId(trackId);
+    }
+
     public List<LikedTrackResponse> getLikedTrackResponses() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();

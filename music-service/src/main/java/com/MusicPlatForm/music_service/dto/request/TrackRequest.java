@@ -18,6 +18,7 @@ public class TrackRequest{
     private String description;
     private String userId;
     private String privacy;
+    private int countPlay;
     private String genreId;
     private List<String> tagIds;
 }
