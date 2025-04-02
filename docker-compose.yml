@@ -1,4 +1,3 @@
-version: "3.8"
 name: music
 services:
   kafka:
@@ -38,6 +37,43 @@ services:
       - 1435:1433
     volumes:
       - music-volume:/var/opt/mssql
+  mssql_for_file:
+    container_name: sql-server-for-file
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+    ports:
+      - 1436:1433
+    volumes:
+      - file-volume:/var/opt/mssql
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    networks:
+      - es-net
+  kibana:
+    container_name: kb-container
+    image: docker.elastic.co/kibana/kibana:8.9.0
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - es-net
+    user: "0"
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
 volumes:
   library-volume:
   music-volume:
+  file-volume:
+networks:
+  es-net:
+    driver: bridge

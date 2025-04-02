@@ -25,7 +25,8 @@ public enum ErrorCode {
     ALBUM_MAIN_ARTIST_REQUIRED(1015, "Main artists is required", HttpStatus.BAD_REQUEST),
     ALBUM_PRIVACY_INVALID(1016, "Album privacy must be either 'private' or 'public'", HttpStatus.BAD_REQUEST),
     ALBUM_NOT_FOUND(1017, "Album not found", HttpStatus.NOT_FOUND),
-    TAG_NOT_FOUND(1018, "Tag not found", HttpStatus.NOT_FOUND)
+    TAG_NOT_FOUND(1018, "Tag not found", HttpStatus.NOT_FOUND),
+    GENRE_NOT_FOUND(404, "Tag not found", HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

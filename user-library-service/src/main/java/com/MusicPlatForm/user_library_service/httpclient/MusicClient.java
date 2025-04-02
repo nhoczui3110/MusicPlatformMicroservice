@@ -21,5 +21,11 @@ public interface MusicClient {
     @GetMapping("/track/{id}")
     public ApiResponse<TrackResponse> getTrackById(@PathVariable String id);
     @GetMapping("/track/list")
-    public ApiResponse<List<TrackResponse>> getTrackByIds(@RequestBody List<String> ids);
+    public ApiResponse<List<TrackResponse>> getTrackByIds(@RequestParam List<String> ids);
+    @GetMapping("/track/list-by-genre")
+    public ApiResponse<List<TrackResponse>> getTracksByGenre(@RequestParam String genreId,@RequestParam  int limit);
+    @GetMapping("/track/list-ids-related")
+    public ApiResponse<List<List<TrackResponse>>> getRelatedTracksForIds(@RequestParam(name = "track-ids") List<String> trackIds, @RequestParam(name = "limit") int limit);
+    @GetMapping("/tracks/random")
+    public ApiResponse<List<TrackResponse>> getRandomTracks(@RequestParam int limit);
 }
