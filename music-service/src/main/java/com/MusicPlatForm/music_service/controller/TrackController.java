@@ -1,18 +1,15 @@
 package com.MusicPlatForm.music_service.controller;
 
 import java.util.List;
+import java.util.Objects;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
+import com.MusicPlatForm.music_service.entity.Track;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.MusicPlatForm.music_service.dto.reponse.ApiResponse;
@@ -32,24 +29,39 @@ public class TrackController {
     TrackServiceInterface trackService;
     @GetMapping("/test")
     public void a(){}
-    @PostMapping(value = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<String> addTrack(@RequestPart(name = "cover_image") MultipartFile coverImage,
-                                        @RequestPart(name = "track_audio") MultipartFile trackAudio, 
-                                        @RequestPart(name = "track") TrackRequest trackRequest){
-        this.trackService.uploadTrack(coverImage, trackAudio, trackRequest);
-        return ApiResponse.<String>builder()
-                        .code(HttpStatus.OK.value())
-                        .data("Added track successfully")
-                        .build();
-    }
+
+   @PostMapping(value = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   public ApiResponse<String> addTrack(@RequestPart(name = "cover_image", required = false) MultipartFile coverImage,
+                                       @RequestPart(name = "track_audio", required = false) MultipartFile trackAudio,
+                                       @RequestPart(name = "track", required = false) TrackRequest trackRequest){
+       this.trackService.uploadTrack(coverImage, trackAudio, trackRequest);
+       return ApiResponse.<String>builder()
+                       .code(HttpStatus.OK.value())
+                       .data("Added track successfully")
+                       .build();
+   }
 
     @PostMapping(value = "/add/multi", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<List<TrackResponse>> addTracks(@RequestPart List<MultipartFile> trackFiles, @RequestPart List<TrackRequest> trackRequests){
-        List<TrackResponse> trackResponses = trackService.uploadTracks(trackFiles, trackRequests);
-        return ApiResponse.<List<TrackResponse>>builder()
+    public ApiResponse addTracks(@RequestPart("trackFiles") List<MultipartFile> trackFiles, @RequestPart("trackRequests") String trackJsonRequests){
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // Convert JSON string back to List<TrackRequest>
+            List<TrackRequest> trackRequestList = objectMapper.readValue(trackJsonRequests, new TypeReference<List<TrackRequest>>() {});
+
+            List<TrackResponse> trackResponses = trackService.uploadTracks(trackFiles, trackRequestList);
+            return ApiResponse.<List<TrackResponse>>builder()
                     .code(HttpStatus.OK.value())
                     .data(trackResponses)
                     .build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ApiResponse.builder()
+                    .code(400)
+                    .message("Failed to parse track request")
+                    .build();
+        }
     } 
 
     @DeleteMapping(value = "delete/{trackId}")
@@ -85,5 +97,8 @@ public class TrackController {
             .data(trackService.getRandomTracks(limit))
             .code(200).build();
     }
-    
+    @PutMapping("/update/{trackId}")
+    public ApiResponse<TrackResponse> updateTrack(@PathVariable("trackId") String trackId, @RequestPart("meta-data") UpdateTrackRequest request, @RequestPart(name = "image", required = false)MultipartFile imageFile, @RequestPart(name = "track", required = false) MultipartFile trackFile ) {
+        return ApiResponse.<TrackResponse>builder().data(trackService.updateTrack(trackId, request, imageFile, trackFile)).build();
+    }
 }

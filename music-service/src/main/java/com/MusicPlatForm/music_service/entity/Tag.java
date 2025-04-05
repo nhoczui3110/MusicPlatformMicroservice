@@ -12,10 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 @Table(name = "Tag")
 @Entity
@@ -23,6 +20,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Tag {
     @Id
     @Column(name = "Id")
@@ -33,7 +31,8 @@ public class Tag {
     LocalDateTime createdAt;
     @Column(name = "User_id")
     String userId;   
-
+    @Column(name = "Is_used")
+    boolean isUsed = true;
     @OneToMany(mappedBy = "tag",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     List<TrackTag> trackTags;
 

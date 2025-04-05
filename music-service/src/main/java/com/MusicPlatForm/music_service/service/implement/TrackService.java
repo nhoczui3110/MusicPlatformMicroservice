@@ -3,16 +3,18 @@ package com.MusicPlatForm.music_service.service.implement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.MusicPlatForm.music_service.dto.reponse.*;
+import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.MusicPlatForm.music_service.dto.reponse.AddCoverFileResponse;
-import com.MusicPlatForm.music_service.dto.reponse.AddTrackFileResponse;
-import com.MusicPlatForm.music_service.dto.reponse.ApiResponse;
-import com.MusicPlatForm.music_service.dto.reponse.TrackResponse;
 import com.MusicPlatForm.music_service.dto.request.TrackRequest;
 import com.MusicPlatForm.music_service.entity.Genre;
 import com.MusicPlatForm.music_service.entity.Tag;
@@ -42,11 +44,16 @@ public class TrackService implements TrackServiceInterface{
     @Override
     @Transactional
     public TrackResponse uploadTrack(MultipartFile coverImage, MultipartFile trackAudio,TrackRequest trackRequest) {
-        ApiResponse<AddCoverFileResponse> uploadTrackCoverResponse = fileClient.addCover(coverImage);
+        ApiResponse<AddCoverFileResponse> uploadTrackCoverResponse = null;
+        if (coverImage != null && !coverImage.isEmpty()) {
+            uploadTrackCoverResponse = fileClient.addCover(coverImage);
+        }
         ApiResponse<AddTrackFileResponse> uploadTrackMp3Response = fileClient.addTrack(trackAudio);
         Track track = trackMapper.toTrackFromTrackRequest(trackRequest);
         
-        track.setCoverImageName(uploadTrackCoverResponse.getData().getCoverName());
+        if (uploadTrackCoverResponse != null) {
+                track.setCoverImageName(uploadTrackCoverResponse.getData().getCoverName());
+        }
         track.setCreatedAt(LocalDateTime.now());
         track.setCountPlay(0);
         track.setDuration(uploadTrackMp3Response.getData().getDuration());
@@ -69,6 +76,8 @@ public class TrackService implements TrackServiceInterface{
     }
 
     public List<TrackResponse> uploadTracks(List<MultipartFile> trackFiles, List<TrackRequest> trackRequests){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
         List<TrackResponse> trackResponses = new ArrayList<>();
         ApiResponse<List<AddTrackFileResponse>> addTrackFilesResponse = fileClient.addTracks(trackFiles);
         int index = 0;
@@ -78,6 +87,7 @@ public class TrackService implements TrackServiceInterface{
             track.setCountPlay(0);
             track.setDuration(addTrackFilesResponse.getData().get(index).getDuration());
             track.setFileName(addTrackFilesResponse.getData().get(index).getTrack());
+            track.setUserId(userId);
             List<Tag> tags = this.tagRepository.findAllById(trackRequest.getTagIds());
             List<TrackTag> trackTags = tags.stream()
                                         .map(tag-> new TrackTag(tag,track))
@@ -183,5 +193,58 @@ public class TrackService implements TrackServiceInterface{
         return trackResponses;
     }
 
-    
+    @Override
+    public TrackResponse updateTrack(String trackId, UpdateTrackRequest request, MultipartFile imageFile, MultipartFile trackFile) {
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new AppException(ErrorCode.TRACK_NOT_FOUND));
+
+        String createdUserId = track.getUserId();
+
+        List<TagResponse> tagResponses = new ArrayList<>();
+        GenreResponse genreResponse = null;
+
+        if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
+            List<Tag> tags =  tagRepository.findAllById(request.getTagIds());
+            List<TrackTag> trackTags = tags.stream()
+                    .map(tag -> new TrackTag(tag, track))
+                    .toList();
+            if (!trackTags.isEmpty()) {
+                track.getTrackTags().clear();
+                track.getTrackTags().addAll(trackTags);
+                tagResponses = tagMapper.toTagResponsesFromTags(tags);
+            }
+        }
+
+        if (request.getGenreId() != null && !request.getGenreId().isEmpty()) {
+            Genre genre = genreRepository.findById(request.getGenreId())
+                    .orElseThrow(() -> new AppException(ErrorCode.GENRE_NOT_FOUND));
+            track.setGenre(genre);
+            genreResponse = genreMapper.toGenreResponseFromGenre(genre);
+        }
+
+        trackMapper.updateTrack(track, request);
+
+        if (imageFile != null) {
+            ApiResponse<AddCoverFileResponse> response = fileClient.addCover(imageFile);
+            track.setCoverImageName(response.getData().getCoverName());
+        }
+
+        if (trackFile != null) {
+            ApiResponse<AddTrackFileResponse> fileResponse = fileClient.addTrack(trackFile);
+            track.setFileName(fileResponse.getData().getTrack());
+        }
+
+        TrackResponse response = trackMapper.toTrackResponseFromTrack(trackRepository.save(track));
+
+        if (!tagResponses.isEmpty()) {
+            response.setTags(tagResponses);
+        }
+        if (genreResponse != null) {
+            response.setGenre(genreResponse);
+        }
+
+        return response;
+    }
+
+
 }

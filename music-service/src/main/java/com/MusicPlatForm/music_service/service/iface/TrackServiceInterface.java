@@ -2,6 +2,7 @@ package com.MusicPlatForm.music_service.service.iface;
 
 import java.util.List;
 
+import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,4 +52,6 @@ public interface TrackServiceInterface {
     public List<List<TrackResponse>> getRelatedTracksForIds(List<String>ids,int limit);
 
     public List<TrackResponse> getRandomTracks(int limit);
+
+    public TrackResponse updateTrack(String trackId, UpdateTrackRequest request, MultipartFile imageFile, MultipartFile trackFile);
 }

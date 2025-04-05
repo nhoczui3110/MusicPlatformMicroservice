@@ -1,5 +1,6 @@
 package com.MusicPlatForm.user_library_service.dto.response.album;
 
+import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,5 +24,5 @@ public class AlbumResponse {
     String imagePath;
     String userId;
     String id;
-
+    List<TrackResponse> trackResponses;
 }

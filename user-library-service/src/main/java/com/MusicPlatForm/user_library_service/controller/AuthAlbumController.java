@@ -5,6 +5,7 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackR
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
 import com.MusicPlatForm.user_library_service.service.AlbumService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class AuthAlbumController {
                                                @RequestPart(value = "cover-album", required = false) MultipartFile coverAlbum,
                                                @RequestPart(value = "track-request") List<TrackRequest> trackRequests,
                                                @RequestPart(value = "track-files") List<MultipartFile> trackFiles
-                                               ) {
+                                               ) throws JsonProcessingException {
         return  ApiResponse.<AlbumResponse>builder().data(albumService.addAlbum(request, coverAlbum, trackFiles, trackRequests)).build();
     }
 

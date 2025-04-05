@@ -15,7 +15,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrackResponse {
     String id;
-    String name;
+    String title;
     String description;
     String fileName;
     String coverImageName;

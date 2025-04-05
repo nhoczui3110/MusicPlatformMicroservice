@@ -1,5 +1,4 @@
-package com.MusicPlatForm.user_library_service.dto.request.playlist.client;
-
+package com.MusicPlatForm.music_service.dto.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,13 +12,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TrackRequest{
-    private String id;
+public class UpdateTrackRequest {
     private String title;
     private String description;
-    private String userId;
     private String privacy;
-    private int countPlay;
     private String genreId;
     private List<String> tagIds;
 }

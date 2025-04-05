@@ -64,7 +64,7 @@ public class MusicRestController {
     }
 
     @PostMapping("/add-tracks")
-    public ApiResponse<List<TrackResponse>> addTracks(@RequestPart List<MultipartFile> trackFiles)throws IOException{
+    public ApiResponse<List<TrackResponse>> addTracks(@RequestPart("trackFiles") List<MultipartFile> trackFiles)throws IOException{
         List<TrackResponse> trackResponses = musicService.addTracks(trackFiles);
         return ApiResponse.<List<TrackResponse>>builder()
                                 .code(HttpStatus.OK.value())
