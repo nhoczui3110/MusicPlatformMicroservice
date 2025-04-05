@@ -1,5 +1,6 @@
 package com.MusicPlatForm.user_library_service.service;
 
+import com.MusicPlatForm.user_library_service.dto.request.playlist.AddTrackAlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
@@ -262,5 +263,12 @@ public class AlbumService {
         }
         return albumResponses;
     }
-
+    public void addTrackToAlbum(AddTrackAlbumRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        Album album = albumRepository.findById(request.getAlbumId()).orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_FOUND));
+        if (!Objects.equals(userId, album.getUserId())) throw new AppException(ErrorCode.UNAUTHORIZED);
+        AlbumTrack albumTrack = AlbumTrack.builder().album(album).trackId(request.getTrackId()).addedAt(LocalDateTime.now()).build();
+        albumTrackRepository.save(albumTrack);
+    }
 }

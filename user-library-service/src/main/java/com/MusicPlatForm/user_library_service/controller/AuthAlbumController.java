@@ -1,5 +1,6 @@
 package com.MusicPlatForm.user_library_service.controller;
 
+import com.MusicPlatForm.user_library_service.dto.request.playlist.AddTrackAlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
@@ -56,5 +57,11 @@ public class AuthAlbumController {
     {
         albumService.unLikeAlbum(albumId);
         return  ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/add-track")
+    public ApiResponse addTrack(@RequestBody AddTrackAlbumRequest request) {
+        albumService.addTrackToAlbum(request);
+        return ApiResponse.builder().message("Add track to album successfully").build();
     }
 }

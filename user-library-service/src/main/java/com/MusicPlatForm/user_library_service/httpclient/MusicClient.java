@@ -12,14 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.MusicPlatForm.user_library_service.configuration.FeignConfig;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 
 import feign.Headers;
 
-@FeignClient(name = "music-service",url = "${app.services.music}", configuration = FeignConfig.class)
+@FeignClient(name = "music-service",url = "${app.services.music}")
 public interface MusicClient {
     @PostMapping(value = "/track/add/multi",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<TrackResponse>> addMultiTrack(@RequestPart MultipartFile[] trackFiles,
