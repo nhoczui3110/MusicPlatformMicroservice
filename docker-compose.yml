@@ -48,6 +48,28 @@ services:
       - 1436:1433
     volumes:
       - file-volume:/var/opt/mssql
+  mssql_for_identity:
+    container_name: sql-server-for-identity
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+    ports:
+      - 1437:1433
+    volumes:
+      - identity-volume:/var/opt/mssql
+  mssql_for_profile:
+    container_name: sql-server-for-profile
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+    ports:
+      - 1439:1433
+    volumes:
+      - identity-volume:/var/opt/mssql
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
     container_name: elasticsearch
@@ -74,6 +96,8 @@ volumes:
   library-volume:
   music-volume:
   file-volume:
+  identity-volume:
+  profile-volume:
 networks:
   es-net:
     driver: bridge
