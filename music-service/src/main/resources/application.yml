@@ -22,3 +22,11 @@ server:
   port: 8082
   servlet:
     context-path: /music-service
+
+eureka:
+  client:
+    service-url:
+      default-zone:
+        http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
