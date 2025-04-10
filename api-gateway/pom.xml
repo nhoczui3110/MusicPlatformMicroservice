@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>23</java.version>
 		<spring-cloud.version>2023.0.5</spring-cloud.version>
+		<eureka-client.version>4.2.1</eureka-client.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -46,6 +47,12 @@
 			<artifactId>lombok</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<version>${eureka-client.version}</version>
+		</dependency> 
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
