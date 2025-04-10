@@ -16,21 +16,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.MusicPlatForm.file_service.dto.ApiResponse;
-import com.MusicPlatForm.file_service.dto.request.AvatarRequest;
-import com.MusicPlatForm.file_service.dto.request.CoverRequest;
 import com.MusicPlatForm.file_service.dto.response.AvatarResponse;
 import com.MusicPlatForm.file_service.dto.response.CoverResponse;
 import com.MusicPlatForm.file_service.service.ImageService;
 
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/images") //-> image-> images
 public class ImageRestController {
     private ImageService imageService;
     @Value("${file.upload-dir}")
@@ -42,9 +39,9 @@ public class ImageRestController {
     /*
      * GET
      */
-    @GetMapping("avatar/{filename}")
+    @GetMapping("avatars/{filename}")
     public ResponseEntity<Resource> getAvatar(@PathVariable String filename) throws IOException{
-
+   
         Path path = Paths.get(uploadDir).resolve("avatars").resolve(filename);
         byte[] imageBytes = Files.readAllBytes(path);
 
@@ -56,7 +53,7 @@ public class ImageRestController {
                 .body(resource);
             
     }
-    @GetMapping("cover/{filename}")
+    @GetMapping("covers/{filename}")
     public ResponseEntity<Resource> getCoverImage(@PathVariable String filename) throws IOException{
 
         Path path = Paths.get(uploadDir).resolve("covers").resolve(filename);
@@ -74,7 +71,7 @@ public class ImageRestController {
     /*
      * ADD
      */
-    @PostMapping("add-avatar")
+    @PostMapping("avatars")
     public ResponseEntity<ApiResponse<AvatarResponse>> addAvatar(@RequestPart MultipartFile avatar) throws IOException{
         String avatarName = imageService.addAvatar(avatar);
         return ResponseEntity.ok().body(
@@ -87,7 +84,7 @@ public class ImageRestController {
                         ).build()
                 );
     }
-    @PostMapping("add-cover")
+    @PostMapping("covers")
     public ResponseEntity<ApiResponse<CoverResponse>> addCoverImage(@RequestPart MultipartFile cover) throws IOException{
         String coverName = imageService.addcoverImage(cover);
         return ResponseEntity.ok().body(
@@ -102,21 +99,22 @@ public class ImageRestController {
     }
 
     
-    /*
-     * DELETE
-     */
-    @DeleteMapping("delete-avatar")
-    public ResponseEntity<ApiResponse<String>> deleteAvatar(@RequestBody AvatarRequest avatarRequest) throws IOException, NoSuchFileException{
-        imageService.deleteAvatar(avatarRequest.getAvatarName());
-        return ResponseEntity.ok().body(
-            ApiResponse.<String>
-                builder()
-                    .code(200)
-                    .message("Deleted avatar successfully")
-                    .build()
-            );
-    }
-    @DeleteMapping("delete-avatar/{avatarName}")
+    // /*
+    //  * DELETE
+    //  */
+    // @Deprecated
+    // @DeleteMapping("delete-avatar")
+    // public ResponseEntity<ApiResponse<String>> deleteAvatar(@RequestBody AvatarRequest avatarRequest) throws IOException, NoSuchFileException{
+    //     imageService.deleteAvatar(avatarRequest.getAvatarName());
+    //     return ResponseEntity.ok().body(
+    //         ApiResponse.<String>
+    //             builder()
+    //                 .code(200)
+    //                 .message("Deleted avatar successfully")
+    //                 .build()
+    //         );
+    // }
+    @DeleteMapping("avatars/{avatarName}")
     public ResponseEntity<ApiResponse<String>> deleteAvatarVer1(@PathVariable String avatarName) throws IOException, NoSuchFileException{
         imageService.deleteAvatar(avatarName);
         return ResponseEntity.ok().body(
@@ -128,18 +126,19 @@ public class ImageRestController {
             );
     }
 
-    @DeleteMapping("delete-cover")
-    public ResponseEntity<ApiResponse<String>> deleteCover(@RequestBody CoverRequest coverRequest) throws IOException, NoSuchFileException{
-        imageService.deleteCover(coverRequest.getCoverName());
-        return ResponseEntity.ok().body(
-            ApiResponse.<String>
-                builder()
-                    .code(200)
-                    .message("Deleted cover successfully")
-                    .build()
-            );
-    }
-    @DeleteMapping("delete-cover/{coverName}")
+    // @Deprecated
+    // @DeleteMapping("delete-cover")
+    // public ResponseEntity<ApiResponse<String>> deleteCover(@RequestBody CoverRequest coverRequest) throws IOException, NoSuchFileException{
+    //     imageService.deleteCover(coverRequest.getCoverName());
+    //     return ResponseEntity.ok().body(
+    //         ApiResponse.<String>
+    //             builder()
+    //                 .code(200)
+    //                 .message("Deleted cover successfully")
+    //                 .build()
+    //         );
+    // }
+    @DeleteMapping("covers/{coverName}")
     public ResponseEntity<ApiResponse<String>> deleteCoverVer1(@PathVariable String coverName) throws IOException, NoSuchFileException{
         imageService.deleteAvatar(coverName);
         return ResponseEntity.ok().body(
@@ -156,8 +155,8 @@ public class ImageRestController {
      * PUT
      */
 
-    @PutMapping("replace-avatar")
-    public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestPart MultipartFile newAvatar,@RequestPart String oldAvatarName) throws IOException, NoSuchFileException{
+    @PutMapping("avatars/{avatarName}")
+    public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestPart MultipartFile newAvatar,@PathVariable(name = "avatarName") String oldAvatarName) throws IOException, NoSuchFileException{
         String newAvatarName = imageService.replaceAvatar(newAvatar, oldAvatarName);
         return ResponseEntity.ok().body(
                 ApiResponse.<AvatarResponse>
@@ -173,8 +172,8 @@ public class ImageRestController {
                         .build()
                 );
     }
-    @PutMapping("replace-cover")
-    public ResponseEntity<ApiResponse<CoverResponse>> replaceCover(@RequestPart MultipartFile newCover,@RequestPart String oldCoverName) throws IOException, NoSuchFileException{
+    @PutMapping("covers/{coverName}")
+    public ResponseEntity<ApiResponse<CoverResponse>> replaceCover(@RequestPart MultipartFile newCover,@PathVariable(name="coverName") String oldCoverName) throws IOException, NoSuchFileException{
         String newCoverName = imageService.replaceCover(newCover, oldCoverName);
         return ResponseEntity.ok().body(
                 ApiResponse.<CoverResponse>

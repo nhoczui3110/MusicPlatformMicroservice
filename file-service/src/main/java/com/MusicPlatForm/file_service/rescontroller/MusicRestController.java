@@ -23,20 +23,22 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.MusicPlatForm.file_service.dto.ApiResponse;
-import com.MusicPlatForm.file_service.dto.response.TrackResponse;
+import com.MusicPlatForm.file_service.dto.response.AudioResponse;
 import com.MusicPlatForm.file_service.service.MusicService;
 
 @RestController
-@RequestMapping("/music")
+@RequestMapping("/audios")
 public class MusicRestController {
     @Value("${file.upload-dir}")
     private String uploadDir;
     private MusicService musicService;
+    
     public MusicRestController(MusicService musicService){
         this.musicService = musicService;
     }
+
     @GetMapping("/{filename}")
-    public ResponseEntity<Resource> getTrack(@PathVariable String filename) throws IOException{
+    public ResponseEntity<Resource> getAudio(@PathVariable String filename) throws IOException {
         Path path = Paths.get(uploadDir).resolve("musics").resolve(filename);
 
         Resource resource = new UrlResource(path.toUri());
@@ -49,39 +51,39 @@ public class MusicRestController {
                 .body(resource);
     }
 
-    @PostMapping("/add-track")
-    public ResponseEntity<ApiResponse<TrackResponse>> addTrack(@RequestPart MultipartFile track) throws Exception,IOException{
-        TrackResponse trackResponse = musicService.addTrack(track);
+    @PostMapping
+    public ResponseEntity<ApiResponse<AudioResponse>> addAudio(@RequestPart MultipartFile audio) throws Exception, IOException {
+        AudioResponse audioResponse = musicService.addAudio(audio);
         return ResponseEntity.ok()
                             .body(
                                 ApiResponse
-                                    .<TrackResponse>builder()
+                                    .<AudioResponse>builder()
                                     .code(200)
-                                    .message("Add track successfully")
-                                    .data(trackResponse)
+                                    .message("Add audio successfully")
+                                    .data(audioResponse) // Renamed from 'trackResponse'
                                     .build()
-                                );
+                            );
     }
 
-    @PostMapping("/add-tracks")
-    public ApiResponse<List<TrackResponse>> addTracks(@RequestPart("trackFiles") List<MultipartFile> trackFiles)throws IOException{
-        List<TrackResponse> trackResponses = musicService.addTracks(trackFiles);
-        return ApiResponse.<List<TrackResponse>>builder()
+    @PostMapping("/bulk")
+    public ApiResponse<List<AudioResponse>> addAudios(@RequestPart("audioFiles") List<MultipartFile> audioFiles) throws IOException {
+        List<AudioResponse> audioResponses = musicService.addAudios(audioFiles);
+        return ApiResponse.<List<AudioResponse>>builder()
                                 .code(HttpStatus.OK.value())
-                                .data(trackResponses)
+                                .data(audioResponses)
                                 .build();
-    } 
-    @DeleteMapping("delete-track/{trackName}")
-    public ResponseEntity<ApiResponse<String>> deleteTrack(@PathVariable String trackName) throws IOException,NoSuchFileException{
-        musicService.deleteTrack(trackName);
+    }
+
+    @DeleteMapping("/{audioName}")
+    public ResponseEntity<ApiResponse<String>> deleteAudio(@PathVariable String audioName) throws IOException, NoSuchFileException {
+        musicService.deleteAudio(audioName);
         return ResponseEntity.ok()
-        .body(
-            ApiResponse
-                .<String>builder()
-                .code(200)
-                .message("Delete track successfully")
-                // .data("Deleted Successfully")
-                .build()
-            );
+                .body(
+                    ApiResponse
+                        .<String>builder()
+                        .code(200)
+                        .message("Delete audio successfully") // Renamed from 'track'
+                        .build()
+                );
     }
 }

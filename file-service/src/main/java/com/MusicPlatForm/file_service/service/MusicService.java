@@ -3,7 +3,6 @@ package com.MusicPlatForm.file_service.service;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -11,10 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.MusicPlatForm.file_service.dto.response.TrackResponse;
+import com.MusicPlatForm.file_service.dto.response.AudioResponse;
+import com.MusicPlatForm.file_service.entity.Audio;
+import com.MusicPlatForm.file_service.exception.AppException;
+import com.MusicPlatForm.file_service.exception.ErrorCode;
+import com.MusicPlatForm.file_service.repository.AudioRepository;
+
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.Header;
 import java.lang.Math;
@@ -26,6 +33,12 @@ public class MusicService {
     
     @Value("${file.musics-dir}")
     private String musicDir;
+
+   private final AudioRepository audioRepository; // Inject AudioRepository
+
+    public MusicService(AudioRepository audioRepository) {
+        this.audioRepository = audioRepository;
+    }
 
     private String getDuration(String filePath) {
           long totalMilliseconds = 0;
@@ -47,36 +60,75 @@ public class MusicService {
           }
     }
 
-
-    public TrackResponse addTrack(MultipartFile track) throws Exception,IOException{
-        String name = Instant.now().getEpochSecond()+ track.getOriginalFilename();
+    @Transactional
+    // @PreAuthorize("isAuthenticated()")
+    public AudioResponse addAudio(MultipartFile audioFile) throws Exception,IOException{
+        // Generate a unique file name
+        String name = Instant.now().getEpochSecond() + audioFile.getOriginalFilename();
         Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(name);
-        Files.write(filePath, track.getBytes());
+
+        // Save the file
+        Files.write(filePath, audioFile.getBytes());
+
+        // Get the duration of the track
         String duration = getDuration(filePath.toString());
-        return TrackResponse.builder()
-                            .duration(duration)
-                            .track(name)
-                            .build();
+
+        // Save the track to the database
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName(); // Get user ID from Authentication
+
+        Audio audioEntity = new Audio(name, duration, userId);
+        audioRepository.save(audioEntity); // Save to the database
+
+        // Return response
+        return AudioResponse.builder()
+                .duration(duration)
+                .track(name)
+                .build();
     }
 
-    public List<TrackResponse> addTracks(List<MultipartFile> trackFiles) throws IOException{
-           List<TrackResponse> trackResponses = new ArrayList<>();
-           for(MultipartFile trackFile: trackFiles){
-                String name = Instant.now().getEpochSecond() + trackFile.getOriginalFilename();
-                Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(name);
-                Files.write(filePath, trackFile.getBytes());
-                String duration = getDuration(filePath.toString());
-                trackResponses.add(TrackResponse.builder()
-                                .duration(duration)
-                                .track(name)
-                                .build());
-           }
-           return trackResponses;
+    // Method to add multiple audio files and save them to the database
+    // @PreAuthorize("isAuthenticated()")
+    @Transactional
+    public List<AudioResponse> addAudios(List<MultipartFile> trackFiles) throws IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName(); // Get user ID from Authentication
+
+        List<AudioResponse> trackResponses = new ArrayList<>();
+        for (MultipartFile trackFile : trackFiles) {
+            // Generate a unique file name
+            String name = Instant.now().getEpochSecond() + trackFile.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(name);
+
+            // Save the file
+            Files.write(filePath, trackFile.getBytes());
+
+            // Get the duration of the track
+            String duration = getDuration(filePath.toString());
+
+            // Save to the database
+            Audio audioEntity = new Audio(name, duration, userId);
+            audioRepository.save(audioEntity);
+
+            // Add to response list
+            trackResponses.add(AudioResponse.builder()
+                    .duration(duration)
+                    .track(name)
+                    .build());
+        }
+        return trackResponses;
     }
 
-    public void deleteTrack(String trackName) throws IOException, NoSuchFileException{
+    @Transactional
+    // @PreAuthorize("isAuthenticated()")
+    public void deleteAudio(String trackName) throws IOException, AppException {
         Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(trackName);
-        Boolean isDeleted = Files.deleteIfExists(filePath);
-        if(!isDeleted) throw new NoSuchFileException("Track File not found");
+
+        // Delete the file from the file system
+        boolean isDeleted = Files.deleteIfExists(filePath);
+        if (!isDeleted) throw new AppException(ErrorCode.TRACK_FILE_NOT_FOUND);
+
+        // Delete the audio entity from the database
+        audioRepository.deleteById(trackName);
     }
 }

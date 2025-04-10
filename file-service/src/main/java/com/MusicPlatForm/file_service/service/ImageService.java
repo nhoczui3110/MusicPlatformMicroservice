@@ -10,8 +10,18 @@ import java.time.Instant;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.MusicPlatForm.file_service.entity.Avatar;
+import com.MusicPlatForm.file_service.entity.Cover;
+import com.MusicPlatForm.file_service.exception.AppException;
+import com.MusicPlatForm.file_service.exception.ErrorCode;
+import com.MusicPlatForm.file_service.repository.AvatarRepository;
+import com.MusicPlatForm.file_service.repository.CoverRepository;
 
 @Service
 public class ImageService {
@@ -22,6 +32,12 @@ public class ImageService {
     @Value("${file.covers-dir}")
     private String coversDir;
 
+    private AvatarRepository avatarRepository;
+    private CoverRepository coverRepository;
+    public ImageService( AvatarRepository avatarRepository,CoverRepository coverRepository){
+        this.avatarRepository = avatarRepository;
+        this.coverRepository = coverRepository;
+    }
 
     private String addImage(MultipartFile image,String folder)throws IOException{
         String name = Instant.now().getEpochSecond() + image.getOriginalFilename();
@@ -29,11 +45,25 @@ public class ImageService {
         Files.write(filePath, image.getBytes());
         return name;
     }
+    // @PreAuthorize("isAuthenticated()")
     public String addAvatar(MultipartFile avatar) throws IOException{
-        return addImage(avatar,avatarDir);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+        String avatarName = addImage(avatar, avatarDir);
+        Avatar avatarEntity = new Avatar();
+        avatarEntity.setFileName(avatarName);
+        avatarEntity.setUserId(userId);
+        this.avatarRepository.save(avatarEntity);
+        return avatarName;
     }
+    // @PreAuthorize("isAuthenticated()")
     public String addcoverImage(MultipartFile coverImage) throws IOException{
-       return addImage(coverImage,coversDir);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+        String coverName = addImage(coverImage, coversDir);
+        Cover coverEntity = new Cover(coverName, userId);
+        coverRepository.save(coverEntity);
+       return coverName;
     }
     
 
@@ -58,19 +88,30 @@ public class ImageService {
      *  + name: image name
      *  + folder: foler is image stored
      */
+    // @PreAuthorize("isAuthenticated()")
     public boolean deleteImage(String name,String folder)throws IOException{
         Path filePath = Paths.get(uploadDir).resolve(folder).resolve(name);
 
         boolean isDeleted = Files.deleteIfExists(filePath);
         return isDeleted;
     }
-    public void deleteAvatar(String avatarName) throws NoSuchFileException, IOException {
+
+    // @PreAuthorize("isAuthenticated()")
+    public void deleteAvatar(String avatarName) throws AppException, IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+        Avatar avatar = this.avatarRepository.findById(avatarName).orElseThrow(()->new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND));
+        if(!avatar.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         boolean isDeleted = deleteImage(avatarName, avatarDir);
-        if(!isDeleted) throw new NoSuchFileException("File not found");
+        if(!isDeleted) throw new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND);
     }
-    public void deleteCover(String coverName) throws NoSuchFileException, IOException {
+    public void deleteCover(String coverName) throws AppException, IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+        Cover cover = this.coverRepository.findById(coverName).orElseThrow(()->new AppException(ErrorCode.COVER_FILE_NOT_FOUND));
+        if(!cover.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         boolean isDeleted = deleteImage(coverName, coversDir);
-        if(!isDeleted) throw new NoSuchFileException("File not found");
+        if(!isDeleted) throw new AppException(ErrorCode.COVER_FILE_NOT_FOUND);
     }
 
 
@@ -79,17 +120,42 @@ public class ImageService {
      * Replace Image
      *
      */
-
+    // @PreAuthorize("isAuthenticated()")
     public String repaceImage(MultipartFile image, String name, String folder) throws IOException, NoSuchFileException{
         boolean isDeleted = deleteImage(name, folder);
         if(!isDeleted) throw new NoSuchFileException("Image not found");
         String newName = addImage(image, folder);
         return newName;
     }
+
+    // @PreAuthorize("isAuthenticated()")
     public String replaceAvatar(MultipartFile avatar, String oldAvatarName) throws IOException, NoSuchFileException{
-        return repaceImage(avatar, oldAvatarName, avatarDir);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+
+        Avatar avatarEntity = this.avatarRepository.findById(oldAvatarName).orElseThrow(()-> new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND));
+        if(!avatarEntity.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
+        
+        String avatarName = repaceImage(avatar, oldAvatarName, avatarDir);
+        
+        avatarEntity.setFileName(avatarName);
+        return avatarName;
     }
-    public String replaceCover(MultipartFile cover, String oldCoverrName) throws IOException, NoSuchFileException{
-        return repaceImage(cover, oldCoverrName, coversDir);
+    // @PreAuthorize("isAuthenticated()")
+    public String replaceCover(MultipartFile cover, String oldCoverName) throws IOException, NoSuchFileException{
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName();
+    
+        Cover coverEntity = this.coverRepository.findById(oldCoverName)
+            .orElseThrow(() -> new AppException(ErrorCode.COVER_FILE_NOT_FOUND));
+    
+        if (!coverEntity.getUserId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+    
+        String newCoverName = repaceImage(cover, oldCoverName, coversDir);
+    
+        coverEntity.setFileName(newCoverName);
+        return newCoverName;
     }
 }
