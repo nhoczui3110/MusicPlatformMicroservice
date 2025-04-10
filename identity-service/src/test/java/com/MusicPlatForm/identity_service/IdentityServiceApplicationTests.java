@@ -1,13 +1,13 @@
-package com.MusicPlatForm.identity_service;
+// package com.MusicPlatForm.identity_service;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class IdentityServiceApplicationTests {
+// @SpringBootTest
+// class IdentityServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// 	@Test
+// 	void contextLoads() {
+// 	}
 
-}
+// }

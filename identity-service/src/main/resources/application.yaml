@@ -4,14 +4,20 @@ server:
     context-path: /identity
 
 spring:
+  application:
+    name: identity-service
   datasource:
-    url: "jdbc:mysql://localhost:3306/identity_service"
-    username: "root"
-    password: "sa"
+    url: jdbc:sqlserver://localhost:1437;databaseName=Identity;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: YourStrong!Passw0rd
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
+    database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    defer-datasource-initialization: true
   security:
     oauth2:
       client:
@@ -31,3 +37,11 @@ jwt:
 app:
   services:
     profile: "http://localhost:8081/profile"
+
+eureka:
+  client:
+    service-url:
+      default-zone:
+        http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true
