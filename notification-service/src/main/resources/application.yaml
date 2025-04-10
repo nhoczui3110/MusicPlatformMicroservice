@@ -1,0 +1,41 @@
+server:
+  port: 8087
+  servlet:
+    context-path: /notification
+spring:
+  application:
+    name: notification-service
+  data:
+    mongodb:
+      uri: mongodb://root:123@localhost:27017/notification-service?authSource=admin
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: n21dccn075@student.ptithcm.edu.vn
+    password:
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.MusicPlatForm.notification_service.dto.request
+
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      #0: no wait for kafka response
+      #1: leader write success, not wait for follower
+      #-1: wait for all leader, and replication
+      acks: -1
+      retries: 1
+      #prevent duplicate send
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 5
