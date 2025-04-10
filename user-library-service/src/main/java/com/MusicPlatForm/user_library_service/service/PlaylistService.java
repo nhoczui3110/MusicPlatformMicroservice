@@ -1,7 +1,6 @@
 package com.MusicPlatForm.user_library_service.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -18,7 +17,6 @@ import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
-import com.MusicPlatForm.user_library_service.entity.LikedPlaylist;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTag;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;

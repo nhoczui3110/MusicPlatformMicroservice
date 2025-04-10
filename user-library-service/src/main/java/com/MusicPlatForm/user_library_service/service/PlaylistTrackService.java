@@ -1,12 +1,10 @@
 package com.MusicPlatForm.user_library_service.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistTrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTrackResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;

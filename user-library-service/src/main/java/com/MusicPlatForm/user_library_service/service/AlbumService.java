@@ -5,7 +5,6 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
-import com.MusicPlatForm.user_library_service.dto.response.CoverRequest;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.entity.Album;
@@ -29,19 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.sound.midi.Track;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -153,7 +146,7 @@ public class AlbumService {
         if (imagePath != null) {
             String name = imagePath.substring(imagePath.lastIndexOf("/") + 1);
             log.info(name);
-            fileClient.deleteAvatar(CoverRequest.builder().coverName(name).build());
+            fileClient.deleteCoverImage(name);
         }
         album.getTracks().clear();
         albumRepository.save(album);
