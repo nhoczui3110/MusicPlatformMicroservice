@@ -6,27 +6,24 @@ import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
-import com.MusicPlatForm.search_service.Entity.Track;
+import com.MusicPlatForm.search_service.Entity.Playlist;
 
 @Repository
-public interface TrackRepository extends ElasticsearchRepository<Track,String>{
-    List<Track> findByName(String name);
-    List<Track> findByDescription(String description);
+public interface PlaylistRepository extends ElasticsearchRepository<Playlist,String> {
+    List<Playlist> findByTitle(String name);
+    List<Playlist> findByDescription(String description);
     
     @Query("""
         {
             "bool":{
                 "should":[
-                    {"match": {"name":{"query": "?0","fuzziness":"AUTO"}}},
+                    {"match": {"title":{"query": "?0","fuzziness":"AUTO"}}},
                     {"match": {"description":{"query": "?0","fuzziness":"AUTO"}}}
                 ]
             }
         }
     """)
-    List<Track> findTracks(String query);
-    
-    void deleteByTrackId(String trackId);
+    List<Playlist> findPlaylists(String query);
 
+    void deleteByPlaylistId(String playlistId);
 }
-
-

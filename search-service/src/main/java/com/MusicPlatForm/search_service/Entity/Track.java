@@ -5,8 +5,6 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,13 +21,13 @@ import lombok.NoArgsConstructor;
 public class Track{
     @Id
     private String id;
+
     @Field(type = FieldType.Text)
     private String name;
+    
     @Field(type = FieldType.Text)
     private String description;
 
-    @NotNull
-    @NotBlank(message = "Track ID cannot be null or empty")
     @Field(type = FieldType.Keyword,index = false)
     private String trackId;
     

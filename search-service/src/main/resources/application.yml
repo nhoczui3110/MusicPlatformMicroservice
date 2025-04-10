@@ -5,7 +5,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:9094
     consumer:
-      group-id: notification-group
+      group-id: search_group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -24,3 +24,10 @@ server:
 
 # spring.elasticsearch
 
+eureka:
+  client:
+    service-url:
+      default-zone:
+        http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true

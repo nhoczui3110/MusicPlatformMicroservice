@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 
-import com.MusicPlatForm.search_service.Dto.Response.TrackResponse;
+import com.MusicPlatForm.search_service.Dto.Request.TrackRequest;
 import com.MusicPlatForm.search_service.Entity.Track;
 import com.MusicPlatForm.search_service.Mapper.TrackResponseMapper;
 import com.MusicPlatForm.search_service.Repository.TrackRepository;
@@ -19,22 +19,27 @@ public class TrackSearchService {
     private TrackRepository trackRepository;
     @Autowired 
     private TrackResponseMapper trackResponseMapper;
-    public Track save(Track track) {
+    public Track save(TrackRequest trackRequest) {
+        Track track = trackResponseMapper.toEntity(trackRequest);
         return trackRepository.save(track);
     }
 
-    public List<TrackResponse> searchByName(String name) {
-        List<Track> tracks=  trackRepository.findByName(name);
-        return trackResponseMapper.toTrackResponseList(tracks);
-    }
+    // public List<String> searchByName(String name) {
+    //     List<Track> tracks=  trackRepository.findByName(name);
+    //     return trackResponseMapper.toTrackResponseList(tracks);
+    // }
     
-    public List<TrackResponse> searchByDescription(String description){
-        List<Track> tracks= trackRepository.findByDescription(description);
-        return trackResponseMapper.toTrackResponseList(tracks);
+    // public List<TrackResponse> searchByDescription(String description){
+    //     List<Track> tracks= trackRepository.findByDescription(description);
+    //     return trackResponseMapper.toTrackResponseList(tracks);
+    // }
+
+    public List<String> searchTracks(String query){
+        List<Track> tracks = trackRepository.findTracks(query);
+        return trackResponseMapper.toTrackIds(tracks);
     }
 
-    public List<TrackResponse> searchTracks(String query){
-        List<Track> tracks = trackRepository.findTracks(query);
-        return trackResponseMapper.toTrackResponseList(tracks);
+    public void deleteTrackByTrackId(String trackId) {
+        trackRepository.deleteByTrackId(trackId);
     }
 }

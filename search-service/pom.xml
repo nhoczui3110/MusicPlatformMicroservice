@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>23</java.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
+		<eureka-client.version>4.1.2</eureka-client.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -77,7 +78,12 @@
 			<artifactId>spring-kafka</artifactId>
 			<version>3.3.3</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<version>${eureka-client.version}</version>
+		</dependency> 
 	</dependencies>
 
 	<build>

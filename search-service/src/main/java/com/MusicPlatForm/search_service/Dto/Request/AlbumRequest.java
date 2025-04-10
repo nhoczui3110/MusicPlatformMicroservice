@@ -2,28 +2,22 @@ package com.MusicPlatForm.search_service.Dto.Request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.Builder;
-
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class TrackRequest {
- @NotNull(message = "Name cannot be null")
-    @NotBlank(message = "Name cannot be blank")
-    private String name;
+public class AlbumRequest {
+    @NotNull(message = "Title cannot be null")
+    @NotBlank(message = "Title cannot be blank")
+    private String title;
 
     @NotNull(message = "Description cannot be null")
     @NotBlank(message = "Description cannot be blank")
     private String description;
 
-    @NotNull(message = "Track ID cannot be null")
-    @NotBlank(message = "Track ID cannot be blank")
-    private String trackId;
+    @NotNull(message = "Album ID cannot be null")
+    @NotBlank(message = "Album ID cannot be blank")
+    private String albumId;
 }

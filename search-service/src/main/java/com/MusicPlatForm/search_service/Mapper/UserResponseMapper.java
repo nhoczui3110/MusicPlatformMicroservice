@@ -5,14 +5,18 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.MusicPlatForm.search_service.Dto.Response.UserResponse;
+import com.MusicPlatForm.search_service.Dto.Request.UserRequest;
 import com.MusicPlatForm.search_service.Entity.User;
-
 @Mapper(componentModel = "spring")
 public interface UserResponseMapper {
-    @Mapping(target = "type", constant = "user") 
-    UserResponse toUserResponse(User user);
-    @Mapping(target = "type", constant = "user") 
+    // Map one User to userId
+    default String mapToUserId(User user) {
+        return user.getUserId();
+    }
 
-    List<UserResponse> toUserResponseList(List<User> users);
+    // Map list of User to list of userId (String)
+    List<String> toUserIds(List<User> users);
+
+    @Mapping(target = "id",ignore = true)
+    User toUserEntity(UserRequest userRequest);
 }
