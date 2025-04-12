@@ -75,6 +75,12 @@ public class TrackController {
         TrackResponse track = this.trackService.getTrackById(id);
         return ApiResponse.<TrackResponse> builder().code(HttpStatus.OK.value()).data(track).build();
     }
+    @GetMapping("/user")
+    public ApiResponse<?> getTracksByUserId(){
+        List<TrackResponse> tracks = this.trackService.getTracksByUserId();
+        return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
+    }
+
     @GetMapping("/list")
     public ApiResponse<List<TrackResponse>> getTracksByIds(@RequestParam List<String> ids){
         List<TrackResponse> tracks = this.trackService.getTracksByIds(ids);

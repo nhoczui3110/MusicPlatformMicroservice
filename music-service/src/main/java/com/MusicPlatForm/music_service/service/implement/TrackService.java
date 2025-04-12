@@ -246,5 +246,19 @@ public class TrackService implements TrackServiceInterface{
         return response;
     }
 
-
+    @Override
+    public List<TrackResponse> getTracksByUserId(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        List<Track> tracks = this.trackRepository.findTrackByUserId(userId);
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        for(Track track:tracks){
+            TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
+            List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
+            trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
+            trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponses.add(trackResponse);
+        }
+        return trackResponses;
+    }
 }
