@@ -32,4 +32,8 @@ public class UserCreationRequest {
     @DobConstraint(min = 16)
     LocalDate dob;
     Set<String> roles;
+    @NotBlank(message = "DISPLAY_NAME_REQUIRED")
+    String displayName;
+    String avatar;
+    String provider;
 }

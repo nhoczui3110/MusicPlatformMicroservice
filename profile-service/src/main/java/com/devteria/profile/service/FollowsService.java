@@ -2,6 +2,7 @@ package com.devteria.profile.service;
 
 import com.devteria.profile.dto.request.AddFollowRequest;
 import com.devteria.profile.dto.response.GetFollowersResponse;
+import com.devteria.profile.dto.response.ProfileWithCountFollowResponse;
 import com.devteria.profile.dto.response.UserProfileResponse;
 import com.devteria.profile.entity.Follows;
 import com.devteria.profile.entity.UserProfile;
@@ -69,14 +70,21 @@ public class FollowsService {
                 .map(Follows::getFollower);
         return userProfileList.map(userProfileMapper::toUserProfileResponse);
     }
-    public Page<UserProfileResponse> getFollowing(int page, int size, String userId) {
+    public Page<ProfileWithCountFollowResponse> getFollowing(int page, int size, String userId) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         Pageable pageable = PageRequest.of(page, size, Sort.by("followedAt").descending());
         Page<Follows> followings = followsRepository.findByFollowerId(pageable, userProfile.getId());
         Page<UserProfile> userProfileList = followings
                 .map(Follows::getFollowing);
-        return userProfileList.map(userProfileMapper::toUserProfileResponse);
+        return userProfileList.map(profile -> {
+            ProfileWithCountFollowResponse response = userProfileMapper.toProfileWithCountFollowResponse(profile);
+            int followingCount = followsRepository.countByFollowing_UserId(userId);
+            int followerCount = followsRepository.countByFollower_UserId(userId);
+            response.setFollowingCount(followingCount);
+            response.setFollowerCount(followerCount);
+            return response;
+        });
     }
     @Transactional
     public void unfollow(String unfollowUserId) {
@@ -92,4 +100,9 @@ public class FollowsService {
         followsRepository.findByFollowerAndFollowing(userProfile, unfollowUserProfile)
                 .ifPresent(followsRepository::delete);
     }
+
+    public boolean isFollowing(String followerId, String followingId) {
+        return followsRepository.existsByFollower_UserIdAndFollowing_UserId(followerId, followingId);
+    }
+
 }

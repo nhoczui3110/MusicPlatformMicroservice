@@ -63,10 +63,10 @@ public class UserController {
 //    ApiResponse<UserResponse> updateMyInfo(UserUpdateRequest request) {
 //        return ApiResponse.<UserResponse>builder().data(userService.updateUser(request)).build();
 //    }
-    @PatchMapping("/change-password")
-    ApiResponse changePassword(@RequestBody @Valid ChangePasswordRequest request) {
-        userService.changePassword(request);
-        return  ApiResponse.builder().build();
-    }
+//    @PatchMapping("/change-password")
+//    ApiResponse changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+//        userService.changePassword(request);
+//        return  ApiResponse.builder().build();
+//    }
 
 }

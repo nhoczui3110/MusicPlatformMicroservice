@@ -1,10 +1,7 @@
 package com.example.identity_service.service;
 
-import com.example.identity_service.dto.request.ChangePasswordRequest;
 import com.example.identity_service.dto.request.ProfileCreationRequest;
 import com.example.identity_service.dto.request.UserCreationRequest;
-import com.example.identity_service.dto.request.UserUpdateRequest;
-import com.example.identity_service.dto.response.UserProfileResponse;
 import com.example.identity_service.dto.response.UserResponse;
 import com.example.identity_service.entity.Role;
 import com.example.identity_service.entity.User;
@@ -21,21 +18,15 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +35,7 @@ import java.util.Objects;
 public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
-    PasswordEncoder passwordEncoder;
+    PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
     RoleRepository roleRepository;
     ProfileClient profileClient;
     UserProfileMapper userProfileMapper;
@@ -57,7 +48,9 @@ public class UserService {
         User newUser = userMapper.toUser(request);
         HashSet<Role> roles = new HashSet<>(roleRepository.findAllById(request.getRoles()));
         newUser.setRoles(roles);
-        newUser.setPassword(passwordEncoder.encode((newUser.getPassword())));
+        if (newUser.getPassword() != null) {
+            newUser.setPassword(passwordEncoder.encode((newUser.getPassword())));
+        }
         String userId = userRepository.save(newUser).getId();
         ProfileCreationRequest profileCreationRequest = userProfileMapper.toProfileCreationRequest(request);
         LocalDateTime now = LocalDateTime.now();
@@ -68,6 +61,7 @@ public class UserService {
         UserResponse result = userMapper.toUserResponse(newUser);
         return result;
     }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers() {
@@ -118,29 +112,29 @@ public class UserService {
     }
 
 
-    public void changePassword(ChangePasswordRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-        log.info("user roles: {}", roles);
-        String userId = authentication.getName();
-
-        if (!Objects.equals(userId, request.getUserId()) && !roles.contains("ROLE_ADMIN")) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-
-
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
-            throw new AppException(ErrorCode.WRONG_PASSWORD);
-        }
-
-        if (!Objects.equals(request.getNewPassword(), request.getConfirmNewPassword())) {
-            throw new AppException(ErrorCode.NEW_PASSWORD_NOT_MATCH);
-        }
-
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
-    }
+//    public void changePassword(ChangePasswordRequest request) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        List<String> roles = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+//        log.info("user roles: {}", roles);
+//        String userId = authentication.getName();
+//
+//        if (!Objects.equals(userId, request.getUserId()) && !roles.contains("ROLE_ADMIN")) {
+//            throw new AppException(ErrorCode.UNAUTHORIZED);
+//        }
+//
+//
+//        User user = userRepository.findById(request.getUserId())
+//                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+//
+//        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+//            throw new AppException(ErrorCode.WRONG_PASSWORD);
+//        }
+//
+//        if (!Objects.equals(request.getNewPassword(), request.getConfirmNewPassword())) {
+//            throw new AppException(ErrorCode.NEW_PASSWORD_NOT_MATCH);
+//        }
+//
+//        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+//        userRepository.save(user);
+//    }
 }

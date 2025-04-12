@@ -28,7 +28,8 @@ public enum ErrorCode {
     ALBUM_ALREADY_LIKED(1019, "Album already liked", HttpStatus.NOT_FOUND),
     ALBUM_NOT_LIKED(1020, "Album not liked", HttpStatus.NOT_FOUND),
     TRACK_N0T_FOUND(1021, "Track not found", HttpStatus.NOT_FOUND),
-    ALREADY_LIKED(1022, "Already liked", HttpStatus.BAD_REQUEST)
+    ALREADY_LIKED(1022, "Already liked", HttpStatus.BAD_REQUEST),
+    ALBUM_LINK_EXISTED(1023, "Album link existed", HttpStatus.BAD_REQUEST)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

@@ -4,6 +4,7 @@ import com.devteria.profile.dto.request.ApiResponse;
 import com.devteria.profile.dto.request.DeleteAvatarRequest;
 import com.devteria.profile.dto.request.ProfileCreationRequest;
 import com.devteria.profile.dto.request.ProfileUpdateRequest;
+import com.devteria.profile.dto.response.ProfileWithCountFollowResponse;
 import com.devteria.profile.dto.response.UploadAvatarResponse;
 import com.devteria.profile.dto.response.UploadCoverResponse;
 import com.devteria.profile.dto.response.UserProfileResponse;
@@ -12,6 +13,7 @@ import com.devteria.profile.exception.AppException;
 import com.devteria.profile.exception.ErrorCode;
 import com.devteria.profile.mapper.UserProfileMapper;
 import com.devteria.profile.repository.FileClient;
+import com.devteria.profile.repository.FollowsRepository;
 import com.devteria.profile.repository.UserProfileRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +43,7 @@ public class UserProfileService {
     UserProfileRepository userProfileRepository;
     UserProfileMapper userProfileMapper;
     FileClient fileClient;
+    FollowsRepository followsRepository;
     public UserProfileResponse create(ProfileCreationRequest request) {
         String email = request.getEmail();
         if (userProfileRepository.findByEmail(email).isPresent()) {
@@ -62,9 +65,23 @@ public class UserProfileService {
         userProfileRepository.save(userProfile);
         return userProfileMapper.toUserProfileResponse(userProfile);
     }
-    @PreAuthorize("hasRole('ADMIN')")
-    public UserProfileResponse get(String userId) {
-        UserProfile userProfile = userProfileRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("UserProfile is not exist"));
+    public ProfileWithCountFollowResponse get(String userId) {
+        UserProfile userProfile = userProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+
+        ProfileWithCountFollowResponse response = userProfileMapper.toProfileWithCountFollowResponse(userProfile);
+
+        int followingCount = followsRepository.countByFollower_UserId(userId);
+        int followerCount = followsRepository.countByFollowing_UserId(userId);
+
+        response.setFollowingCount(followingCount);
+        response.setFollowerCount(followerCount);
+
+        return response;
+    }
+
+    public UserProfileResponse getByEmail(String email) {
+        UserProfile userProfile = userProfileRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("UserProfile is not exist"));
         return userProfileMapper.toUserProfileResponse(userProfile);
     }
     @PreAuthorize("hasRole('ADMIN')")
@@ -85,9 +102,10 @@ public class UserProfileService {
         UserProfile userProfile = userProfileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         String oldAvatar = userProfile.getAvatar();
         ApiResponse<UploadAvatarResponse> response;
-        if (oldAvatar != null) {
+        if (oldAvatar != null && !oldAvatar.isEmpty() && !oldAvatar.startsWith("https")) {
             response = fileClient.replaceAvatar(avatar, oldAvatar);
-        } else {
+        }
+        else {
             response = fileClient.addAvatar(avatar);
         }
         userProfile.setAvatar(response.getData().getAvatarName());

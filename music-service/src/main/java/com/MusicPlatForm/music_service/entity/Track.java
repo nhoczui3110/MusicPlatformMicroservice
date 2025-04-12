@@ -40,7 +40,7 @@ public class Track {
     @Column(name = "File_name", nullable = false)
     String fileName;
 
-    @Column(name = "Cover_image_name",nullable = false)
+    @Column(name = "Cover_image_name",nullable = true)
     String coverImageName;
 
     @Column(name = "Created_at", nullable = false)

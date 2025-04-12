@@ -15,10 +15,12 @@ public class ProfileCreationRequest {
     String userId;
     String firstName;
     String lastName;
+    String displayName;
     String email;
     LocalDate dob;
     Boolean gender;
     String profilePicture;
     LocalDateTime createdAt;
     LocalDateTime updateAt;
+    String avatar;
 }

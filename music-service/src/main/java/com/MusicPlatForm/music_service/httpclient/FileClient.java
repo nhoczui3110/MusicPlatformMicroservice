@@ -29,7 +29,7 @@ public interface FileClient {
     @PostMapping(value = "/audios",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<AddTrackFileResponse> addTrack(@RequestPart MultipartFile track);
     @PostMapping(value = "/audios/bulk",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<List<AddTrackFileResponse>> addTracks(@RequestPart("trackFiles") List<MultipartFile> tracks);
+    public ApiResponse<List<AddTrackFileResponse>> addTracks(@RequestPart("audioFiles") List<MultipartFile> tracks);
     
 
 }

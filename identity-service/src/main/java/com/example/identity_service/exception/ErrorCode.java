@@ -24,6 +24,8 @@ public enum ErrorCode {
     EMAIL_EXISTED(1014, "Email existed!", HttpStatus.BAD_REQUEST),
     CONFIRM_NEW_PASSWORD_REQUIRED(1015, "Confirm new password is required!", HttpStatus.BAD_REQUEST),
     USER_EXISTED(1016, "User existed!", HttpStatus.BAD_REQUEST),
+    DISPLAY_NAME_REQUIRED(1017, "Display name required", HttpStatus.BAD_REQUEST),
+    TOKEN_INVALID(1018, "Token is invalid or expire", HttpStatus.BAD_REQUEST)
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

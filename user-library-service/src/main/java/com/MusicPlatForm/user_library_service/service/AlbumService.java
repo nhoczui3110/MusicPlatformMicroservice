@@ -56,7 +56,9 @@ public class AlbumService {
     String fileServiceUrl;
     @Transactional
     public AlbumResponse addAlbum(AlbumRequest request, MultipartFile coverAlbum, List<MultipartFile> trackFiles, List<TrackRequest> trackRequests) throws JsonProcessingException {
-
+        if (albumRepository.findByAlbumLink(request.getAlbumLink()).isPresent()) {
+            throw new AppException(ErrorCode.ALBUM_LINK_EXISTED);
+        }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         Album newAlbum = albumMapper.toAlbum(request);
@@ -65,9 +67,9 @@ public class AlbumService {
         if (coverAlbum != null && !coverAlbum.isEmpty()) {
             ApiResponse<AddCoverFileResponse> coverFileResponse = fileClient.addCover(coverAlbum);
             String nameImage = coverFileResponse.getData().getCoverName();
-            newAlbum.setImagePath(fileServiceUrl + "/image/" + "cover/" + nameImage);
-        if (trackFiles != null && !trackFiles.isEmpty() && trackRequests != null && !trackRequests.isEmpty()) {
+            newAlbum.setImagePath(nameImage);
         }
+        if (trackFiles != null && !trackFiles.isEmpty() && trackRequests != null && !trackRequests.isEmpty()) {
             ObjectMapper objectMapper = new ObjectMapper();
             String trackRequestJson = objectMapper.writeValueAsString(trackRequests);
             trackResponseList = musicClient.addMultiTrack(trackFiles,trackRequestJson);
@@ -77,7 +79,6 @@ public class AlbumService {
                             .addedAt(LocalDateTime.now()).build()).toList();
             newAlbum.setTracks(albumTracks);
         }
-
         List<String> tagsId = request.getTagsId();
         List<AlbumTag> albumTags = tagsId.stream()
                 .map(id -> AlbumTag.builder()
@@ -104,6 +105,18 @@ public class AlbumService {
 //            List<String> tags =  albumTags.stream().map(AlbumTag::getTagId).toList();
 //            response.setTagsId(tags);
 //        }
+        return response;
+    }
+
+    @PostAuthorize("returnObject.privacy == 'public' or returnObject.userId == authentication.name")
+    public AlbumResponse getAlbumByLink(String albumLink) {
+        Album album = albumRepository.findByAlbumLink(albumLink)
+                .orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_FOUND));
+        List<AlbumTrack> albumTracks = album.getTracks();
+        List<String> trackIds = albumTracks.stream().map(AlbumTrack::getTrackId).toList();
+        ApiResponse<List<TrackResponse>> trackResponses = musicClient.getTrackByIds(trackIds);
+        AlbumResponse response = albumMapper.toAlbumResponse(album);
+        response.setTrackResponses(trackResponses.getData());
         return response;
     }
 

@@ -21,10 +21,13 @@ public class AlbumController {
 
 
     @GetMapping("/find-by-album-id/{albumId}")
-    public ApiResponse<AlbumResponse> getAlbum(@PathVariable("albumId") String albumId) {
+    public ApiResponse<AlbumResponse> getAlbumById(@PathVariable("albumId") String albumId) {
         return  ApiResponse.<AlbumResponse>builder().data(albumService.getAlbumById(albumId)).build();
     }
-
+    @GetMapping("/{albumLink}")
+    public ApiResponse<AlbumResponse> getAlbumByAlbumLink(@PathVariable("albumLink") String albumLink) {
+        return  ApiResponse.<AlbumResponse>builder().data(albumService.getAlbumByLink(albumLink)).build();
+    }
     @GetMapping("/find-by-user-id/{userId}")
     public ApiResponse<List<AlbumResponse>> getAlbums(@PathVariable("userId") String userId){
         return  ApiResponse.<List<AlbumResponse>>builder().data(albumService.getAlbumByUserId(userId)).build();

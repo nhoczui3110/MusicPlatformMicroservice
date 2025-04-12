@@ -3,6 +3,7 @@ package com.devteria.profile.controller;
 import com.devteria.profile.dto.request.ApiResponse;
 import com.devteria.profile.dto.request.ProfileCreationRequest;
 import com.devteria.profile.dto.request.ProfileUpdateRequest;
+import com.devteria.profile.dto.response.ProfileWithCountFollowResponse;
 import com.devteria.profile.dto.response.UploadAvatarResponse;
 import com.devteria.profile.dto.response.UploadCoverResponse;
 import com.devteria.profile.dto.response.UserProfileResponse;
@@ -27,35 +28,19 @@ import java.util.List;
 public class UserProfileController {
     UserProfileService userProfileService;
     @GetMapping("/{userId}")
-    ApiResponse<UserProfileResponse> getUserProfile(@PathVariable("userId") String userId) {
-        return ApiResponse.<UserProfileResponse>builder()
+    ApiResponse<ProfileWithCountFollowResponse> getUserProfile(@PathVariable("userId") String userId) {
+        return ApiResponse.<ProfileWithCountFollowResponse>builder()
                 .data(userProfileService.get(userId))
                 .build();
     }
-    @GetMapping()
-    ApiResponse<Page<UserProfileResponse>> getAllUserProfile(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        return ApiResponse.<Page<UserProfileResponse>>builder()
-                .data(userProfileService.getAll(page, size)).build();
+    @GetMapping("/email/{email}")
+    ApiResponse<UserProfileResponse> getUserProfileByEmail(@PathVariable("email") String email) {
+        UserProfileResponse response = userProfileService.getByEmail(email);
+        return ApiResponse.<UserProfileResponse>builder()
+                .data(response)
+                .build();
     }
 
-    @PutMapping("update-my-info")
-    ApiResponse<UserProfileResponse> updateUserProfile(@RequestBody ProfileUpdateRequest request) {
-        return  ApiResponse.<UserProfileResponse>builder().data(userProfileService.update(request)).build();
-    }
-    @GetMapping("get-my-info")
-    ApiResponse<UserProfileResponse> getMyInfo() {
-        return ApiResponse.<UserProfileResponse>builder().data(userProfileService.getMyInfo()).build();
-    }
-
-    @PostMapping(value = "/upload-avatar")
-    ApiResponse<UploadAvatarResponse> uploadAvatar(@RequestPart("avatar") MultipartFile avatar) {
-        return userProfileService.uploadAvatar(avatar);
-    }
-
-    @PostMapping(value = "/upload-cover")
-    ApiResponse<UploadCoverResponse> uploadCover(@RequestPart("cover") MultipartFile cover)  {
-        return  userProfileService.uploadCover(cover);
-    }
 //    @GetMapping("/avatar/{fileName}")
 //    public ResponseEntity<Resource> getProfileAvatar(@PathVariable String fileName) {
 //        Resource file = userProfileService.getProfileAvatar(fileName);
