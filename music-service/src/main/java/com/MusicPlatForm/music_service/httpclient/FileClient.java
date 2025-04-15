@@ -27,7 +27,7 @@ public interface FileClient {
     @PostMapping(value = "/images/covers",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<AddCoverFileResponse> addCover(@RequestPart MultipartFile cover);
     @PostMapping(value = "/audios",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<AddTrackFileResponse> addTrack(@RequestPart MultipartFile track);
+    public ApiResponse<AddTrackFileResponse> addTrack(@RequestPart("audio") MultipartFile track);
     @PostMapping(value = "/audios/bulk",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<AddTrackFileResponse>> addTracks(@RequestPart("audioFiles") List<MultipartFile> tracks);
     

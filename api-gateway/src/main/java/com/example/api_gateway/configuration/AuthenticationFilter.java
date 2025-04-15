@@ -38,7 +38,20 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private String API_PREFIX;
     IdentityService identityService;
     ObjectMapper objectMapper;
-    String[] publicEndPoints = {"/identity/oauth2/.*","/identity/authenticate/.*", "/identity/users/registration", "/profile/follows/.*", "/profile/users/.*","/user-library/album/.*",  "/music-service/.*", "/file-service/.*"};
+    String[] publicEndPoints = {
+        "/identity/oauth2/.*",
+        "/identity/authenticate/.*",
+        "/identity/users/registration",
+        "/profile/follows/.*", 
+        "/profile/users/.*",
+        "/user-library/album/.*", 
+        "/music-service/.*", 
+        "/file-service/.*",
+        "/search-service/.*",
+        "/swagger-ui/index.html",
+        "/swagger-ui/.*",
+        "/v3/api-docs/.*"
+        };
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);

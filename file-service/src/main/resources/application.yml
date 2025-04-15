@@ -26,14 +26,9 @@ file:
   musics-dir: musics
   avatars-dir: avatars
   covers-dir: covers
-springdoc:
-  api-docs:
-    enabled: true
-    path: /api-docs
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui
 
+springdoc:
+  override-with-generic-response: false
 eureka:
   client:
     service-url:

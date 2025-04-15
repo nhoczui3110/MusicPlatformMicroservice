@@ -54,6 +54,13 @@ public class SearchTrackRestController {
 
     @GetMapping("")
     public ResponseEntity<?> searchTracks(@RequestParam(name = "q") String query){
+        if(query.equals("test")){
+            TrackRequest trackRequest = new TrackRequest();
+            trackRequest.setName("nhạc hay");
+            trackRequest.setDescription("nhạc hay");
+            trackRequest.setTrackId("8efd488f-1265-4ae6-9ba7-2cf2bb35d9cfuser456");
+            trackSearchService.save(trackRequest);
+        }
         return ResponseEntity.ok().body(
             ApiResponse.<List<String>>builder().code(200).data(this.trackSearchService.searchTracks(query)).message("Successfully").build()
         );
