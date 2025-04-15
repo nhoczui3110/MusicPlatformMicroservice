@@ -32,6 +32,7 @@ public interface CommentMapper {
     @Mapping(source = "content", target = "content")
     @Mapping(source = "commentAt", target = "commentAt")
     @Mapping(source = "likeCount", target = "likeCount")
+    @Mapping(target = "replies", ignore = true)
     CommentResponse toCommentResponse(Comment comment);
 
     List<CommentResponse> toCommentResponseList(List<Comment> comments);

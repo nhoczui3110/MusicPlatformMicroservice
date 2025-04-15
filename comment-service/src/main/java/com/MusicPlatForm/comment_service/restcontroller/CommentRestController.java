@@ -2,6 +2,7 @@ package com.MusicPlatForm.comment_service.restcontroller;
 
 import com.MusicPlatForm.comment_service.dto.ApiResponse;
 import com.MusicPlatForm.comment_service.dto.request.CommentRequest;
+import com.MusicPlatForm.comment_service.dto.request.UpdateCommentRequest;
 import com.MusicPlatForm.comment_service.dto.response.CommentResponse;
 import com.MusicPlatForm.comment_service.service.CommentService;
 import jakarta.validation.Valid;
@@ -67,11 +68,11 @@ public class CommentRestController {
     }
 
     @PutMapping("/update/{id}")
-    public ApiResponse<CommentResponse> updateComment(@PathVariable String id, @RequestBody String content) {
+    public ApiResponse<CommentResponse> updateComment(@PathVariable String id, @RequestBody UpdateCommentRequest content) {
         return ApiResponse.<CommentResponse>builder()
                 .code(HttpStatus.OK.value())
                 .message("Comment updated successfully")
-                .data(commentService.updateComment(id, content))
+                .data(commentService.updateComment(id, content.getContent()))
                 .build();
     }
 

@@ -15,7 +15,9 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ public class CommentService {
         Comment comment = commentMapper.toComment(commentRequest);
         comment.setCommentAt(LocalDateTime.now());
         comment.setLikeCount(0);
+        comment.setParentComment(null);
         comment = commentRepository.save(comment);
         return commentMapper.toCommentResponse(comment);
     }
@@ -39,26 +42,49 @@ public class CommentService {
 
     public List<CommentResponse> getCommentsByTrackId(String trackId) {
         List<Comment> comments = commentRepository.findByTrackId(trackId);
-        return commentMapper.toCommentResponseList(comments);
+        List<CommentResponse> responseList = new ArrayList<>();
+
+        for (Comment parent : comments) {
+            CommentResponse parentDto = commentMapper.toCommentResponse(parent);
+            List<CommentResponse> replys = new ArrayList<>();
+            List<Comment> replies = parent.getReplies();
+            if (replies != null) {
+                for (Comment reply : replies) {
+                    replys.add(commentMapper.toCommentResponse(reply));
+                }
+            }
+            parentDto.setReplies(replys);
+            responseList.add(parentDto);
+        }
+        return responseList;
     }
 
     public void likeComment(String commentId, String userId) {
-        LikedComment likedComment = new LikedComment(null, userId, LocalDateTime.now(), null);
-        likedCommentRepository.save(likedComment);
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
+        LikedComment likedComment = LikedComment.builder()
+                .userId(userId)
+                .likeAt(LocalDateTime.now())
+                .comment(comment)
+                .build();
+        likedCommentRepository.save(likedComment);
         comment.setLikeCount(comment.getLikeCount() + 1);
         commentRepository.save(comment);
     }
 
     public void unlikeComment(String commentId, String userId) {
-        LikedComment likedComment = likedCommentRepository.findByCommentIdAndUserId(commentId, userId)
-                .orElseThrow(() -> new AppException(ErrorCode.LIKE_NOT_FOUND));
-        likedCommentRepository.delete(likedComment);
+        List <LikedComment> likedComments = likedCommentRepository.findAllByCommentIdAndUserId(commentId, userId);
+
+        if (likedComments.isEmpty()) {
+            throw new AppException(ErrorCode.LIKE_NOT_FOUND);
+        }
+        likedCommentRepository.deleteAll(likedComments);
 
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
-        comment.setLikeCount(Math.max(0, comment.getLikeCount() - 1));
+        int updatedLikeCount = Math.max(0, comment.getLikeCount() - likedComments.size());
+        comment.setLikeCount(updatedLikeCount);
+
         commentRepository.save(comment);
     }
 
@@ -82,7 +108,8 @@ public class CommentService {
         Comment replyComment = commentMapper.toComment(request);
         replyComment.setCommentAt(LocalDateTime.now());
         replyComment.setLikeCount(0);
-
+        replyComment.setTrackId(parentComment.getTrackId());
+        replyComment.setParentComment(parentComment);
         replyComment = commentRepository.save(replyComment);
         return commentMapper.toCommentResponse(replyComment);
     }

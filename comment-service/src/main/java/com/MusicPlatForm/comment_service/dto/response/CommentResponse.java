@@ -3,6 +3,7 @@ package com.MusicPlatForm.comment_service.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,4 +17,5 @@ public class CommentResponse {
     String content;
     LocalDateTime commentAt;
     int likeCount;
+    List<CommentResponse> replies;
 }
