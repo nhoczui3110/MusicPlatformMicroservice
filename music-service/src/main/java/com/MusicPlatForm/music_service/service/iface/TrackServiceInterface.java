@@ -42,7 +42,7 @@ public interface TrackServiceInterface {
     public List<TrackResponse> getTracksByIds(List<String> ids);
     
     
-    public List<TrackResponse> getTracksByUserId();
+    public List<TrackResponse> getTracksByUserId(String userId);
 
 
     /**

@@ -2,12 +2,17 @@ package com.MusicPlatForm.music_service.service.implement;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.MusicPlatForm.music_service.dto.reponse.*;
+import com.MusicPlatForm.music_service.dto.kafka_request.*;
 import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
+
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
@@ -41,6 +46,15 @@ public class TrackService implements TrackServiceInterface{
     TagRepository tagRepository;
     TrackRepository trackRepository;
     GenreRepository genreRepository;
+    // private KafkaTemplate<String,com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest> kafkaTemplate;
+    // private void sendTrackToSearchService(Track track){
+    //     com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest request = new com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest();
+    //     request.setTrackId(track.getId());
+    //     request.setDescription(track.getDescription());
+    //     request.setName(track.getTitle());
+    //     kafkaTemplate.send("add_track_to_search", request);
+
+    // }
     @Override
     @Transactional
     public TrackResponse uploadTrack(MultipartFile coverImage, MultipartFile trackAudio,TrackRequest trackRequest) {
@@ -54,6 +68,10 @@ public class TrackService implements TrackServiceInterface{
         if (uploadTrackCoverResponse != null) {
                 track.setCoverImageName(uploadTrackCoverResponse.getData().getCoverName());
         }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        track.setUserId(userId);
         track.setCreatedAt(LocalDateTime.now());
         track.setCountPlay(0);
         track.setDuration(uploadTrackMp3Response.getData().getDuration());
@@ -68,10 +86,11 @@ public class TrackService implements TrackServiceInterface{
         Genre genre = this.genreRepository.findById(trackRequest.getGenreId()).orElse(null);
         track.setGenre(genre);
         Track savedTrack =  trackRepository.save(track);
-
+        // this.sendTrackToSearchService(savedTrack);
         TrackResponse trackResponse = this.trackMapper.toTrackResponseFromTrack(savedTrack);
         trackResponse.setTags(this.tagMapper.toTagResponsesFromTags(tags));
         trackResponse.setGenre(this.genreMapper.toGenreResponseFromGenre(genre));
+
         return trackResponse;
     }
 
@@ -247,9 +266,11 @@ public class TrackService implements TrackServiceInterface{
     }
 
     @Override
-    public List<TrackResponse> getTracksByUserId(){
+    public List<TrackResponse> getTracksByUserId(String userId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
+        if(userId==null || userId==""){
+            userId = authentication.getName();
+        }
         List<Track> tracks = this.trackRepository.findTrackByUserId(userId);
         List<TrackResponse> trackResponses = new ArrayList<>();
         for(Track track:tracks){
