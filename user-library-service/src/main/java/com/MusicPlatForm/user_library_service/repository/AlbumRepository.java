@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AlbumRepository extends JpaRepository<Album, String> {
     Page<Album> findByUserId(Pageable pageable, String userid);
@@ -22,4 +23,5 @@ public interface AlbumRepository extends JpaRepository<Album, String> {
         ORDER BY COALESCE(la.likedAt, a.createdAt) DESC
     """)
     List<Album> findCreatedAndLikedAlbums(String userId);
+    Optional<Album> findByAlbumLink(String albumLink);
 }

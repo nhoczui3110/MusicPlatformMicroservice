@@ -1,19 +1,14 @@
 package com.example.identity_service.service;
 
-import com.example.identity_service.dto.request.AuthenticatedRequest;
-import com.example.identity_service.dto.request.IntrospectRequest;
-import com.example.identity_service.dto.request.LogoutRequest;
-import com.example.identity_service.dto.request.RefreshTokenRequest;
-import com.example.identity_service.dto.response.AuthenticatedResponse;
-import com.example.identity_service.dto.response.CheckUsernameResponse;
-import com.example.identity_service.dto.response.IntrospectResponse;
-import com.example.identity_service.dto.response.UrlLoginGoogleResponse;
+import com.example.identity_service.dto.request.*;
+import com.example.identity_service.dto.response.*;
 import com.example.identity_service.entity.InvalidatedToken;
 import com.example.identity_service.entity.Role;
 import com.example.identity_service.entity.User;
 import com.example.identity_service.exception.AppException;
 import com.example.identity_service.exception.ErrorCode;
 import com.example.identity_service.repository.InvalidatedTokenRepository;
+import com.example.identity_service.repository.ProfileClient;
 import com.example.identity_service.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -27,15 +22,16 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+//import org.springframework.security.oauth2.client.registration.ClientRegistration;
+//import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -47,6 +43,10 @@ import java.util.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthenticateService {
+    RedisTemplate<String, String> redisTemplate;
+    @Value("${app.frontend.url}")
+    @NonFinal
+    protected String frontendUrl;
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
@@ -58,7 +58,7 @@ public class AuthenticateService {
     protected Long VALID_DURATION;
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
-    ClientRegistrationRepository clientRegistrationRepository;
+    ProfileClient profileClient;
     public AuthenticatedResponse authenticate(AuthenticatedRequest authenticatedRequest) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         String username = authenticatedRequest.getUsername();
@@ -81,7 +81,7 @@ public class AuthenticateService {
         return IntrospectResponse.builder().isAuthenticated(isValid).build();
     }
 
-    private String generateToken(User user) {
+    public String generateToken(User user) {
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getId())
@@ -152,33 +152,75 @@ public class AuthenticateService {
         return stringJoiner.toString();
     }
 
-    public UrlLoginGoogleResponse getUrlGoogle() {
-        ClientRegistration google = clientRegistrationRepository.findByRegistrationId("google");
-
-        if (google == null) {
-            throw new IllegalStateException("Google client registration not found");
-        }
-
-        String authorizationUri = google.getProviderDetails().getAuthorizationUri();
-        String clientId = google.getClientId();
-        String redirectUri = google.getRedirectUri();
-        String scope = String.join(" ", google.getScopes());
-
-        String googleLoginUrl = UriComponentsBuilder.fromHttpUrl(authorizationUri)
-                .queryParam("client_id", clientId)
-                .queryParam("redirect_uri", redirectUri)
-                .queryParam("response_type", "code")
-                .queryParam("scope", scope)
-                .queryParam("access_type", "offline")
-                .queryParam("prompt", "consent")
-                .toUriString();
-
-
-        return UrlLoginGoogleResponse.builder().url(googleLoginUrl).build();
-    }
+//    public UrlLoginGoogleResponse getUrlGoogle() {
+//        ClientRegistration google = clientRegistrationRepository.findByRegistrationId("google");
+//
+//        if (google == null) {
+//            throw new IllegalStateException("Google client registration not found");
+//        }
+//
+//        String authorizationUri = google.getProviderDetails().getAuthorizationUri();
+//        String clientId = google.getClientId();
+//        String redirectUri = google.getRedirectUri();
+//        String scope = String.join(" ", google.getScopes());
+//
+//        String googleLoginUrl = UriComponentsBuilder.fromHttpUrl(authorizationUri)
+//                .queryParam("client_id", clientId)
+//                .queryParam("redirect_uri", redirectUri)
+//                .queryParam("response_type", "code")
+//                .queryParam("scope", scope)
+//                .queryParam("access_type", "offline")
+//                .queryParam("prompt", "consent")
+//                .toUriString();
+//
+//
+//        return UrlLoginGoogleResponse.builder().url(googleLoginUrl).build();
+//    }
     public CheckUsernameResponse checkUsername(String username) {
         if ( userRepository.findByUsername(username).isEmpty()) {
-            return  CheckUsernameResponse.builder().isExisted(false).build();
+            return  CheckUsernameResponse.builder().isExisted(  false).build();
         } return  CheckUsernameResponse.builder().isExisted(true).build();
+    }
+
+    public void sendResetLink(EmailRequest request) {
+        ApiResponse<UserProfileResponse> userProfileResponse = profileClient.getProfile(request.getEmail());
+        User user = userRepository.findById(userProfileResponse.getData().getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        // Xoá token cũ (nếu có)
+        String oldTokenKey = "reset:user:" + user.getId();
+        String oldToken = redisTemplate.opsForValue().get(oldTokenKey);
+        if (oldToken != null) {
+            redisTemplate.delete("reset:token:" + oldToken);
+            redisTemplate.delete(oldTokenKey);
+        }
+
+        // Tạo token mới
+        String token = UUID.randomUUID().toString();
+        redisTemplate.opsForValue().set("reset:token:" + token, user.getId(), Duration.ofMinutes(30));
+        redisTemplate.opsForValue().set(oldTokenKey, token, Duration.ofMinutes(30)); // mapping userId → token
+
+        String resetLink = frontendUrl + "/reset-password?token=" + token;
+
+        log.info("Reset password link: {}", resetLink);
+    }
+
+
+    public void resetPassword(ResetPasswordRequest request) {
+        String key = "reset:token:" + request.getToken();
+        String userId = redisTemplate.opsForValue().get(key);
+
+        if (userId == null) {
+            throw new AppException(ErrorCode.TOKEN_INVALID);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        user.setPassword(new BCryptPasswordEncoder().encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        redisTemplate.delete(key);
+        redisTemplate.delete("reset:user:" + userId);
     }
 }

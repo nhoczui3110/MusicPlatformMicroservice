@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    private final String[] PUBLIC_ENDPOINT = {"/follows/**", "/internal/users"};
+    private final String[] PUBLIC_ENDPOINT = {"/follows/**", "/internal/users", "/users/**"};
 
     @Autowired
     private  CustomJwtDecoder customJwtDecoder;

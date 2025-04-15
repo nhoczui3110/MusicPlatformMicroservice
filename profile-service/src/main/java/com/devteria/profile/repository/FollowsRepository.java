@@ -13,8 +13,11 @@ import java.util.Optional;
 @Repository
 public interface FollowsRepository extends JpaRepository<Follows, String> {
     Optional<Follows> findByFollowerAndFollowing(UserProfile follower, UserProfile following);
+    boolean existsByFollower_UserIdAndFollowing_UserId(String followerId, String followingId);
     List<Follows> findByFollowerId(String followerId);
     List<Follows> findByFollowingId(String followingId);
     Page<Follows> findByFollowerId(Pageable pageable, String followerId);
     Page<Follows> findByFollowingId(Pageable pageable, String followingId);
+    int countByFollowing_UserId(String userId);
+    int countByFollower_UserId(String userId);
 }

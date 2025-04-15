@@ -14,4 +14,7 @@ public interface TrackRepository extends JpaRepository<Track,String>{
     List<Track> findRandomTracksByGenre(@Param("genreId") String genreId, @Param("limit") int limit);
     @Query(value = "SELECT TOP(:limit) * FROM Track ORDER BY NEWID()", nativeQuery = true)
     List<Track> findRandomTracks(@Param("limit") int limit);
+
+    List<Track> findTrackByUserId(String userId);
+    
 }

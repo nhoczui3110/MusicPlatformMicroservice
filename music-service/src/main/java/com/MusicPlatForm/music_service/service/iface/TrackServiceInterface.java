@@ -40,6 +40,10 @@ public interface TrackServiceInterface {
      * @return List TrackDto
      */
     public List<TrackResponse> getTracksByIds(List<String> ids);
+    
+    
+    public List<TrackResponse> getTracksByUserId(String userId);
+
 
     /**
      * Delete track by track id

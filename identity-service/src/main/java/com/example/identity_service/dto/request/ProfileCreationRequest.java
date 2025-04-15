@@ -19,7 +19,8 @@ public class ProfileCreationRequest {
     Boolean gender;
     String email;
     String profilePicture;
+    String avatar;
     LocalDateTime updateAt;
     LocalDateTime createdAt;
-
+    String displayName;
 }

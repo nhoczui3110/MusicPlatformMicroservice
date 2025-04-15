@@ -1,6 +1,9 @@
 package com.example.identity_service.configuration;
 
 import com.example.identity_service.enums.Role;
+
+import com.example.identity_service.security.OAuth2LoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +27,9 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
+    private final OAuth2LoginSuccessHandler successHandler;
     private  final String[] PUBLIC_ENDPOINT = {"/authenticate/**", "/users/registration"};
     @Value("${jwt.signerKey}")
     private String signerKey;
@@ -40,8 +45,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/user", true) // Redirect to /user after successful login
-                        .failureUrl("/login?error=true")  // Redirect if login fails
+                        .loginPage("/oauth2/authorization/google")
+                        .successHandler(successHandler)
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwtConfigurer -> jwtConfigurer
@@ -62,10 +67,10 @@ public class SecurityConfig {
 //                .macAlgorithm(MacAlgorithm.HS512)
 //                .build();
 //    }
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
+//    @Bean
+//    PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder(10);
+//    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

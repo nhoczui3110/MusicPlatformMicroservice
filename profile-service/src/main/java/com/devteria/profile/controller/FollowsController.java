@@ -3,6 +3,7 @@ package com.devteria.profile.controller;
 import com.devteria.profile.dto.request.AddFollowRequest;
 import com.devteria.profile.dto.request.ApiResponse;
 import com.devteria.profile.dto.request.ProfileCreationRequest;
+import com.devteria.profile.dto.response.ProfileWithCountFollowResponse;
 import com.devteria.profile.dto.response.UserProfileResponse;
 import com.devteria.profile.entity.Follows;
 import com.devteria.profile.entity.UserProfile;
@@ -32,11 +33,16 @@ public class FollowsController {
     }
 
     @GetMapping("/get-followings/{userId}")
-    public ApiResponse<Page<UserProfileResponse>> getFollowings(@RequestParam(defaultValue = "0") int page,
-                                                                @RequestParam(defaultValue = "10") int size,
-                                                                @PathVariable("userId") String userId) {
-        return ApiResponse.<Page<UserProfileResponse>>builder().data(followsService.getFollowing(page, size, userId)).build();
+    public ApiResponse<Page<ProfileWithCountFollowResponse>> getFollowings(@RequestParam(defaultValue = "0") int page,
+                                                                           @RequestParam(defaultValue = "10") int size,
+                                                                           @PathVariable("userId") String userId) {
+        return ApiResponse.<Page<ProfileWithCountFollowResponse>>builder().data(followsService.getFollowing(page, size, userId)).build();
     }
 
-
+    @GetMapping("/is-following")
+    public ApiResponse<Boolean> isFollowing(@RequestParam("followerId") String followerId,
+                                            @RequestParam("followingId") String followingId) {
+        boolean isFollowing = followsService.isFollowing(followerId, followingId);
+        return ApiResponse.<Boolean>builder().data(isFollowing).build();
+    }
 }

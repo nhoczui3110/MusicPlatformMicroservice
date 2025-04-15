@@ -21,6 +21,7 @@ public class User {
     @Column(unique = true, nullable = false)
     String username;
     String password;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     Set<Role> roles;
+    String provider;
 }
