@@ -14,6 +14,8 @@ public class CommentResponse {
     String id;
     String trackId;
     String userId;
+    String repliedUserId;
+    Boolean isLiked;
     String content;
     LocalDateTime commentAt;
     int likeCount;

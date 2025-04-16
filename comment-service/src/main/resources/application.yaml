@@ -2,9 +2,9 @@ spring:
   application:
     name: comment-service
   datasource:
-    url: jdbc:sqlserver://localhost:1433;databaseName=Comment-Service;encrypt=true;trustServerCertificate=true
+    url: jdbc:sqlserver://localhost:1440;databaseName=Comment;encrypt=true;trustServerCertificate=true
     username: sa
-    password: 123
+    password: YourStrong!Passw0rd
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect

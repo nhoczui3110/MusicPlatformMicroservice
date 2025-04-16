@@ -18,10 +18,13 @@ public class LikedComment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
+
     @Column(name = "user_id",nullable = false)
     String userId;
+
     @Column(nullable = false)
     LocalDateTime likeAt;
+    
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn (name = "comment_id",  nullable = false)
     Comment comment;

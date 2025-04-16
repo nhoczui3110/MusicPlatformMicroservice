@@ -2,6 +2,7 @@ package com.MusicPlatForm.comment_service.restcontroller;
 
 import com.MusicPlatForm.comment_service.dto.ApiResponse;
 import com.MusicPlatForm.comment_service.dto.request.CommentRequest;
+import com.MusicPlatForm.comment_service.dto.request.RepliedCommentRequest;
 import com.MusicPlatForm.comment_service.dto.request.UpdateCommentRequest;
 import com.MusicPlatForm.comment_service.dto.response.CommentResponse;
 import com.MusicPlatForm.comment_service.service.CommentService;
@@ -21,6 +22,7 @@ import java.util.List;
 public class CommentRestController {
     CommentService commentService;
 
+    @Deprecated
     @PostMapping("/add")
     public ApiResponse<CommentResponse> addComment(@RequestBody @Valid CommentRequest request) {
         return ApiResponse.<CommentResponse>builder()
@@ -29,9 +31,27 @@ public class CommentRestController {
                 .data(commentService.addComment(request))
                 .build();
     }
+    @PostMapping()
+    public ApiResponse<CommentResponse> addCommentV1(@RequestBody @Valid CommentRequest request) {
+        return ApiResponse.<CommentResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .message("Comment added successfully")
+                .data(commentService.addComment(request))
+                .build();
+    }
 
+    @Deprecated
     @GetMapping("/track/{trackId}")
     public ApiResponse<List<CommentResponse>> getComments(@PathVariable String trackId) {
+        List<CommentResponse> comments = commentService.getCommentsByTrackId(trackId);
+        return ApiResponse.<List<CommentResponse>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Success") 
+                .data(comments)
+                .build();
+    }
+    @GetMapping()
+    public ApiResponse<List<CommentResponse>> getCommentsByTrackId(@RequestParam(name = "track_id") String trackId) {
         List<CommentResponse> comments = commentService.getCommentsByTrackId(trackId);
         return ApiResponse.<List<CommentResponse>>builder()
                 .code(HttpStatus.OK.value())
@@ -49,25 +69,25 @@ public class CommentRestController {
                 .build();
     }
 
-    @PostMapping("/like/{commentId}/{userId}")
-    public ApiResponse<Void> likeComment(@PathVariable String commentId, @PathVariable String userId) {
-        commentService.likeComment(commentId, userId);
+    @PostMapping("/{id}/likes")
+    public ApiResponse<Void> likeComment(@PathVariable(name = "id") String commentId) {
+        commentService.likeComment(commentId);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Comment liked successfully")
                 .build();
     }
 
-    @DeleteMapping("/unlike/{commentId}/{userId}")
-    public ApiResponse<Void> unlikeComment(@PathVariable String commentId, @PathVariable String userId) {
-        commentService.unlikeComment(commentId, userId);
+    @DeleteMapping("/{id}/likes")
+    public ApiResponse<Void> unlikeComment(@PathVariable(name = "id") String commentId) {
+        commentService.unlikeComment(commentId);
         return ApiResponse.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .message("Comment unliked successfully")
                 .build();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ApiResponse<CommentResponse> updateComment(@PathVariable String id, @RequestBody UpdateCommentRequest content) {
         return ApiResponse.<CommentResponse>builder()
                 .code(HttpStatus.OK.value())
@@ -76,6 +96,7 @@ public class CommentRestController {
                 .build();
     }
 
+    @Deprecated
     @DeleteMapping("/delete/{id}")
     public ApiResponse<Void> deleteComment(@PathVariable String id) {
         commentService.deleteComment(id);
@@ -85,12 +106,30 @@ public class CommentRestController {
                 .build();
     }
 
-    @PostMapping("/reply/{commentId}")
-    public ApiResponse<CommentResponse> replyToComment(@PathVariable String commentId, @RequestBody @Valid CommentRequest request) {
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteCommentById(@PathVariable String id) {
+        commentService.deleteComment(id);
+        return ApiResponse.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .message("Comment deleted successfully")
+                .build();
+    }
+
+    // @Deprecated
+    // @PostMapping("/reply/{commentId}")
+    // public ApiResponse<CommentResponse> replyToComment(@PathVariable String commentId, @RequestBody @Valid CommentRequest request) {
+    //     return ApiResponse.<CommentResponse>builder()
+    //             .code(HttpStatus.CREATED.value())
+    //             .message("Reply added successfully")
+    //             .data(commentService.replyToComment(commentId, request))
+    //             .build();
+    // }
+    @PostMapping("/{commentId}/replies")
+    public ApiResponse<CommentResponse> replyComment(@PathVariable String commentId, @RequestBody @Valid RepliedCommentRequest request) {
         return ApiResponse.<CommentResponse>builder()
                 .code(HttpStatus.CREATED.value())
                 .message("Reply added successfully")
-                .data(commentService.replyToComment(commentId, request))
+                .data(commentService.replyComment(commentId, request))
                 .build();
     }
 }

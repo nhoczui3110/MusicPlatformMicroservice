@@ -25,11 +25,13 @@ public interface LikedCommentRepository extends JpaRepository<LikedComment,Strin
 //    @Query("SELECT lc FROM LikedComment lc WHERE lc.comment.id = :commentId AND lc.userId = :userId")
 //    Optional<LikedComment> findByCommentIdAndUserId(@Param("commentId") String commentId, @Param("userId") String userId);
 
-    List<LikedComment> findAllByCommentIdAndUserId(String commentId, String userId);
+    LikedComment findByCommentIdAndUserId(String commentId, String userId);
 
     int countByCommentId(String commentId);
 
     List<LikedComment> findByCommentId(String commentId);
     List<LikedComment> findByUserId(String userId);
     void deleteByCommentIdAndUserId(String commentId, String userId);
+
+    Integer countByCommentIdAndUserId(String commentId,String userId);
 }

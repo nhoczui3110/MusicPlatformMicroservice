@@ -2,6 +2,7 @@ package com.MusicPlatForm.comment_service.mapper;
 
 import com.MusicPlatForm.comment_service.dto.request.CommentRequest;
 import com.MusicPlatForm.comment_service.dto.request.LikedCommentRequest;
+import com.MusicPlatForm.comment_service.dto.request.RepliedCommentRequest;
 import com.MusicPlatForm.comment_service.dto.response.CommentResponse;
 import com.MusicPlatForm.comment_service.dto.response.LikedCommentResponse;
 import com.MusicPlatForm.comment_service.entity.Comment;
@@ -21,10 +22,14 @@ public interface CommentMapper {
     // List<CommentRespone> toCommentResponseList(List<Comment> comments);
 
     @Mapping(source = "trackId", target = "trackId")
-    @Mapping(source = "userId", target = "userId")
     @Mapping(source = "content", target = "content")
-    @Mapping(source = "likeCount", target = "likeCount")
     Comment toComment(CommentRequest commentRequest);
+    
+    
+    @Mapping(source = "content", target = "content")
+    Comment toRepliedComment(RepliedCommentRequest repliedCommentRequest);
+
+
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "trackId", target = "trackId")
@@ -32,6 +37,7 @@ public interface CommentMapper {
     @Mapping(source = "content", target = "content")
     @Mapping(source = "commentAt", target = "commentAt")
     @Mapping(source = "likeCount", target = "likeCount")
+    @Mapping(source = "repliedUserId", target = "repliedUserId")
     @Mapping(target = "replies", ignore = true)
     CommentResponse toCommentResponse(Comment comment);
 

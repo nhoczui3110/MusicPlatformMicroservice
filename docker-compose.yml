@@ -70,6 +70,17 @@ services:
             - 1439:1433
         volumes:
             - profile-volume:/var/opt/mssql
+    mssql_for_comment:
+        container_name: sql-server-for-comment
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        restart: always
+        environment:
+            ACCEPT_EULA: "Y"
+            SA_PASSWORD: "YourStrong!Passw0rd"
+        ports:
+            - 1440:1433
+        volumes:
+            - comment-volume:/var/opt/mssql
     elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
         container_name: elasticsearch
@@ -106,6 +117,7 @@ volumes:
     file-volume:
     identity-volume:
     profile-volume:
+    comment-volume:
     redis-data:
 networks:
     es-net:
