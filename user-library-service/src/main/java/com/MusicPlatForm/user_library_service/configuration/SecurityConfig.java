@@ -21,7 +21,10 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/album/**", // This makes all /album/** routes public
             "/liked/**",
-            "/comments/**"
+            "/comments/**",
+            "/swagger-ui/index.html",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     @Autowired
@@ -30,7 +33,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors->{}) 
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll() // Allow public access
                         .anyRequest().authenticated() // All other requests require authentication
@@ -44,18 +46,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*"); // Cho phép mọi origin (dùng addAllowedOriginPattern thay vì addAllowedOrigin)
-        configuration.setAllowedMethods(List.of("*")); // Cho phép mọi HTTP method
-        configuration.setAllowedHeaders(List.of("*")); // Cho phép mọi header
-        configuration.setAllowCredentials(true); // Nếu cần gửi cookie / token
 
-        UrlBasedCorsConfigurationSource  source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); // Áp dụng cho tất cả các route
-        return source;
-        }
 
 
     @Bean

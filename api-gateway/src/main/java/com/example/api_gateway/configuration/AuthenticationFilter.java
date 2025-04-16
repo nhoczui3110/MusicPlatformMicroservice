@@ -48,6 +48,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         "/music-service/.*", 
         "/file-service/.*",
         "/search-service/.*",
+        "/user-library/v3/api-docs", 
         "/swagger-ui/index.html",
         "/swagger-ui/.*",
         "/v3/api-docs/.*"

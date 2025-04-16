@@ -17,22 +17,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
-        // Cấu hình CORS
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8888"));  // Chỉ định nguồn (origin) được phép
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // Các phương thức HTTP được phép
-        configuration.setAllowedHeaders(List.of("*"));  // Cho phép tất cả các headers
-        configuration.setAllowCredentials(true);  // Cho phép gửi cookies và authentication token
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);  // Áp dụng CORS cho tất cả các endpoint
-        return source;
-    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors->{})  // Kích hoạt CORS
             .authorizeHttpRequests(request -> request
                 .requestMatchers("/**").permitAll()  // Cho phép tất cả các yêu cầu
                 .anyRequest().authenticated()  // Yêu cầu xác thực cho các yêu cầu khác
