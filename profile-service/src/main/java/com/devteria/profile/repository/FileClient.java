@@ -14,19 +14,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 @FeignClient(name = "file-client", url = "${app.services.file}")
 public interface FileClient {
-    @PostMapping(value = "/image/add-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/images/avatars", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<UploadAvatarResponse> addAvatar(@RequestPart("avatar") MultipartFile avatar);
-    @DeleteMapping(value = "/image/delete-avatar", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/images/avatars", consumes = MediaType.APPLICATION_JSON_VALUE)
     ApiResponse<String> deleteAvatar(@RequestBody DeleteAvatarRequest request);
-    @PutMapping(value = "/image/replace-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/images/avatars/{avatarName}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<UploadAvatarResponse> replaceAvatar(@RequestPart("newAvatar") MultipartFile newAvatar,
-                                                    @RequestPart("oldAvatarName") String oldAvatarName);
-    @PostMapping(value = "/image/add-cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+                                                    @PathVariable("avatarName") String oldAvatarName);
+    @PostMapping(value = "/images/covers", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<UploadCoverResponse> addCover(@RequestPart("cover") MultipartFile cover);
 
-    @PutMapping(value = "/image/replace-cover", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/images/covers/{coverName}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<UploadCoverResponse> replaceCover(@RequestPart("newCover") MultipartFile newCover,
-                                                    @RequestPart("oldCoverName") String oldCoverName);
+                                                    @PathVariable("coverName") String oldCoverName);
 
 //    @GetMapping(value = "/avatar/{fileName}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 //    ResponseEntity<Resource> downloadFile(@PathVariable("fileName") String fileName);

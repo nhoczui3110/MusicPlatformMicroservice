@@ -156,7 +156,7 @@ public class ImageRestController {
      */
 
     @PutMapping("avatars/{avatarName}")
-    public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestPart MultipartFile newAvatar,@PathVariable(name = "avatarName") String oldAvatarName) throws IOException, NoSuchFileException{
+    public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestPart("newAvatar") MultipartFile newAvatar,@PathVariable(name = "avatarName") String oldAvatarName) throws IOException, NoSuchFileException{
         String newAvatarName = imageService.replaceAvatar(newAvatar, oldAvatarName);
         return ResponseEntity.ok().body(
                 ApiResponse.<AvatarResponse>
