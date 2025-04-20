@@ -71,7 +71,7 @@ public class ImageRestController {
     /*
      * ADD
      */
-    @PostMapping("avatars")
+    @PostMapping(value = "avatars",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AvatarResponse>> addAvatar(@RequestPart MultipartFile avatar) throws IOException{
         String avatarName = imageService.addAvatar(avatar);
         return ResponseEntity.ok().body(
@@ -84,7 +84,7 @@ public class ImageRestController {
                         ).build()
                 );
     }
-    @PostMapping("covers")
+    @PostMapping(value = "covers",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<CoverResponse>> addCoverImage(@RequestPart MultipartFile cover) throws IOException{
         String coverName = imageService.addcoverImage(cover);
         return ResponseEntity.ok().body(
@@ -99,23 +99,9 @@ public class ImageRestController {
     }
 
     
-    // /*
-    //  * DELETE
-    //  */
-    // @Deprecated
-    // @DeleteMapping("delete-avatar")
-    // public ResponseEntity<ApiResponse<String>> deleteAvatar(@RequestBody AvatarRequest avatarRequest) throws IOException, NoSuchFileException{
-    //     imageService.deleteAvatar(avatarRequest.getAvatarName());
-    //     return ResponseEntity.ok().body(
-    //         ApiResponse.<String>
-    //             builder()
-    //                 .code(200)
-    //                 .message("Deleted avatar successfully")
-    //                 .build()
-    //         );
-    // }
+
     @DeleteMapping("avatars/{avatarName}")
-    public ResponseEntity<ApiResponse<String>> deleteAvatarVer1(@PathVariable String avatarName) throws IOException, NoSuchFileException{
+    public ResponseEntity<ApiResponse<String>> deleteAvatar(@PathVariable String avatarName) throws IOException, NoSuchFileException{
         imageService.deleteAvatar(avatarName);
         return ResponseEntity.ok().body(
             ApiResponse.<String>
@@ -126,21 +112,10 @@ public class ImageRestController {
             );
     }
 
-    // @Deprecated
-    // @DeleteMapping("delete-cover")
-    // public ResponseEntity<ApiResponse<String>> deleteCover(@RequestBody CoverRequest coverRequest) throws IOException, NoSuchFileException{
-    //     imageService.deleteCover(coverRequest.getCoverName());
-    //     return ResponseEntity.ok().body(
-    //         ApiResponse.<String>
-    //             builder()
-    //                 .code(200)
-    //                 .message("Deleted cover successfully")
-    //                 .build()
-    //         );
-    // }
+
     @DeleteMapping("covers/{coverName}")
-    public ResponseEntity<ApiResponse<String>> deleteCoverVer1(@PathVariable String coverName) throws IOException, NoSuchFileException{
-        imageService.deleteAvatar(coverName);
+    public ResponseEntity<ApiResponse<String>> deleteCover(@PathVariable String coverName) throws IOException, NoSuchFileException{
+        imageService.deleteCover(coverName);
         return ResponseEntity.ok().body(
             ApiResponse.<String>
                 builder()
@@ -155,7 +130,7 @@ public class ImageRestController {
      * PUT
      */
 
-    @PutMapping("avatars/{avatarName}")
+    @PutMapping(value="avatars/{avatarName}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestPart("newAvatar") MultipartFile newAvatar,@PathVariable(name = "avatarName") String oldAvatarName) throws IOException, NoSuchFileException{
         String newAvatarName = imageService.replaceAvatar(newAvatar, oldAvatarName);
         return ResponseEntity.ok().body(
@@ -172,7 +147,7 @@ public class ImageRestController {
                         .build()
                 );
     }
-    @PutMapping("covers/{coverName}")
+    @PutMapping(value = "covers/{coverName}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<CoverResponse>> replaceCover(@RequestPart MultipartFile newCover,@PathVariable(name="coverName") String oldCoverName) throws IOException, NoSuchFileException{
         String newCoverName = imageService.replaceCover(newCover, oldCoverName);
         return ResponseEntity.ok().body(

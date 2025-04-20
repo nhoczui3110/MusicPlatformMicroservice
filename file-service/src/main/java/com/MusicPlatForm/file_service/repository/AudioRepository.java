@@ -7,5 +7,6 @@ import com.MusicPlatForm.file_service.entity.Audio;
 
 @Repository
 public interface AudioRepository extends JpaRepository<Audio,String>{
-    
+        public Audio findByFileName(String filename);
+
 }

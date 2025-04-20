@@ -2,6 +2,8 @@ package com.MusicPlatForm.file_service.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -9,10 +11,14 @@ import jakarta.persistence.Table;
 @Table(name = "Cover")
 public class Cover {
     @Id
-    @Column(name = "File_name")    
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "Id")
+    String id;
+
+    @Column(name = "File_name",nullable = false,columnDefinition = "NVARCHAR(255)")    
     String fileName;
 
-    @Column(name = "User_id")
+    @Column(name = "User_id",nullable = false)
     String userId;
 
     public String getFileName() {
@@ -31,12 +37,22 @@ public class Cover {
         this.userId = userId;
     }
 
-    public Cover(String fileName, String userId) {
+  
+
+    public Cover( String fileName, String userId) {
         this.fileName = fileName;
         this.userId = userId;
     }
 
     public Cover() {
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     

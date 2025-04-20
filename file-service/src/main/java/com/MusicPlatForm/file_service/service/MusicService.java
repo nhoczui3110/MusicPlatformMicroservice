@@ -122,6 +122,12 @@ public class MusicService {
     @Transactional
     // @PreAuthorize("isAuthenticated()")
     public void deleteAudio(String trackName) throws IOException, AppException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String userId = auth.getName(); // Get user ID from Authentication
+        Audio audio = this.audioRepository.findByFileName(trackName);
+        if(!audio.getUserId().equals(userId))
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+
         Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(trackName);
 
         // Delete the file from the file system
@@ -129,6 +135,6 @@ public class MusicService {
         if (!isDeleted) throw new AppException(ErrorCode.TRACK_FILE_NOT_FOUND);
 
         // Delete the audio entity from the database
-        audioRepository.deleteById(trackName);
+        audioRepository.delete(audio);;
     }
 }

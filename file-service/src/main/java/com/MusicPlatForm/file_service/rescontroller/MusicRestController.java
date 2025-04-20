@@ -51,7 +51,7 @@ public class MusicRestController {
                 .body(resource);
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AudioResponse>> addAudio(@RequestPart MultipartFile audio) throws Exception, IOException {
         AudioResponse audioResponse = musicService.addAudio(audio);
         return ResponseEntity.ok()

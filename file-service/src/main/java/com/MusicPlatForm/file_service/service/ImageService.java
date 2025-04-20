@@ -100,18 +100,20 @@ public class ImageService {
     public void deleteAvatar(String avatarName) throws AppException, IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
-        Avatar avatar = this.avatarRepository.findById(avatarName).orElseThrow(()->new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND));
+        Avatar avatar = this.avatarRepository.findByFileName(avatarName).orElseThrow(()->new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND));
         if(!avatar.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         boolean isDeleted = deleteImage(avatarName, avatarDir);
         if(!isDeleted) throw new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND);
+        this.avatarRepository.delete(avatar);
     }
     public void deleteCover(String coverName) throws AppException, IOException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
-        Cover cover = this.coverRepository.findById(coverName).orElseThrow(()->new AppException(ErrorCode.COVER_FILE_NOT_FOUND));
+        Cover cover = this.coverRepository.findByFileName(coverName).orElseThrow(()->new AppException(ErrorCode.COVER_FILE_NOT_FOUND));
         if(!cover.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         boolean isDeleted = deleteImage(coverName, coversDir);
         if(!isDeleted) throw new AppException(ErrorCode.COVER_FILE_NOT_FOUND);
+        this.coverRepository.delete(cover);
     }
 
 
@@ -133,12 +135,13 @@ public class ImageService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
 
-        Avatar avatarEntity = this.avatarRepository.findById(oldAvatarName).orElseThrow(()-> new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND));
+        Avatar avatarEntity = this.avatarRepository.findByFileName(oldAvatarName).orElseThrow(()-> new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND));
         if(!avatarEntity.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         
         String avatarName = repaceImage(avatar, oldAvatarName, avatarDir);
         
         avatarEntity.setFileName(avatarName);
+        this.avatarRepository.save(avatarEntity);
         return avatarName;
     }
     // @PreAuthorize("isAuthenticated()")
@@ -146,7 +149,7 @@ public class ImageService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String userId = auth.getName();
     
-        Cover coverEntity = this.coverRepository.findById(oldCoverName)
+        Cover coverEntity = this.coverRepository.findByFileName(oldCoverName)
             .orElseThrow(() -> new AppException(ErrorCode.COVER_FILE_NOT_FOUND));
     
         if (!coverEntity.getUserId().equals(userId)) {
@@ -156,6 +159,7 @@ public class ImageService {
         String newCoverName = repaceImage(cover, oldCoverName, coversDir);
     
         coverEntity.setFileName(newCoverName);
+        this.coverRepository.save(coverEntity);
         return newCoverName;
     }
 }
