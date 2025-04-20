@@ -2,8 +2,6 @@ package com.MusicPlatForm.user_library_service.mapper.Playlist;
 
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -11,9 +9,7 @@ import org.mapstruct.MappingTarget;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylistInfoRequest;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
-import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
-import com.MusicPlatForm.user_library_service.entity.PlaylistTag;
 
 @Mapper(componentModel = "spring")
 public interface PlaylistMapper {
@@ -52,18 +48,23 @@ public interface PlaylistMapper {
     void updatePlaylistFromRequest(UpdatePlaylistInfoRequest addPlaylistRequest,@MappingTarget Playlist playlist);
     
     
-    List<PlaylistResponse> toPlaylistResponses(List<Playlist> playlist);
-    
 
+
+    //==============================//
+    List<PlaylistResponse> toPlaylistResponses(List<Playlist> playlist);
+
+    @Mapping(target = "id",source = "id")
+    @Mapping(target = "title",source = "title")
+    @Mapping(target = "releaseDate",source = "releaseDate")
+    @Mapping(target = "description",source = "description")
+    @Mapping(target = "privacy",source = "privacy")
+    @Mapping(target = "userId",source = "userId")
+    @Mapping(target = "imagePath",source = "imagePath")
+    @Mapping(target = "createdAt",source = "createdAt")
+    @Mapping(target = "playlistTags",ignore = true)
+    @Mapping(target = "playlistTracks",ignore = true)
+    @Mapping(target = "genre",ignore = true)
     PlaylistResponse toPlaylistResponse(Playlist playlist);
     
-    // for toPlaylistResponse
-    default List<String> mapTagsToString(List<PlaylistTag> playlistTags) {
-        if (playlistTags == null) {
-            return null;
-        }
-        return playlistTags.stream()
-                .map(PlaylistTag::getTagId) // Hoặc getId() nếu muốn lấy ID
-                .collect(Collectors.toList());
-    }
+   
 }

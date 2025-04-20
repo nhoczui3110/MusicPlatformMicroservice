@@ -1,9 +1,13 @@
 package com.MusicPlatForm.user_library_service.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +19,8 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistRe
 import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylistInfoRequest;
 import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.TagResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
@@ -23,11 +29,13 @@ import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;
 import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.FileClient;
+import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTagMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTrackMapper;
 import com.MusicPlatForm.user_library_service.repository.LikedPlaylistRepository;
 import com.MusicPlatForm.user_library_service.repository.PlaylistRepository;
+import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
 
 import lombok.AllArgsConstructor;
 
@@ -39,6 +47,7 @@ public class PlaylistService {
     private PlaylistTagMapper playlistTagMapper;
     private PlaylistTrackMapper playlistTrackMapper;
     private FileClient fileClient;
+    private MusicClient musicClient;
     private LikedPlaylistRepository likedPlaylistRepository;
 
     private List<PlaylistTypeResponse> toPlaylistTypeResponse(List<PlaylistResponse> playlistResponses,String type){
@@ -47,18 +56,122 @@ public class PlaylistService {
         }).collect(Collectors.toList());
         return playlistTypeResponses;
     }
+    private PlaylistResponse convertFromPlaylistToPlaylistResponse(Playlist playlist){
+        List<String> trackIds = new ArrayList<>();
+        List<String> tagIds = new ArrayList<>();
+        for(var tag: playlist.getPlaylistTags()){
+            tagIds.add(tag.getTagId());
+        }
+        for(var track: playlist.getPlaylistTracks()){
+            trackIds.add(track.getTrackId());
+        }
+        ApiResponse<List<TrackResponse>> tracksResponse =  musicClient.getTrackByIds(trackIds);
+        ApiResponse<List<TagResponse>> tagsResponse = musicClient.getTagsByIds(tagIds);
+        PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(playlist);
+        
+        if(playlist.getGenreId()!=null){
+            ApiResponse<GenreResponse> genre = musicClient.getGenreById(playlist.getGenreId());
+            playlistResponse.setGenre(genre.getData());
+        }
+        playlistResponse.setPlaylistTags(tagsResponse.getData());
+        playlistResponse.setPlaylistTracks(tracksResponse.getData());
+        if(playlistResponse.getImagePath()==null){
+            playlistResponse.setImagePath(playlistResponse.getPlaylistTracks().get(0).getCoverImageName());
+        }
+        return playlistResponse;
+    }
     //done
     public ApiResponse<List<PlaylistTypeResponse>> getPlaylists(){
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
+        //To get from music service
+        List<String> trackIds = new ArrayList<>();
+        List<String> tagIds = new ArrayList<>();
+        List<String> genreIds = new ArrayList<>();
+
+        // Map Id-> TrackResponse
+        Map<String, TrackResponse> idToTrackResponse = new HashMap<>();
+        Map<String, TagResponse> idToTagResponse = new HashMap<>();
+        Map<String,GenreResponse> idToGenreResponse = new HashMap<>();
+        List<Playlist> createdPlaylists = playlistRepository.getPlaylists(userId);
+        List<Playlist> likedPlaylists = this.likedPlaylistRepository.findAllByUserId(userId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist()).toList();
+
+        for(var pl: Stream.concat(createdPlaylists.stream(), likedPlaylists.stream())
+                                .collect(Collectors.toList())){
+            for(var tr: pl.getPlaylistTracks()){
+                if(!trackIds.contains(tr.getTrackId())){
+                    trackIds.add(tr.getTrackId());
+                }
+            }
+            for(var tg: pl.getPlaylistTags()){
+                if(!tagIds.contains(tg.getTagId())){
+                    tagIds.add(tg.getTagId());
+                }
+            }
+            if(!genreIds.contains(pl.getGenreId())){
+                genreIds.add(pl.getGenreId());
+            }
+        }
+
+        ApiResponse<List<TrackResponse>> tracksResponse =  musicClient.getTrackByIds(trackIds);
+        ApiResponse<List<TagResponse>> tagsResponse = musicClient.getTagsByIds(tagIds);
+        ApiResponse<List<GenreResponse>> genresResponse = musicClient.getGenresByIds(tagIds);
+    
+        for(var track:tracksResponse.getData()){
+            if(idToTrackResponse.get(track.getId())==null){
+                idToTrackResponse.put(track.getId(), track);
+            }
+        }
+        for(var tag: tagsResponse.getData()){
+            if(idToTagResponse.get(tag.getId())==null){
+                idToTagResponse.put(tag.getId(), tag);
+            }
+        }
+        for(var genre: genresResponse.getData()){
+            if(idToGenreResponse.get(genre.getId())==null){
+                idToGenreResponse.put(genre.getId(),genre);
+            }
+        }
+        List<PlaylistResponse> playlistResponses =  new ArrayList<>();// playlistMapper.toPlaylistResponses(createdPlaylists);
+        for(var playlist:createdPlaylists){
+            var playlistResponse = playlistMapper.toPlaylistResponse(playlist);
+            playlistResponse.setPlaylistTags(new ArrayList<>());
+            playlistResponse.setPlaylistTracks(new ArrayList<>());
+            for(var tag: playlist.getPlaylistTags()){
+                playlistResponse.getPlaylistTags().add(idToTagResponse.get(tag.getTagId()));
+            }
+            for(var track: playlist.getPlaylistTracks()){
+                playlistResponse.getPlaylistTracks().add(idToTrackResponse.get(track.getTrackId()));
+            }
+            if(playlist.getGenreId()!=null){
+                playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
+            }
+            playlistResponses.add(playlistResponse);
+        }
+        List<PlaylistTypeResponse> createdPlaylistResponse = toPlaylistTypeResponse(playlistResponses,"Created");
         
 
-        List<Playlist> createdPlaylists = playlistRepository.getPlaylists(userId);
-        List<PlaylistTypeResponse> createdPlaylistResponse = toPlaylistTypeResponse(playlistMapper.toPlaylistResponses(createdPlaylists),"Created");
         
-        List<Playlist> likedPlaylists = this.likedPlaylistRepository.findAllByUserId(userId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist()).toList();
-        List<PlaylistTypeResponse> likedPlaylistResponse = toPlaylistTypeResponse(playlistMapper.toPlaylistResponses(likedPlaylists),"Liked");
+        playlistResponses.clear();
+        for(var playlist:likedPlaylists){
+            var playlistResponse = playlistMapper.toPlaylistResponse(playlist);
+            playlistResponse.setPlaylistTags(new ArrayList<>());
+            playlistResponse.setPlaylistTracks(new ArrayList<>());
+            for(var tag: playlist.getPlaylistTags()){
+                playlistResponse.getPlaylistTags().add(idToTagResponse.get(tag.getTagId()));
+            }
+            for(var track: playlist.getPlaylistTracks()){
+                playlistResponse.getPlaylistTracks().add(idToTrackResponse.get(track.getTrackId()));
+            }
+            if(playlist.getGenreId()!=null){
+                playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
+            }
+            playlistResponses.add(playlistResponse);
+        }
+        List<PlaylistTypeResponse> likedPlaylistResponse = toPlaylistTypeResponse(playlistResponses,"Liked");
+
+
 
         createdPlaylistResponse.addAll(likedPlaylistResponse);
         List<PlaylistTypeResponse> all = createdPlaylistResponse;
@@ -70,13 +183,15 @@ public class PlaylistService {
                                             .message("Playlists for user")
                                             .build();
     }
+
+    
     //done
     public ApiResponse<PlaylistResponse> getPlaylistById(String id){
         Playlist playlist = this.playlistRepository.findById(id)
                     .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
-        PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(playlist);
+        
         return ApiResponse.<PlaylistResponse>builder()
-                                .data(playlistResponse)
+                                .data(convertFromPlaylistToPlaylistResponse(playlist))
                                 .code(200)
                                 .build();
     }
@@ -91,7 +206,7 @@ public class PlaylistService {
         }
         Playlist playlist = playlistMapper.toPlaylist(request);
         
-        List<PlaylistTrack>playlistTracks = playlistTrackMapper.toPlaylistTracks(request.getTracks());
+        List<PlaylistTrack>playlistTracks = playlistTrackMapper.toPlaylistTracksFromTrackIds(request.getTrackIds());
         AtomicInteger index = new AtomicInteger(0);
         playlistTracks.forEach(track->{
             track.setPlaylist(playlist);
@@ -100,7 +215,7 @@ public class PlaylistService {
         playlist.setPlaylistTracks(playlistTracks);
         playlist.setUserId(userId);
         Playlist savedPlaylist = playlistRepository.save(playlist);
-        PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(savedPlaylist);
+        PlaylistResponse playlistResponse = convertFromPlaylistToPlaylistResponse(savedPlaylist);
         return playlistResponse;
     }
 
@@ -119,7 +234,7 @@ public class PlaylistService {
             playlist.setImagePath(addPlaylistCoverResponse.getData().getCoverName());
         }
 
-        List<PlaylistTrack>updatedTracks = playlistTrackMapper.toPlaylistTracks(request.getTracks());
+        List<PlaylistTrack>updatedTracks = playlistTrackMapper.toPlaylistTracksFromTrackIds(request.getTrackIds());
         updatedTracks.forEach(track->{
             track.setPlaylist(playlist);
         });

@@ -2,11 +2,7 @@ package com.MusicPlatForm.music_service.controller;
 
 import com.MusicPlatForm.music_service.dto.reponse.ApiResponse;
 import com.MusicPlatForm.music_service.dto.reponse.GenreResponse;
-import com.MusicPlatForm.music_service.dto.reponse.TagResponse;
-import com.MusicPlatForm.music_service.dto.request.GenreRequest;
-import com.MusicPlatForm.music_service.dto.request.TagRequest;
 import com.MusicPlatForm.music_service.service.implement.GenreService;
-import com.MusicPlatForm.music_service.service.implement.TagService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,5 +19,14 @@ public class GenreController {
     @GetMapping()
     public ApiResponse<List<GenreResponse>> getGenres() {
         return ApiResponse.<List<GenreResponse>>builder().data(genreService.getGenres()).build();
+    }
+    
+    @GetMapping("/bulk")
+    public ApiResponse<List<GenreResponse>> getGenresByIds(@RequestParam List<String> ids) {
+        return ApiResponse.<List<GenreResponse>>builder().data(genreService.getGenresByIds(ids)).build();
+    }
+    @GetMapping("/{id}")
+    public ApiResponse<GenreResponse> getGenreById(@PathVariable String id) {
+        return ApiResponse.<GenreResponse>builder().data(genreService.getGenreById(id)).build();
     }
 }

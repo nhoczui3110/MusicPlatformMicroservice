@@ -16,8 +16,17 @@ public interface PlaylistTrackMapper {
     @Mapping(target = "playlist", ignore = true)
     PlaylistTrack toPlaylistTrack(AddPlaylistTrackRequest addPlaylistTrackRequest);
 
+    
     List<PlaylistTrack> toPlaylistTracks(List<AddPlaylistTrackRequest> addPlaylistTrackRequests);
+    
     List<PlaylistTrackResponse> toPlaylistTracksResponse(List<PlaylistTrack> playlistTracks);
     PlaylistTrackResponse toPlaylistTrackResponse(PlaylistTrack playlistTrack);
     
+    List<PlaylistTrack> toPlaylistTracksFromTrackIds(List<String> trackIds);
+
+    default PlaylistTrack fromTrackId(String trackId) {
+        PlaylistTrack track = new PlaylistTrack();
+        track.setTrackId(trackId);
+        return track;
+    }
 }

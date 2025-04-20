@@ -1,11 +1,8 @@
 package com.MusicPlatForm.music_service.service.implement;
 
 import com.MusicPlatForm.music_service.dto.reponse.GenreResponse;
-import com.MusicPlatForm.music_service.dto.reponse.TagResponse;
 import com.MusicPlatForm.music_service.dto.request.GenreRequest;
-import com.MusicPlatForm.music_service.dto.request.TagRequest;
 import com.MusicPlatForm.music_service.entity.Genre;
-import com.MusicPlatForm.music_service.entity.Tag;
 import com.MusicPlatForm.music_service.exception.AppException;
 import com.MusicPlatForm.music_service.exception.ErrorCode;
 import com.MusicPlatForm.music_service.mapper.GenreMapper;
@@ -13,7 +10,6 @@ import com.MusicPlatForm.music_service.mapper.TagMapper;
 import com.MusicPlatForm.music_service.repository.GenreRepository;
 import com.MusicPlatForm.music_service.repository.TagRepository;
 import com.MusicPlatForm.music_service.service.iface.GenreServiceInterface;
-import com.MusicPlatForm.music_service.service.iface.TagServiceInterface;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -59,5 +55,15 @@ public class GenreService implements GenreServiceInterface {
     public List<GenreResponse> getGenres() {
         List<Genre> genres = genreRepository.findAllByIsUsedTrue();
         return  genreMapper.toGenreResponsesFromGenres(genres);
+    }
+    @Override
+    public List<GenreResponse> getGenresByIds(List<String>ids) {
+        List<Genre> genres = genreRepository.findAllById(ids);
+        return  genreMapper.toGenreResponsesFromGenres(genres);
+    }
+    @Override
+    public GenreResponse getGenreById(String id) {
+        Genre genres = genreRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.GENRE_NOT_FOUND));
+        return  genreMapper.toGenreResponseFromGenre(genres);
     }
 }

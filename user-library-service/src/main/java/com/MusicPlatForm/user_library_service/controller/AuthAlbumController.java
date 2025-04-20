@@ -60,7 +60,7 @@ public class AuthAlbumController {
     }
 
     @PostMapping("/add-track")
-    public ApiResponse addTrack(@RequestBody AddTrackAlbumRequest request) {
+    public ApiResponse<?> addTrack(@RequestBody AddTrackAlbumRequest request) {
         albumService.addTrackToAlbum(request);
         return ApiResponse.builder().message("Add track to album successfully").build();
     }

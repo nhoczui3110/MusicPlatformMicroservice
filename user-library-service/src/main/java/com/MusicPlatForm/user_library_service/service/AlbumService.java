@@ -17,7 +17,6 @@ import com.MusicPlatForm.user_library_service.httpclient.FileClient;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.AlbumMapper;
 import com.MusicPlatForm.user_library_service.repository.AlbumRepository;
-import com.MusicPlatForm.user_library_service.repository.AlbumTagRepository;
 import com.MusicPlatForm.user_library_service.repository.AlbumTrackRepository;
 import com.MusicPlatForm.user_library_service.repository.LikedAlbumRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,7 +45,6 @@ import java.util.stream.Collectors;
 public class AlbumService {
     AlbumRepository albumRepository;
     AlbumTrackRepository albumTrackRepository;
-    AlbumTagRepository albumTagRepository;
     LikedAlbumRepository likedAlbumRepository;
     AlbumMapper albumMapper;
     FileClient fileClient;

@@ -1,11 +1,9 @@
 package com.MusicPlatForm.music_service.controller;
 
 import java.util.List;
-import java.util.Objects;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
-import com.MusicPlatForm.music_service.entity.Track;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +23,7 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/track")
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Deprecated
 public class TrackController {
     TrackServiceInterface trackService;
     @GetMapping("/test")
@@ -42,7 +41,7 @@ public class TrackController {
    }
 
     @PostMapping(value = "/add/multi", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse addTracks(@RequestPart("trackFiles") List<MultipartFile> trackFiles, @RequestPart("trackRequests") String trackJsonRequests){
+    public ApiResponse<?> addTracks(@RequestPart("trackFiles") List<MultipartFile> trackFiles, @RequestPart("trackRequests") String trackJsonRequests){
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {

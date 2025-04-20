@@ -2,20 +2,15 @@ package com.MusicPlatForm.music_service.service.implement;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.MusicPlatForm.music_service.dto.reponse.*;
-import com.MusicPlatForm.music_service.dto.kafka_request.*;
 import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,15 +41,18 @@ public class TrackService implements TrackServiceInterface{
     TagRepository tagRepository;
     TrackRepository trackRepository;
     GenreRepository genreRepository;
-    // private KafkaTemplate<String,com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest> kafkaTemplate;
-    // private void sendTrackToSearchService(Track track){
-    //     com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest request = new com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest();
-    //     request.setTrackId(track.getId());
-    //     request.setDescription(track.getDescription());
-    //     request.setName(track.getTitle());
-    //     kafkaTemplate.send("add_track_to_search", request);
+    private KafkaTemplate<String,Object> kafkaTemplate;
+    private void sendTrackToSearchService(Track track){
+        com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest request = new com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest();
+        request.setTrackId(track.getId());
+        request.setDescription(track.getDescription());
+        request.setName(track.getTitle());
+        kafkaTemplate.send("add_track_to_search", request);
 
-    // }
+    }
+    private void deleteTrackInKafka(String trackId){
+        kafkaTemplate.send("delete_track_from_search", trackId);
+    }
     @Override
     @Transactional
     public TrackResponse uploadTrack(MultipartFile coverImage, MultipartFile trackAudio,TrackRequest trackRequest) {
@@ -86,7 +84,7 @@ public class TrackService implements TrackServiceInterface{
         Genre genre = this.genreRepository.findById(trackRequest.getGenreId()).orElse(null);
         track.setGenre(genre);
         Track savedTrack =  trackRepository.save(track);
-        // this.sendTrackToSearchService(savedTrack);
+        this.sendTrackToSearchService(savedTrack);
         TrackResponse trackResponse = this.trackMapper.toTrackResponseFromTrack(savedTrack);
         trackResponse.setTags(this.tagMapper.toTagResponsesFromTags(tags));
         trackResponse.setGenre(this.genreMapper.toGenreResponseFromGenre(genre));
@@ -153,14 +151,12 @@ public class TrackService implements TrackServiceInterface{
 
     @Override
     public void deleteTrack(String trackId){
-        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // String userId = authentication.getName();
-        String userId = "user1";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
         Track track = trackRepository.findById(trackId).orElseThrow(()->new AppException(ErrorCode.TRACK_NOT_FOUND));
         if(!track.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         trackRepository.delete(track);
-
-        
+        this.deleteTrackInKafka(trackId);
     }
 
     @Override

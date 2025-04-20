@@ -89,20 +89,7 @@ services:
         environment:
             - discovery.type=single-node
             - xpack.security.enabled=false
-        networks:
-            - es-net
-    kibana:
-        container_name: kb-container
-        image: docker.elastic.co/kibana/kibana:8.9.0
-        environment:
-            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-        networks:
-            - es-net
-        user: "0"
-        depends_on:
-            - elasticsearch
-        ports:
-            - 5601:5601
+
     redis:
         container_name: redis
         image: redis:7.2
@@ -111,6 +98,19 @@ services:
             - 6379:6379
         volumes:
             - redis-data:/data
+
+    mongodb-notification:
+        image: bitnami/mongodb:8.0.5-debian-12-r0
+        container_name: mongodb-notification
+        ports:
+        - 27017:27017
+        environment:
+        - MONGODB_ROOT_USER=root
+        - MONGODB_ROOT_PASSWORD=123
+        restart: unless-stopped
+        volumes:
+          - notification-volume:/data/db
+
 volumes:
     library-volume:
     music-volume:
@@ -119,6 +119,4 @@ volumes:
     profile-volume:
     comment-volume:
     redis-data:
-networks:
-    es-net:
-        driver: bridge
+    notification-volume:

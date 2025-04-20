@@ -1,11 +1,8 @@
 package com.MusicPlatForm.music_service.controller;
 
 import java.util.List;
-import java.util.Objects;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
-import com.MusicPlatForm.music_service.entity.Track;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,7 +25,7 @@ import lombok.experimental.FieldDefaults;
 public class TrackControllerV1 {
     TrackServiceInterface trackService;
 
-   @PostMapping(value = "/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+   @PostMapping(value = "",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
    public ApiResponse<TrackResponse> addTrack(@RequestPart(name = "cover_image", required = false) MultipartFile coverImage,
                                        @RequestPart(name = "track_audio", required = false) MultipartFile trackAudio,
                                        @RequestPart(name = "track", required = false) TrackRequest trackRequest){
@@ -39,8 +36,8 @@ public class TrackControllerV1 {
                        .build();
    }
 
-    @PostMapping(value = "/add/multi", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse addTracks(@RequestPart("trackFiles") List<MultipartFile> trackFiles, @RequestPart("trackRequests") String trackJsonRequests){
+    @PostMapping(value = "bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<?> addTracks(@RequestPart("trackFiles") List<MultipartFile> trackFiles, @RequestPart("trackRequests") String trackJsonRequests){
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
@@ -62,8 +59,7 @@ public class TrackControllerV1 {
         }
     } 
 
-    @Deprecated
-    @DeleteMapping(value = "delete/{trackId}")
+    @DeleteMapping(value = "/{trackId}")
     public ApiResponse<String> deleteTrack(@PathVariable String trackId){
         trackService.deleteTrack(trackId);
         return ApiResponse.<String>builder().code(200).message("Deleted successfully").build();
@@ -85,12 +81,12 @@ public class TrackControllerV1 {
         List<TrackResponse> tracks = this.trackService.getTracksByIds(ids);
         return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
     }
-    @GetMapping("/list-by-genre")
+    @GetMapping("/by-genre")
     public ApiResponse<List<TrackResponse>> getTracksByGenre(@RequestParam String genreId,@RequestParam int limit){
         List<TrackResponse> tracks = this.trackService.getTracksByGenre(genreId, limit);
         return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
     }
-    @GetMapping("/list-ids-related")
+    @GetMapping("/related")
     public ApiResponse<?> getRelatedTracksForIds(@RequestParam(name = "track-ids") List<String> trackIds, @RequestParam(name = "limit") int limit) {
         return ApiResponse.builder()
             .data(trackService.getRelatedTracksForIds(trackIds, limit))
@@ -102,7 +98,7 @@ public class TrackControllerV1 {
             .data(trackService.getRandomTracks(limit))
             .code(200).build();
     }
-    @PutMapping("/update/{trackId}")
+    @PutMapping("/{trackId}")
     public ApiResponse<TrackResponse> updateTrack(@PathVariable("trackId") String trackId, @RequestPart("meta-data") UpdateTrackRequest request, @RequestPart(name = "image", required = false)MultipartFile imageFile, @RequestPart(name = "track", required = false) MultipartFile trackFile ) {
         return ApiResponse.<TrackResponse>builder().data(trackService.updateTrack(trackId, request, imageFile, trackFile)).build();
     }

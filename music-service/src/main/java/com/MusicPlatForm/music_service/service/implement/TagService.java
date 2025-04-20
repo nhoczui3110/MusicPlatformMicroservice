@@ -52,4 +52,9 @@ public class TagService implements TagServiceInterface {
         List<Tag> tags = tagRepository.findAllByIsUsedTrue();
         return  tagMapper.toTagResponsesFromTags(tags);
     }
+
+    public List<TagResponse> getTagsByIds(List<String>ids){
+        List<Tag> tags = tagRepository.findAllById(ids);
+        return  tagMapper.toTagResponsesFromTags(tags);
+    }
 }

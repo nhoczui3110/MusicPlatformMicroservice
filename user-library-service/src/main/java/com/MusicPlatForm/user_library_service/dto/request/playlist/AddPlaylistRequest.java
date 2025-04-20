@@ -20,5 +20,5 @@ public class AddPlaylistRequest {
     String title;
     @NotBlank
     String privacy;
-    List<AddPlaylistTrackRequest> tracks;
+    List<String> trackIds;
 }

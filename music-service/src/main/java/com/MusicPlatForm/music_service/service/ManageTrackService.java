@@ -2,7 +2,6 @@ package com.MusicPlatForm.music_service.service;
 
 import com.MusicPlatForm.music_service.dto.reponse.ApiResponse;
 import com.MusicPlatForm.music_service.dto.reponse.CommentResponse;
-import com.MusicPlatForm.music_service.dto.reponse.TrackResponse;
 import com.MusicPlatForm.music_service.entity.Track;
 import com.MusicPlatForm.music_service.httpclient.CommentClient;
 import com.MusicPlatForm.music_service.httpclient.LikedTrackClient;

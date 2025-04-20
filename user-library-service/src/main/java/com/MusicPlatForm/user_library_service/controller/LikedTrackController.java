@@ -2,7 +2,6 @@ package com.MusicPlatForm.user_library_service.controller;
 
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
-import com.MusicPlatForm.user_library_service.dto.response.liketrack.LikedTrackResponse;
 import com.MusicPlatForm.user_library_service.service.LikedTrackService;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
