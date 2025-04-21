@@ -36,8 +36,8 @@ public class PlaylistController {
         return playlistService.getPlaylists();
     }
 
-    @GetMapping("/{user_id}")
-    public ApiResponse<List<PlaylistResponse>> getPlaylist(@RequestParam(name = "user_id") String userId){
+    @GetMapping("/users/{user_id}")
+    public ApiResponse<List<PlaylistResponse>> getPlaylist(@PathVariable(name = "user_id") String userId){
         return playlistService.getPlaylistsByUserId(userId);
     }
     
