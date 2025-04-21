@@ -56,6 +56,7 @@ public class PlaylistService {
         }).collect(Collectors.toList());
         return playlistTypeResponses;
     }
+
     private PlaylistResponse convertFromPlaylistToPlaylistResponse(Playlist playlist){
         List<String> trackIds = new ArrayList<>();
         List<String> tagIds = new ArrayList<>();
@@ -84,6 +85,10 @@ public class PlaylistService {
     }
     
     public ApiResponse<List<PlaylistResponse>> getPlaylistsByUserId(String userId){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String myId = authentication.getName();
+
         List<String> trackIds = new ArrayList<>();
         List<String> tagIds = new ArrayList<>();
         List<String> genreIds = new ArrayList<>();
@@ -93,6 +98,8 @@ public class PlaylistService {
         Map<String, TagResponse> idToTagResponse = new HashMap<>();
         Map<String,GenreResponse> idToGenreResponse = new HashMap<>();
         List<Playlist> playlists = playlistRepository.getPublicPlaylistsByUserId(userId);
+
+        List<String> likedPlaylistIds = this.likedPlaylistRepository.findAllByUserId(myId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist().getId()).toList();
 
         for(var pl:  playlists){
             for(var tr: pl.getPlaylistTracks()){
@@ -132,6 +139,12 @@ public class PlaylistService {
         List<PlaylistResponse> playlistResponses =  new ArrayList<>();// playlistMapper.toPlaylistResponses(createdPlaylists);
         for(var playlist:playlists){
             var playlistResponse = playlistMapper.toPlaylistResponse(playlist);
+            if(likedPlaylistIds.contains(playlist.getId())){
+                playlistResponse.setIsLiked(true);
+            }
+            else{
+                playlistResponse.setIsLiked(false);
+            }
             playlistResponse.setPlaylistTags(new ArrayList<>());
             playlistResponse.setPlaylistTracks(new ArrayList<>());
             if(playlist.getPlaylistTags()!=null)
@@ -154,7 +167,8 @@ public class PlaylistService {
                                             .message("Playlists for user")
                                             .build();
     }
-    //done
+
+ 
     public ApiResponse<List<PlaylistTypeResponse>> getPlaylists(){
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -168,7 +182,7 @@ public class PlaylistService {
         Map<String, TrackResponse> idToTrackResponse = new HashMap<>();
         Map<String, TagResponse> idToTagResponse = new HashMap<>();
         Map<String,GenreResponse> idToGenreResponse = new HashMap<>();
-        List<Playlist> createdPlaylists = playlistRepository.getPlaylists(userId);
+        List<Playlist> createdPlaylists = playlistRepository.getPlaylistsByUserId(userId);
         List<Playlist> likedPlaylists = this.likedPlaylistRepository.findAllByUserId(userId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist()).toList();
 
         for(var pl: Stream.concat(createdPlaylists.stream(), likedPlaylists.stream())

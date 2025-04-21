@@ -26,6 +26,7 @@ import lombok.experimental.FieldDefaults;
 public class PlaylistTrackController {
     PlaylistTrackService playlistTrackService;
     //done
+    @Deprecated
     @PostMapping("/add")
     public ApiResponse<PlaylistTrackResponse> addTrackToPlaylist(@Valid @RequestBody AddPlaylistTrackRequest trackRequest){
         PlaylistTrackResponse playlistTrackResponse = this.playlistTrackService.addTrackToPlaylist(trackRequest);
@@ -33,9 +34,24 @@ public class PlaylistTrackController {
                 .code(HttpStatus.OK.value())
                 .data(playlistTrackResponse).build();
     }
+    @PostMapping("")
+    public ApiResponse<PlaylistTrackResponse> addTrackToPlaylistV1(@Valid @RequestBody AddPlaylistTrackRequest trackRequest){
+        PlaylistTrackResponse playlistTrackResponse = this.playlistTrackService.addTrackToPlaylist(trackRequest);
+        return ApiResponse.<PlaylistTrackResponse>builder()
+                .code(HttpStatus.OK.value())
+                .data(playlistTrackResponse).build();
+    }
     //done
+    @Deprecated
     @DeleteMapping("/delete")
     public ApiResponse<String> deleteTrackFromPlaylist(@Valid @RequestBody AddPlaylistTrackRequest trackRequest){
+        this.playlistTrackService.deleteTrackFromPlaylist(trackRequest);
+        return ApiResponse.<String>builder()
+                .code(HttpStatus.OK.value())
+                .data("Deleted successfully").build();
+    }
+    @DeleteMapping("")
+    public ApiResponse<String> deleteTrackFromPlaylistV1(@Valid @RequestBody AddPlaylistTrackRequest trackRequest){
         this.playlistTrackService.deleteTrackFromPlaylist(trackRequest);
         return ApiResponse.<String>builder()
                 .code(HttpStatus.OK.value())

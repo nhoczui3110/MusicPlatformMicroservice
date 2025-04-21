@@ -26,4 +26,5 @@ public class PlaylistResponse {
     private LocalDateTime createdAt;
     private List<TrackResponse> playlistTracks;
     private List<TagResponse> playlistTags;
+    private Boolean isLiked;
 }

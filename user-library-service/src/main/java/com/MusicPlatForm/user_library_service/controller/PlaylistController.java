@@ -58,6 +58,7 @@ public class PlaylistController {
     }
 
     //done
+    @Deprecated
     @PutMapping("/update")
     public ApiResponse<PlaylistResponse> updatePlaylistInfo(@RequestPart(name = "image",required = false) MultipartFile image, @RequestPart(name = "playlist") UpdatePlaylistInfoRequest updatePlaylistInfoRequest){
         PlaylistResponse playlistResponse =  playlistService.updatePlaylistInfo(image, updatePlaylistInfoRequest);
@@ -67,9 +68,28 @@ public class PlaylistController {
                 .build();
     }
 
+    @PutMapping()
+    public ApiResponse<PlaylistResponse> updatePlaylistInfoV1(@RequestPart(name = "image",required = false) MultipartFile image, @RequestPart(name = "playlist") UpdatePlaylistInfoRequest updatePlaylistInfoRequest){
+        PlaylistResponse playlistResponse =  playlistService.updatePlaylistInfo(image, updatePlaylistInfoRequest);
+        return ApiResponse.<PlaylistResponse>builder()
+                .code(200)
+                .data(playlistResponse)
+                .build();
+    }
+
     //done
+    @Deprecated
     @DeleteMapping("/delete/{id}")
     public ApiResponse<String> deleteTrackById(@PathVariable String id){
+        playlistService.deletePlaylistById(id);
+        return ApiResponse.<String>builder()
+                .code(200)
+                .data("Delete successfully")
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deleteTrackByIdV1(@PathVariable String id){
         playlistService.deletePlaylistById(id);
         return ApiResponse.<String>builder()
                 .code(200)
