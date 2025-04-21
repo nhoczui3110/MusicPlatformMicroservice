@@ -59,12 +59,14 @@ public class PlaylistService {
     private PlaylistResponse convertFromPlaylistToPlaylistResponse(Playlist playlist){
         List<String> trackIds = new ArrayList<>();
         List<String> tagIds = new ArrayList<>();
-        for(var tag: playlist.getPlaylistTags()){
-            tagIds.add(tag.getTagId());
-        }
-        for(var track: playlist.getPlaylistTracks()){
-            trackIds.add(track.getTrackId());
-        }
+        if(playlist.getPlaylistTags()!=null)
+            for(var tag: playlist.getPlaylistTags()){
+                tagIds.add(tag.getTagId());
+            }
+        if(playlist.getPlaylistTracks()!=null)
+            for(var track: playlist.getPlaylistTracks()){
+                trackIds.add(track.getTrackId());
+            }
         ApiResponse<List<TrackResponse>> tracksResponse =  musicClient.getTrackByIds(trackIds);
         ApiResponse<List<TagResponse>> tagsResponse = musicClient.getTagsByIds(tagIds);
         PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(playlist);
@@ -79,6 +81,78 @@ public class PlaylistService {
             playlistResponse.setImagePath(playlistResponse.getPlaylistTracks().get(0).getCoverImageName());
         }
         return playlistResponse;
+    }
+    
+    public ApiResponse<List<PlaylistResponse>> getPlaylistsByUserId(String userId){
+        List<String> trackIds = new ArrayList<>();
+        List<String> tagIds = new ArrayList<>();
+        List<String> genreIds = new ArrayList<>();
+
+        // Map Id-> TrackResponse
+        Map<String, TrackResponse> idToTrackResponse = new HashMap<>();
+        Map<String, TagResponse> idToTagResponse = new HashMap<>();
+        Map<String,GenreResponse> idToGenreResponse = new HashMap<>();
+        List<Playlist> playlists = playlistRepository.getPublicPlaylistsByUserId(userId);
+
+        for(var pl:  playlists){
+            for(var tr: pl.getPlaylistTracks()){
+                if(!trackIds.contains(tr.getTrackId())){
+                    trackIds.add(tr.getTrackId());
+                }
+            }
+            for(var tg: pl.getPlaylistTags()){
+                if(!tagIds.contains(tg.getTagId())){
+                    tagIds.add(tg.getTagId());
+                }
+            }
+            if(!genreIds.contains(pl.getGenreId())){
+                genreIds.add(pl.getGenreId());
+            }
+        }
+
+        ApiResponse<List<TrackResponse>> tracksResponse =  musicClient.getTrackByIds(trackIds);
+        ApiResponse<List<TagResponse>> tagsResponse = musicClient.getTagsByIds(tagIds);
+        ApiResponse<List<GenreResponse>> genresResponse = musicClient.getGenresByIds(tagIds);
+    
+        for(var track:tracksResponse.getData()){
+            if(idToTrackResponse.get(track.getId())==null){
+                idToTrackResponse.put(track.getId(), track);
+            }
+        }
+        for(var tag: tagsResponse.getData()){
+            if(idToTagResponse.get(tag.getId())==null){
+                idToTagResponse.put(tag.getId(), tag);
+            }
+        }
+        for(var genre: genresResponse.getData()){
+            if(idToGenreResponse.get(genre.getId())==null){
+                idToGenreResponse.put(genre.getId(),genre);
+            }
+        }
+        List<PlaylistResponse> playlistResponses =  new ArrayList<>();// playlistMapper.toPlaylistResponses(createdPlaylists);
+        for(var playlist:playlists){
+            var playlistResponse = playlistMapper.toPlaylistResponse(playlist);
+            playlistResponse.setPlaylistTags(new ArrayList<>());
+            playlistResponse.setPlaylistTracks(new ArrayList<>());
+            if(playlist.getPlaylistTags()!=null)
+                for(var tag: playlist.getPlaylistTags()){
+                    playlistResponse.getPlaylistTags().add(idToTagResponse.get(tag.getTagId()));
+                }
+            if(playlist.getPlaylistTracks()!=null)
+                for(var track: playlist.getPlaylistTracks()){
+                    playlistResponse.getPlaylistTracks().add(idToTrackResponse.get(track.getTrackId()));
+                }
+            if(playlist.getGenreId()!=null){
+                playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
+            }
+            playlistResponses.add(playlistResponse);
+        }
+
+        return ApiResponse.<List<PlaylistResponse>>builder()
+                                            .data(playlistResponses)
+                                            .code(200)
+                                            .message("Playlists for user")
+                                            .build();
     }
     //done
     public ApiResponse<List<PlaylistTypeResponse>> getPlaylists(){

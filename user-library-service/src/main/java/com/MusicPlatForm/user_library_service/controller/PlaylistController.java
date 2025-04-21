@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,15 +31,22 @@ public class PlaylistController {
     private PlaylistService playlistService;
 
     //Done
-    @GetMapping("/all")
+    @GetMapping("/you")
     public ApiResponse<List<PlaylistTypeResponse>> getPlaylist(){
         return playlistService.getPlaylists();
     }
+
+    @GetMapping("/{user_id}")
+    public ApiResponse<List<PlaylistResponse>> getPlaylist(@RequestParam(name = "user_id") String userId){
+        return playlistService.getPlaylistsByUserId(userId);
+    }
+    
     //Done
     @GetMapping("/{id}")
     public ApiResponse<PlaylistResponse> getPlaylistById(@PathVariable String id){
         return this.playlistService.getPlaylistById(id);
     }
+
     //Done
     @PostMapping()
     public ApiResponse<PlaylistResponse> savePlaylist(@Valid @RequestBody AddPlaylistRequest request){

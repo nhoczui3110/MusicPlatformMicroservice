@@ -10,6 +10,14 @@ import com.MusicPlatForm.user_library_service.entity.Playlist;
 
 @Repository
 public interface PlaylistRepository extends JpaRepository<Playlist,String>{
+    @Deprecated
     @Query("FROM Playlist WHERE userId=:userId")
     public List<Playlist> getPlaylists(String userId);
+    
+    @Query("FROM Playlist WHERE userId=:userId")
+    public List<Playlist> getPlaylistsByUserId(String userId);
+
+    @Query("FROM Playlist WHERE userId=:userId AND privacy='public'")
+    public List<Playlist> getPublicPlaylistsByUserId(String userId);
+
 }
