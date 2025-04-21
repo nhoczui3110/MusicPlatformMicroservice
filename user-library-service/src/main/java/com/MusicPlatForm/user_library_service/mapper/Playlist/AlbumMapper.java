@@ -14,7 +14,13 @@ public interface AlbumMapper {
     @Mapping(target = "tags", ignore = true)
     @Mapping(target = "tracks", ignore = true)
     Album toAlbum(AlbumRequest albumRequest);
-    @Mapping(target = "tagsId", expression = "java(album.getTags().stream().map(AlbumTag::getTagId).collect(Collectors.toList()))")
+
+    
+    // @Mapping(target = "tagsId", expression = "java(album.getTags().stream().map(AlbumTag::getTagId).collect(Collectors.toList()))")
+    @Mapping(target="tags",ignore = true)
+    @Mapping(target="tracks",ignore = true)
+    @Mapping(target="genre",ignore = true)
     AlbumResponse toAlbumResponse(Album album);
+
     void updateAlbumFromRequest(AlbumRequest albumRequest, @MappingTarget Album album);
 }

@@ -1,11 +1,14 @@
 package com.MusicPlatForm.user_library_service.dto.response.album;
 
+import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.TagResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -17,12 +20,14 @@ public class AlbumResponse {
     String mainArtists;
     String genreId;
     String albumType;
-    List<String> tagsId;
+    List<TagResponse> tags;
     String description;
     String privacy;
     String albumLink;
     String imagePath;
     String userId;
     String id;
-    List<TrackResponse> trackResponses;
+    LocalDateTime createdAt;
+    List<TrackResponse> tracks;
+    GenreResponse genre;
 }

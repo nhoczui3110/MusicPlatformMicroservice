@@ -51,7 +51,7 @@ public class PlaylistController {
 
     //done
     @PutMapping("/update")
-    public ApiResponse<PlaylistResponse> updatePlaylistInfo(@RequestPart(name = "image") MultipartFile image, @RequestPart(name = "playlist") UpdatePlaylistInfoRequest updatePlaylistInfoRequest){
+    public ApiResponse<PlaylistResponse> updatePlaylistInfo(@RequestPart(name = "image",required = false) MultipartFile image, @RequestPart(name = "playlist") UpdatePlaylistInfoRequest updatePlaylistInfoRequest){
         PlaylistResponse playlistResponse =  playlistService.updatePlaylistInfo(image, updatePlaylistInfoRequest);
         return ApiResponse.<PlaylistResponse>builder()
                 .code(200)

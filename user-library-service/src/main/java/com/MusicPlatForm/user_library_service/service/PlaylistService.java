@@ -256,7 +256,8 @@ public class PlaylistService {
         List<PlaylistTag> playlistTags = this.playlistTagMapper.mapTagIdsToPlaylistTags(request.getTagIds());
         playlist.getPlaylistTags().addAll(playlistTags);
         Playlist savedPlaylist = playlistRepository.save(playlist);
-        PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(savedPlaylist);
+        PlaylistResponse playlistResponse =convertFromPlaylistToPlaylistResponse(savedPlaylist);
+        // PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(savedPlaylist);
         return playlistResponse;
     }
 

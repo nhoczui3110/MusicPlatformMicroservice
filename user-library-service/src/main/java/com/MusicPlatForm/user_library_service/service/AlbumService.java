@@ -6,6 +6,8 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackR
 import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.TagResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.entity.Album;
 import com.MusicPlatForm.user_library_service.entity.AlbumTag;
@@ -49,9 +51,33 @@ public class AlbumService {
     AlbumMapper albumMapper;
     FileClient fileClient;
     MusicClient musicClient;
+
     @Value("${app.services.file}")
     @NonFinal
     String fileServiceUrl;
+
+
+    private AlbumResponse getFullAlbumResponse(Album album){
+        List<String> trackIds = new ArrayList<>();
+        List<String> tagIds = new ArrayList<>();
+        for(var tag: album.getTags()){
+            tagIds.add(tag.getTagId());
+        }
+        for(var track: album.getTracks()){
+            trackIds.add(track.getTrackId());
+        }
+        ApiResponse<List<TrackResponse>> tracksResponse =  musicClient.getTrackByIds(trackIds);
+        ApiResponse<List<TagResponse>> tagsResponse = musicClient.getTagsByIds(tagIds);
+        AlbumResponse response = albumMapper.toAlbumResponse(album);
+        if(album.getGenreId()!=null){
+            ApiResponse<GenreResponse> genre = musicClient.getGenreById(album.getGenreId());
+            response.setGenre(genre.getData());
+        }
+        response.setTracks(tracksResponse.getData());
+        response.setTags(tagsResponse.getData());
+        return response;
+    }
+
     @Transactional
     public AlbumResponse addAlbum(AlbumRequest request, MultipartFile coverAlbum, List<MultipartFile> trackFiles, List<TrackRequest> trackRequests) throws JsonProcessingException {
         if (albumRepository.findByAlbumLink(request.getAlbumLink()).isPresent()) {
@@ -88,7 +114,7 @@ public class AlbumService {
         albumRepository.save(newAlbum);
         AlbumResponse response = albumMapper.toAlbumResponse(newAlbum);
         if (trackResponseList != null && !trackResponseList.getData().isEmpty()) {
-            response.setTrackResponses(trackResponseList.getData());
+            response.setTracks(trackResponseList.getData());
         }
         return response;
     }
@@ -97,12 +123,7 @@ public class AlbumService {
     public AlbumResponse getAlbumById(String albumId) {
         Album album = albumRepository.findById(albumId)
                 .orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_FOUND));
-        AlbumResponse response = albumMapper.toAlbumResponse(album);
-//        List<AlbumTag> albumTags = albumTagRepository.findAllByAlbum_Id(albumId);
-//        if (!albumTags.isEmpty()) {
-//            List<String> tags =  albumTags.stream().map(AlbumTag::getTagId).toList();
-//            response.setTagsId(tags);
-//        }
+        AlbumResponse response = getFullAlbumResponse(album);
         return response;
     }
 
@@ -110,11 +131,7 @@ public class AlbumService {
     public AlbumResponse getAlbumByLink(String albumLink) {
         Album album = albumRepository.findByAlbumLink(albumLink)
                 .orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_FOUND));
-        List<AlbumTrack> albumTracks = album.getTracks();
-        List<String> trackIds = albumTracks.stream().map(AlbumTrack::getTrackId).toList();
-        ApiResponse<List<TrackResponse>> trackResponses = musicClient.getTrackByIds(trackIds);
-        AlbumResponse response = albumMapper.toAlbumResponse(album);
-        response.setTrackResponses(trackResponses.getData());
+        AlbumResponse response = getFullAlbumResponse(album);
         return response;
     }
 
@@ -136,8 +153,7 @@ public class AlbumService {
         }
 
         return albums.stream().map(album -> {
-            AlbumResponse response = albumMapper.toAlbumResponse(album);
-            response.setTagsId(album.getTags().stream().map(AlbumTag::getTagId).toList());
+            AlbumResponse response = getFullAlbumResponse(album);
             return response;
         }).toList();
     }
@@ -205,7 +221,7 @@ public class AlbumService {
         }
 
         album = albumRepository.save(album);
-        return albumMapper.toAlbumResponse(album);
+        return getFullAlbumResponse(album);
     }
 
     public void likeAlbum(String albumId) {
@@ -228,14 +244,8 @@ public class AlbumService {
         List<AlbumResponse> albumResponses = new ArrayList<>();
 
         for (Album album : albums) {
-            AlbumResponse response = albumMapper.toAlbumResponse(album);
+            AlbumResponse response = getFullAlbumResponse(album);
 
-            // Lấy trackIds từ album
-            List<String> trackIds = album.getTracks().stream()
-                    .map(AlbumTrack::getTrackId)
-                    .toList();
-            ApiResponse<List<TrackResponse>> trackResponses = musicClient.getTrackByIds(trackIds);
-            response.setTrackResponses(trackResponses.getData());
             albumResponses.add(response);
         }
 
@@ -256,13 +266,8 @@ public class AlbumService {
         List<AlbumResponse> albumResponses = new ArrayList<>();
 
         for (Album album: albums) {
-            AlbumResponse response = albumMapper.toAlbumResponse(album);
+            AlbumResponse response = getFullAlbumResponse(album);
 
-            List<String> trackIds = album.getTracks().stream()
-                    .map(AlbumTrack::getTrackId)
-                    .toList();
-            ApiResponse<List<TrackResponse>> trackResponses = musicClient.getTrackByIds(trackIds);
-            response.setTrackResponses(trackResponses.getData());
             albumResponses.add(response);
         }
         return albumResponses;
