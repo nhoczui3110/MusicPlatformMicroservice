@@ -50,10 +50,11 @@ public class LikedPlaylistService {
         this.likedPlaylistRepository.save(likedPlaylist);
         return true;
     }
-    public Boolean unLikePlaylist(String id){
+    public Boolean unLikePlaylist(String playlistId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        LikedPlaylist likedPlaylist = this.likedPlaylistRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
+        LikedPlaylist likedPlaylist = this.likedPlaylistRepository.findByUserIdAndPlaylistId(userId, playlistId);
+        if(likedPlaylist == null) throw new AppException(ErrorCode.NOT_FOUND);
         if(!likedPlaylist.getPlaylist().getUserId().equals(userId))throw new AppException(ErrorCode.UNAUTHORIZED);
         this.likedPlaylistRepository.delete(likedPlaylist);
         return true;
