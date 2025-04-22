@@ -20,7 +20,6 @@ public class AlbumRequest {
     @NotBlank(message = "Main artists are required")
     String mainArtists;
 
-    @NotBlank(message = "ALBUM_GENRE_ID_REQUIRED")
     String genreId;
 
     @NotBlank(message = "ALBUM_TYPE_REQUIRED")

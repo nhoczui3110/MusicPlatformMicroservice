@@ -119,6 +119,7 @@ public class TrackService implements TrackServiceInterface{
             trackResponse.setTags(this.tagMapper.toTagResponsesFromTags(tags));
             trackResponse.setGenre(this.genreMapper.toGenreResponseFromGenre(genre));
             trackResponses.add(trackResponse);
+            index++;
         }
         return trackResponses;
     }

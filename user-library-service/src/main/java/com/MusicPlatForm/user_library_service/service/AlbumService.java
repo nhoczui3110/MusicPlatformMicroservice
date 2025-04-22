@@ -210,14 +210,12 @@ public class AlbumService {
 
         if (file != null && !file.isEmpty()) {
             String imagePath = album.getImagePath();
-            String name = (imagePath != null && !imagePath.isBlank() && imagePath.contains("/"))
-                    ? imagePath.substring(imagePath.lastIndexOf("/") + 1)
-                    : file.getOriginalFilename();
-
-            ApiResponse<AddCoverFileResponse> fileResponse = fileClient.replaceCover(file, name);
-            if (fileResponse != null && fileResponse.getData() != null) {
-                album.setImagePath(fileServiceUrl + "/image/cover/" + fileResponse.getData().getCoverName());
-            }
+            ApiResponse<AddCoverFileResponse> fileResponse;
+            if (imagePath!=null) {
+                fileResponse = fileClient.replaceCover(file, imagePath);
+            } else {
+                fileResponse = fileClient.addCover(file);}
+            album.setImagePath(fileResponse.getData().getCoverName());
         }
 
         album = albumRepository.save(album);
