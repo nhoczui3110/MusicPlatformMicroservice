@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -87,7 +88,11 @@ public class PlaylistService {
     public ApiResponse<List<PlaylistResponse>> getPlaylistsByUserId(String userId){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String myId = authentication.getName();
+        String loggingUserId = (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
+                ? null
+                : authentication.getName();
+
+
 
         List<String> trackIds = new ArrayList<>();
         List<String> tagIds = new ArrayList<>();
@@ -97,9 +102,25 @@ public class PlaylistService {
         Map<String, TrackResponse> idToTrackResponse = new HashMap<>();
         Map<String, TagResponse> idToTagResponse = new HashMap<>();
         Map<String,GenreResponse> idToGenreResponse = new HashMap<>();
-        List<Playlist> playlists = playlistRepository.getPublicPlaylistsByUserId(userId);
+        List<Playlist> playlists ;
+        List<String> likedPlaylistIds ;
 
-        List<String> likedPlaylistIds = this.likedPlaylistRepository.findAllByUserId(myId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist().getId()).toList();
+        if(loggingUserId == null ||!loggingUserId.equals(userId)){
+            // chưa đăng nhập hoặc lấy của người khác
+            playlists = playlistRepository.getPublicPlaylistsByUserId(userId);
+        }        
+        else{
+            // lấy của chính mình
+            playlists = playlistRepository.getPlaylistsByUserId(loggingUserId);
+        }
+
+        if(loggingUserId==null){
+            //chưa login thì ko có like playlist
+            likedPlaylistIds = null;
+        }
+        else{
+            likedPlaylistIds = this.likedPlaylistRepository.findAllByUserId(loggingUserId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist().getId()).toList();
+        }
 
         for(var pl:  playlists){
             for(var tr: pl.getPlaylistTracks()){
@@ -139,7 +160,7 @@ public class PlaylistService {
         List<PlaylistResponse> playlistResponses =  new ArrayList<>();// playlistMapper.toPlaylistResponses(createdPlaylists);
         for(var playlist:playlists){
             var playlistResponse = playlistMapper.toPlaylistResponse(playlist);
-            if(likedPlaylistIds.contains(playlist.getId())){
+            if(likedPlaylistIds!=null && likedPlaylistIds.contains(playlist.getId())){
                 playlistResponse.setIsLiked(true);
             }
             else{
