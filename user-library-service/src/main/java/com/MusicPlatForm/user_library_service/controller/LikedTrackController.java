@@ -17,6 +17,10 @@ import java.util.List;
 public class LikedTrackController {
     LikedTrackService likedTrackService;
 
+    /**
+     * Lấy toàn bộ nhạc user đó đã like
+     * @return
+     */
     @GetMapping("/all")
     public ApiResponse<List<TrackResponse>> getAllLikedTracks() {
         List<TrackResponse> likedTracks = likedTrackService.getAllLikedTracks();
@@ -39,8 +43,10 @@ public class LikedTrackController {
         return ApiResponse.<Boolean>builder().data(likedTrackService.likeTrack(trackId)).code(200).build();
     }
 
-    @PostMapping("/unlike/{id}")
-    public ApiResponse<Boolean> unLikeTrack(@PathVariable String id) {
-        return ApiResponse.<Boolean>builder().data(likedTrackService.unLikeTrack(id)).code(200).build();
+    @PostMapping("/unlike/{track_id}")
+    public ApiResponse<Boolean> unLikeTrack(@PathVariable String track_id) {
+        return ApiResponse.<Boolean>builder().data(likedTrackService.unLikeTrack(track_id)).code(200).build();
     }
+
+    
 }

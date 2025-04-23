@@ -49,13 +49,14 @@ public class LikedTrackService {
         return likedTrackRepository.countByTrackId(trackId);
     }
 
-    public List<LikedTrackResponse> getLikedTrackResponses() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
+    // @Deprecated
+    // public List<LikedTrackResponse> getLikedTrackResponses() {
+    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    //     String userId = authentication.getName();
 
-        List<LikedTrack> likedTracks = likedTrackRepository.findAllByUserId(userId);
-        return likedTrackMapper.toLikedTrackResponses(likedTracks);
-    }
+    //     List<LikedTrack> likedTracks = likedTrackRepository.findAllByUserId(userId);
+    //     return likedTrackMapper.toLikedTrackResponses(likedTracks);
+    // }
 
     public Boolean isLiked(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -87,12 +88,12 @@ public class LikedTrackService {
         return true;
     }
     //unlike theo id
-    public Boolean unLikeTrack(String id) {
+    public Boolean unLikeTrack(String track_id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
 
-        LikedTrack likedTrack = likedTrackRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        LikedTrack likedTrack = likedTrackRepository.findByUserIdAndTrackId(userId,track_id);
+        if(likedTrack==null) throw new AppException(ErrorCode.NOT_FOUND);
         if (!likedTrack.getUserId().equals(userId)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
