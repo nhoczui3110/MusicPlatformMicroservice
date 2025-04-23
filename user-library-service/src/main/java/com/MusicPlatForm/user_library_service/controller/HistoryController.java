@@ -6,12 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.dto.response.history.HistoryResponse;
 import com.MusicPlatForm.user_library_service.service.iface.HistorySerivceInterface;
 
@@ -32,7 +34,7 @@ public class HistoryController {
         return ResponseEntity
         .ok()
         .body(
-            ApiResponse.<List<HistoryResponse>>builder()
+            ApiResponse.<List<TrackResponse>>builder()
             .data(historySerivce.getHistory())
             .code(HttpStatus.OK.value())
             .message("Get data successfully")
@@ -64,9 +66,9 @@ public class HistoryController {
             .build()
             );
     }
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse<?>> deleteHistoryById(String id){
-        this.historySerivce.deleteHistoryById(id);
+    @DeleteMapping("/delete/{track_id}")
+    public ResponseEntity<ApiResponse<?>> deleteHistoryById(@PathVariable(name = "track_id") String trackId){
+        this.historySerivce.deleteHistoryById(trackId);
         return ResponseEntity
         .ok()
         .body(

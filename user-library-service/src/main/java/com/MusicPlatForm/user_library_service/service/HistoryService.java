@@ -7,10 +7,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.dto.response.history.HistoryResponse;
 import com.MusicPlatForm.user_library_service.entity.History;
+import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.HistoryMapper;
 import com.MusicPlatForm.user_library_service.repository.HistoryRepository;
+import com.MusicPlatForm.user_library_service.repository.LikedTrackRepository;
 import com.MusicPlatForm.user_library_service.service.iface.HistorySerivceInterface;
 
 import lombok.AccessLevel;
@@ -25,19 +28,28 @@ import lombok.experimental.FieldDefaults;
 public class HistoryService implements HistorySerivceInterface {
     HistoryRepository historyRepository;
     HistoryMapper historyMapper;
+    LikedTrackRepository likedTrackRepository;
+    MusicClient musicClient;
     @Override
-    public List<HistoryResponse> getHistory() {
+    public List<TrackResponse> getHistory() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        userId = "a";
+
         List<History> histories = this.historyRepository.findAllByUserIdOrderByListenedAtDesc(userId);
-        return historyMapper.toHistoryResponses(histories);
+        List<String> trackIds = histories.stream().map(h->h.getTrackId()).toList();
+        List<TrackResponse> trackResponses = musicClient.getTrackByIds(trackIds).getData();
+        List<String> likedTrackIds =  likedTrackRepository.findAllByUserId(userId).stream().map(l->l.getTrackId()).toList();
+        for(var track: trackResponses){
+            if(likedTrackIds.contains(track.getId())){
+                track.setIsLiked(true);
+            }
+        }
+        return trackResponses;
     }
     @Override
     public HistoryResponse addHistory(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        userId = "a";
         History history = this.historyRepository.findByUserIdAndTrackId(userId,trackId);
         if(history==null)
         {
@@ -53,12 +65,13 @@ public class HistoryService implements HistorySerivceInterface {
     public void clearAllHistory() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        userId = "a";
         this.historyRepository.deleteAllByUserId(userId);
     }
     @Override
-    public void deleteHistoryById(String id) {
-       this.historyRepository.deleteById(id);
+    public void deleteHistoryById(String trackId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        this.historyRepository.deleteByUserIdAndTrackId(userId, trackId);
     }
     
 }

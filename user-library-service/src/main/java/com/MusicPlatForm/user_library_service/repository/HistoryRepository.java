@@ -11,7 +11,7 @@ import com.MusicPlatForm.user_library_service.entity.History;
 public interface HistoryRepository extends JpaRepository<History,String> {
     public List<History> findAllByUserIdOrderByListenedAtDesc(String userId);
     public History findByUserIdAndTrackId(String userId,String trackId);
-
+    public void deleteByUserIdAndTrackId(String userId,String trackId);
     public void deleteAllByUserId(String userId);
 
     @Query(value = "SELECT TOP(:limit) * FROM History ORDER BY Listened_at", nativeQuery = true)
