@@ -30,4 +30,5 @@ public class TrackResponse {
 
     List<TagResponse> tags;
 
+    Boolean isLiked=false;
 }
