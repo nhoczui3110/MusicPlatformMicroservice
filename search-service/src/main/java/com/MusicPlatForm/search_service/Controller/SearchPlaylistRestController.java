@@ -18,7 +18,7 @@ import lombok.AllArgsConstructor;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/playlits")
+@RequestMapping("/playlist")
 public class SearchPlaylistRestController {
     private SearchPlaylistService searchPlaylistService;
     @GetMapping
