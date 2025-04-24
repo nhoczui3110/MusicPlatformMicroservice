@@ -42,7 +42,7 @@ public class SearchUserRestController {
         );
     }
     @GetMapping("")
-    public ResponseEntity<?> searchUsers(@RequestParam String query){
+    public ResponseEntity<?> searchUsers(@RequestParam(name = "q") String query){
         return ResponseEntity.ok().body(
             ApiResponse.<List<String>>builder().code(200).data(this.userSearchService.searchUsers(query)).message("Successfully").build()
         );
