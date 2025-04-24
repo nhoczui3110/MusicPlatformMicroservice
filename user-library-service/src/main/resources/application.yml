@@ -21,10 +21,21 @@ spring:
       enabled: true
       max-file-size: 50MB
       max-request-size: 100MB
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        acks: -1
+        retries: 1 #gửi lại nếu lỗi
+        # properties: 
+        #     enable.idempotence: true
+        #     max.
 app:
     services:
         file: http://localhost:8083/file-service
         music: http://localhost:8082/music-service
+        profile: lb://profile-service
 
 track:
   related:

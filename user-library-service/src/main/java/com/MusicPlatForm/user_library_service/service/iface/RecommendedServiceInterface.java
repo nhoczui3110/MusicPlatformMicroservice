@@ -10,6 +10,6 @@ import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 @Service
 public interface RecommendedServiceInterface {
     public List<List<TrackResponse>> getMixedForUser();
-    public List<TrackResponse> getRelatedTrack(String genreId);
+    public List<TrackResponse> getRelatedTrack(String trackId);
     public Map<String,List<TrackResponse>> getGroupedTrackByTags();
 }

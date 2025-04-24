@@ -1,5 +1,6 @@
 package com.MusicPlatForm.user_library_service.service;
 
+import com.MusicPlatForm.user_library_service.dto.request.kafka.AlbumKafkaRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AddTrackAlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
@@ -27,6 +28,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
+
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -51,6 +54,7 @@ public class AlbumService {
     AlbumMapper albumMapper;
     FileClient fileClient;
     MusicClient musicClient;
+    KafkaTemplate<String,Object> kafkaTemplate;
 
     @Value("${app.services.file}")
     @NonFinal
@@ -76,6 +80,14 @@ public class AlbumService {
         response.setTracks(tracksResponse.getData());
         response.setTags(tagsResponse.getData());
         return response;
+    }
+
+    private void sendAlbumToSearchService(Album album){
+        AlbumKafkaRequest albumKafkaRequest = new AlbumKafkaRequest();
+        albumKafkaRequest.setAlbumId(album.getId());
+        albumKafkaRequest.setDescription(album.getDescription());
+        albumKafkaRequest.setTitle(album.getAlbumTitle());
+        this.kafkaTemplate.send("add_album_to_search",albumKafkaRequest);
     }
 
     @Transactional
@@ -112,6 +124,7 @@ public class AlbumService {
                 .collect(Collectors.toList());
         newAlbum.setTags(albumTags);
         albumRepository.save(newAlbum);
+        sendAlbumToSearchService(newAlbum);
         AlbumResponse response = albumMapper.toAlbumResponse(newAlbum);
         if (trackResponseList != null && !trackResponseList.getData().isEmpty()) {
             response.setTracks(trackResponseList.getData());
@@ -151,6 +164,23 @@ public class AlbumService {
             // If viewing own albums, get all (public + private)
             albums = albumRepository.findByUserId(userId);
         }
+
+        return albums.stream().map(album -> {
+            AlbumResponse response = getFullAlbumResponse(album);
+            return response;
+        }).toList();
+    }
+
+
+    public List<AlbumResponse> getByIds(List<String> ids) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String loggingUserId = (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
+                ? null
+                : authentication.getName();
+        
+
+        List<Album> albums = this.albumRepository.findAllById(ids);
 
         return albums.stream().map(album -> {
             AlbumResponse response = getFullAlbumResponse(album);

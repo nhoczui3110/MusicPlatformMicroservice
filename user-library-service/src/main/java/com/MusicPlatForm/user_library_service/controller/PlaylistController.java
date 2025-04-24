@@ -47,6 +47,10 @@ public class PlaylistController {
         return this.playlistService.getPlaylistById(id);
     }
 
+    @GetMapping("/bulk")
+    public ApiResponse<List<PlaylistResponse>> getPlaylistsByIds(@RequestParam(name = "playlist_ids") List<String> ids){
+        return this.playlistService.getPlaylistsByIds(ids);
+    }
     //Done
     @PostMapping()
     public ApiResponse<PlaylistResponse> savePlaylist(@Valid @RequestBody AddPlaylistRequest request){

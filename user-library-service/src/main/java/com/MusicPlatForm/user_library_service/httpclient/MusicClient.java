@@ -41,7 +41,7 @@ public interface MusicClient {
     public ApiResponse<TrackResponse> getTrackById(@PathVariable String id);
     @GetMapping("/tracks/bulk")//ok
     public ApiResponse<List<TrackResponse>> getTrackByIds(@RequestParam List<String> ids);
-    @GetMapping("/track/list-by-genre")
+    @GetMapping("/tracks/by-genre")
     public ApiResponse<List<TrackResponse>> getTracksByGenre(@RequestParam String genreId,@RequestParam  int limit);
     @GetMapping("/track/list-ids-related")
     public ApiResponse<List<List<TrackResponse>>> getRelatedTracksForIds(@RequestParam(name = "track-ids") List<String> trackIds, @RequestParam(name = "limit") int limit);

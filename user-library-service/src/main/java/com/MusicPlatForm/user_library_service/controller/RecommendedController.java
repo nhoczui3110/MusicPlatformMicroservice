@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,15 +31,17 @@ public class RecommendedController {
 
 
     /**
-     * Get list of related track by genre
+     * Lấy track theo trackId từ đó lấy thể loại và tìm track theo thể loại.
+     * Nếu track không có thể loại thì lấy toàn bộ nhạc user đã like làm response;
+     * @param trackId
      * @return
      */
-    @GetMapping("/related-track")
-    public ResponseEntity<ApiResponse<?>> getSimilartToLikedTrack(@RequestParam(name = "genre_id") String genreId){
+    @GetMapping("/related-track/{track_id}")
+    public ResponseEntity<ApiResponse<List<TrackResponse>>> getSimilartToLikedTrack(@PathVariable(name = "track_id") String trackId){
         return ResponseEntity.ok().body(
             ApiResponse.<List<TrackResponse>>builder()
                                             .code(HttpStatus.OK.value())
-                                            .data(recommendedService.getRelatedTrack(genreId))
+                                            .data(recommendedService.getRelatedTrack(trackId))
                                             .build()
         );
     } 

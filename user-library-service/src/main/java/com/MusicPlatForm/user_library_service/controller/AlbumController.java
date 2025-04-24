@@ -17,7 +17,10 @@ import java.util.List;
 public class AlbumController {
     AlbumService  albumService;
 
-
+    @GetMapping("/bulk")
+    public ApiResponse<List<AlbumResponse>> getAllByIds(@RequestParam(name = "album_ids") List<String> ids){
+        return  ApiResponse.<List<AlbumResponse>>builder().data(this.albumService.getByIds(ids)).build();
+    }
 
     @GetMapping("/find-by-album-id/{albumId}")
     public ApiResponse<AlbumResponse> getAlbumById(@PathVariable("albumId") String albumId) {

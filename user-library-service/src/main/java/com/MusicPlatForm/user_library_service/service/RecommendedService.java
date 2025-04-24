@@ -25,6 +25,7 @@ public class RecommendedService implements RecommendedServiceInterface{
     private int listSize;
     private MusicClient musicClient;
     private HistoryRepository historyRepository;
+    private LikedTrackService likedTrackService;
     public RecommendedService(MusicClient musicClient,HistoryRepository historyRepository){
         this.musicClient = musicClient;
         this.historyRepository = historyRepository;
@@ -57,8 +58,16 @@ public class RecommendedService implements RecommendedServiceInterface{
 
 
     @Override
-    public List<TrackResponse> getRelatedTrack(String genreId) {
-        List<TrackResponse> trackResponses = musicClient.getTracksByGenre(genreId, relatedTrackLimit).getData();
+    public List<TrackResponse> getRelatedTrack(String trackId) {
+        TrackResponse track = musicClient.getTrackById(trackId).getData();
+        List<TrackResponse> trackResponses = null;
+        if(track.getGenre()==null){
+            trackResponses = likedTrackService.getAllLikedTracks();
+        }
+        else{
+            musicClient.getTracksByGenre(track.getGenre().getId(), relatedTrackLimit).getData();
+        }
+        trackResponses.removeIf(tr->tr.getId()==trackId);
         return trackResponses;
     }
     
