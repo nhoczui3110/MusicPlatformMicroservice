@@ -2,7 +2,6 @@ package com.devteria.profile.controller;
 
 import com.devteria.profile.dto.request.ApiResponse;
 import com.devteria.profile.dto.request.ProfileCreationRequest;
-import com.devteria.profile.dto.request.ProfileUpdateRequest;
 import com.devteria.profile.dto.response.UserProfileResponse;
 import com.devteria.profile.service.UserProfileService;
 import lombok.AccessLevel;

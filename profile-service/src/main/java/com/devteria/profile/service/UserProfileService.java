@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -65,6 +66,23 @@ public class UserProfileService {
         userProfileRepository.save(userProfile);
         return userProfileMapper.toUserProfileResponse(userProfile);
     }
+
+    @Transactional
+    public List<ProfileWithCountFollowResponse> getByIds(List<String> userIds){
+        List<UserProfile> userProfiles = userProfileRepository.findAllById(userIds);
+        List<ProfileWithCountFollowResponse> userProfileResponses = new ArrayList<>();
+        for(var userProfile: userProfiles){
+            ProfileWithCountFollowResponse response = userProfileMapper.toProfileWithCountFollowResponse(userProfile);
+            int followingCount = followsRepository.countByFollower_UserId(userProfile.getUserId());
+            int followerCount = followsRepository.countByFollowing_UserId(userProfile.getUserId());
+    
+            response.setFollowingCount(followingCount);
+            response.setFollowerCount(followerCount);
+            userProfileResponses.add(response);
+        }
+        return userProfileResponses;
+    }
+    
     public ProfileWithCountFollowResponse get(String userId) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
