@@ -29,4 +29,7 @@ public class SearchPlaylistService {
         List<Playlist> playlists = playlistRepository.findPlaylists(query);
         return playlistMapper.toPlaylistIds(playlists);
     }
+    public List<Playlist> getAllPlaylist(){
+        return (List<Playlist>) this.playlistRepository.findAll();
+    }
 }

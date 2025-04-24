@@ -29,4 +29,7 @@ public class SearchAlbumSerivce {
         List<Album> albums = albumRepository.findAlbums(query);
         return albumMapper.toAlbumIds(albums);
     }
+    public List<Album> getAllAlbums(){
+        return (List<Album>) this.albumRepository.findAll();
+    }
 }

@@ -25,6 +25,9 @@ public class UserSearchService {
         List<User> users  =  this.userRepository.findUsers(query);
         return userResponseMapper.toUserIds(users);
     }
+    public List<User> getAllUsers(){
+        return (List<User>) this.userRepository.findAll();
+    }
     // public  List<UserResponse>  searchUsersByName(String query){
     //     List<User> users =  this.userRepository.findUserByName(query);
     //     return userResponseMapper.toUserResponseList(users);

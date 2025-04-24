@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.MusicPlatForm.search_service.Dto.ApiResponse;
 import com.MusicPlatForm.search_service.Dto.Request.PlaylistRequest;
+import com.MusicPlatForm.search_service.Entity.Playlist;
 import com.MusicPlatForm.search_service.Service.SearchPlaylistService;
 
 import lombok.AllArgsConstructor;
@@ -25,6 +26,11 @@ public class SearchPlaylistRestController {
         return ResponseEntity.ok().body(
             ApiResponse.<List<String>>builder().code(200).data(searchPlaylistService.searchPlaylists(query)).build()
         );
+    }
+
+    @GetMapping("/all")
+    public List<Playlist> getAll(){
+        return this.searchPlaylistService.getAllPlaylist();
     }
 
     

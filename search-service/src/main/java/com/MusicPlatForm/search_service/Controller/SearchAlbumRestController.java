@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.MusicPlatForm.search_service.Dto.ApiResponse;
 import com.MusicPlatForm.search_service.Dto.Request.AlbumRequest;
+import com.MusicPlatForm.search_service.Entity.Album;
 import com.MusicPlatForm.search_service.Service.SearchAlbumSerivce;
 
 import lombok.AllArgsConstructor;
@@ -36,4 +37,8 @@ public class SearchAlbumRestController {
         );
     }
 
+    @GetMapping("/all")
+    public List<Album> getAll(){
+        return this.searchAlbumService.getAllAlbums();
+    }
 }

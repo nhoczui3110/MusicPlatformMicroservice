@@ -47,4 +47,8 @@ public class SearchUserRestController {
             ApiResponse.<List<String>>builder().code(200).data(this.userSearchService.searchUsers(query)).message("Successfully").build()
         );
     }
+    @GetMapping("/all")
+    public List<User> getAllUsers(){
+        return userSearchService.getAllUsers();
+    }
 }

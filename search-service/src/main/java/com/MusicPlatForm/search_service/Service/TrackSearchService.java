@@ -34,6 +34,9 @@ public class TrackSearchService {
     //     return trackResponseMapper.toTrackResponseList(tracks);
     // }
 
+    public List<Track> getAllTracks(){
+        return (List<Track>) trackRepository.findAll();
+    }
     public List<String> searchTracks(String query){
         List<Track> tracks = trackRepository.findTracks(query);
         return trackResponseMapper.toTrackIds(tracks);
