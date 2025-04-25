@@ -1,6 +1,7 @@
 package com.MusicPlatForm.search_service.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
@@ -26,4 +27,6 @@ public interface PlaylistRepository extends ElasticsearchRepository<Playlist,Str
     List<Playlist> findPlaylists(String query);
 
     void deleteByPlaylistId(String playlistId);
+
+    Optional<Playlist> findByPlaylistId(String playlistId);
 }

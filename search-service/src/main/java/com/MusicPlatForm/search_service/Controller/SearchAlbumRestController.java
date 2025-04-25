@@ -31,6 +31,11 @@ public class SearchAlbumRestController {
     public void deleteAlbumFromSearch(String albumId) {
         searchAlbumService.deleteAlbumByAlbumId(albumId);
     }
+    @KafkaListener(topics = "update_album_to_search", groupId = "search_group")
+    public void updateAlbum(AlbumRequest album) {
+        searchAlbumService.update(album);
+    }
+    
 
    @GetMapping
     public ResponseEntity<?> search(@RequestParam(name = "q") String query){

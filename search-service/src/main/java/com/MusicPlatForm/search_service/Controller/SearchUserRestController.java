@@ -28,6 +28,10 @@ public class SearchUserRestController {
     public void addUserToSearch(UserRequest userRequest) {
         userSearchService.save(userRequest);
     }
+    @KafkaListener(topics = "update_user_to_search", groupId = "search_group")
+    public void updateUserToSearch(UserRequest userRequest) {
+        userSearchService.save(userRequest);
+    }
 
     @KafkaListener(topics = "delete_user_from_search", groupId = "search_group")
     public void deleteUserFromSearch(String userId) {

@@ -30,4 +30,5 @@ public class AlbumResponse {
     LocalDateTime createdAt;
     List<TrackResponse> tracks;
     GenreResponse genre;
+    Boolean isLiked = false;
 }

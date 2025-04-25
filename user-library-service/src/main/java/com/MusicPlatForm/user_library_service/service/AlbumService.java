@@ -1,6 +1,5 @@
 package com.MusicPlatForm.user_library_service.service;
 
-import com.MusicPlatForm.user_library_service.dto.request.kafka.AlbumKafkaRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AddTrackAlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
@@ -22,13 +21,13 @@ import com.MusicPlatForm.user_library_service.mapper.Playlist.AlbumMapper;
 import com.MusicPlatForm.user_library_service.repository.AlbumRepository;
 import com.MusicPlatForm.user_library_service.repository.AlbumTrackRepository;
 import com.MusicPlatForm.user_library_service.repository.LikedAlbumRepository;
+import com.MusicPlatForm.user_library_service.repository.LikedTrackRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
@@ -51,10 +50,11 @@ public class AlbumService {
     AlbumRepository albumRepository;
     AlbumTrackRepository albumTrackRepository;
     LikedAlbumRepository likedAlbumRepository;
+    LikedTrackRepository likedTrackRepository;
     AlbumMapper albumMapper;
     FileClient fileClient;
     MusicClient musicClient;
-    KafkaTemplate<String,Object> kafkaTemplate;
+    KafkaService kafkaService;
 
     @Value("${app.services.file}")
     @NonFinal
@@ -64,6 +64,14 @@ public class AlbumService {
     private AlbumResponse getFullAlbumResponse(Album album){
         List<String> trackIds = new ArrayList<>();
         List<String> tagIds = new ArrayList<>();
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggingUserId = (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
+                ? null : authentication.getName();
+        List<String> likedTrackIds = (loggingUserId == null) ? null
+                : likedTrackRepository.findAllByUserId(loggingUserId).stream()
+                        .map(track -> track.getTrackId()).toList();
+
         for(var tag: album.getTags()){
             tagIds.add(tag.getTagId());
         }
@@ -77,18 +85,20 @@ public class AlbumService {
             ApiResponse<GenreResponse> genre = musicClient.getGenreById(album.getGenreId());
             response.setGenre(genre.getData());
         }
+        if(likedTrackIds!=null){
+            tracksResponse.getData().forEach((track)->{
+                if(likedTrackIds.contains(track.getId()))
+                track.setIsLiked(true);
+            });
+        }
+        if(loggingUserId!=null){
+            response.setIsLiked(likedAlbumRepository.existsByUserIdAndAlbumId(loggingUserId, album.getId()));
+        }
         response.setTracks(tracksResponse.getData());
         response.setTags(tagsResponse.getData());
         return response;
     }
 
-    private void sendAlbumToSearchService(Album album){
-        AlbumKafkaRequest albumKafkaRequest = new AlbumKafkaRequest();
-        albumKafkaRequest.setAlbumId(album.getId());
-        albumKafkaRequest.setDescription(album.getDescription());
-        albumKafkaRequest.setTitle(album.getAlbumTitle());
-        this.kafkaTemplate.send("add_album_to_search",albumKafkaRequest);
-    }
 
     @Transactional
     public AlbumResponse addAlbum(AlbumRequest request, MultipartFile coverAlbum, List<MultipartFile> trackFiles, List<TrackRequest> trackRequests) throws JsonProcessingException {
@@ -124,7 +134,7 @@ public class AlbumService {
                 .collect(Collectors.toList());
         newAlbum.setTags(albumTags);
         albumRepository.save(newAlbum);
-        sendAlbumToSearchService(newAlbum);
+        this.kafkaService.sendAlbumToSearchService(newAlbum);
         AlbumResponse response = albumMapper.toAlbumResponse(newAlbum);
         if (trackResponseList != null && !trackResponseList.getData().isEmpty()) {
             response.setTracks(trackResponseList.getData());
@@ -173,13 +183,6 @@ public class AlbumService {
 
 
     public List<AlbumResponse> getByIds(List<String> ids) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        String loggingUserId = (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
-                ? null
-                : authentication.getName();
-        
-
         List<Album> albums = this.albumRepository.findAllById(ids);
 
         return albums.stream().map(album -> {
@@ -208,6 +211,7 @@ public class AlbumService {
         album.getTracks().clear();
         albumRepository.save(album);
         albumRepository.delete(album);
+        this.kafkaService.deleteAlbumFromSearchService(albumId);
     }
 
     @Transactional
@@ -249,6 +253,7 @@ public class AlbumService {
         }
 
         album = albumRepository.save(album);
+        this.kafkaService.sendUpdatedAlbumToSearchService(album);
         return getFullAlbumResponse(album);
     }
 

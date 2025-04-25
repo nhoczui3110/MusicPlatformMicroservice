@@ -37,6 +37,13 @@ public class UserSearchService {
         User savedUser = this.userRepository.save(user);
         return savedUser;
     }
+    public void update(UserRequest userRequest){
+        User user = this.userRepository.findUserByUserId(userRequest.getUserId());
+        if(user==null) return ;
+        user.setFullname(user.getFullname());
+        user.setDisplayName(user.getDisplayName());
+        this.userRepository.save(user);
+    }
 
     public void deleteUserByUserId(String userId) {
         userRepository.deleteByUserId(userId);

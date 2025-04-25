@@ -34,4 +34,5 @@ public interface UserRepository extends ElasticsearchRepository<User,String>{
     List<User> findUserByName(String name);
 
     void deleteByUserId(String userId);
+    User findUserByUserId(String userId);
 }

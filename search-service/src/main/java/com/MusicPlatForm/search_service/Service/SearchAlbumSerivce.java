@@ -22,6 +22,13 @@ public class SearchAlbumSerivce {
         Album album = albumMapper.toEntity(request);
         return albumRepository.save(album);
     }
+    public void update(AlbumRequest request){
+        Album album = this.albumRepository.findByAlbumId(request.getAlbumId());
+        if(album == null)return;
+        album.setTitle(request.getTitle());
+        album.setDescription(request.getDescription());
+        this.albumRepository.save(album);
+    }
     public void deleteAlbumByAlbumId(String albumId) {
         albumRepository.deleteByAlbumId(albumId);
     }

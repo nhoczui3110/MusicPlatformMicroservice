@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.MusicPlatForm.user_library_service.dto.request.kafka.PlaylistKafkaRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.AddPlaylistRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.UpdatePlaylistInfoRequest;
 import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
@@ -39,7 +38,6 @@ import com.MusicPlatForm.user_library_service.repository.LikedPlaylistRepository
 import com.MusicPlatForm.user_library_service.repository.LikedTrackRepository;
 import com.MusicPlatForm.user_library_service.repository.PlaylistRepository;
 import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
-import org.springframework.kafka.core.KafkaTemplate;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -54,7 +52,7 @@ public class PlaylistService {
     private final FileClient fileClient;
     private final MusicClient musicClient;
     private final LikedPlaylistRepository likedPlaylistRepository;
-    private final KafkaTemplate<String,Object> kafkaTemplate;
+    private final KafkaService kafkaService;
     private List<PlaylistTypeResponse> toPlaylistTypeResponse(List<PlaylistResponse> playlistResponses,String type){
         List<PlaylistTypeResponse> playlistTypeResponses = playlistResponses.stream().map((playlistResponse)->{
             return new PlaylistTypeResponse(playlistResponse,type);
@@ -65,6 +63,15 @@ public class PlaylistService {
     private PlaylistResponse convertFromPlaylistToPlaylistResponse(Playlist playlist){
         List<String> trackIds = new ArrayList<>();
         List<String> tagIds = new ArrayList<>();
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggingUserId = (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
+                ? null : authentication.getName();
+
+        List<String> likedTrackIds = (loggingUserId == null) ? null
+        : likedTrackRepository.findAllByUserId(loggingUserId).stream()
+                .map(track -> track.getTrackId()).toList();
+
         if(playlist.getPlaylistTags()!=null)
             for(var tag: playlist.getPlaylistTags()){
                 tagIds.add(tag.getTagId());
@@ -82,6 +89,13 @@ public class PlaylistService {
             playlistResponse.setGenre(genre.getData());
         }
         playlistResponse.setPlaylistTags(tagsResponse.getData());
+        if(likedTrackIds!=null){
+            tracksResponse.getData().forEach((track)->{
+                if(likedTrackIds.contains(track.getId())){
+                    track.setIsLiked(true);
+                }
+            });
+        }
         playlistResponse.setPlaylistTracks(tracksResponse.getData());
         if(playlistResponse.getImagePath()==null){
             playlistResponse.setImagePath(playlistResponse.getPlaylistTracks().get(0).getCoverImageName());
@@ -109,7 +123,7 @@ public class PlaylistService {
 
         List<String> likedTrackIds = (loggingUserId == null) ? null
                 : likedTrackRepository.findAllByUserId(loggingUserId).stream()
-                        .map(track -> track.getId()).toList();
+                        .map(track -> track.getTrackId()).toList();
 
         playlists.forEach(pl -> {
             pl.getPlaylistTracks().forEach(tr -> {
@@ -172,7 +186,7 @@ public class PlaylistService {
 
         List<String> likedTrackIds = (loggingUserId == null) ? null
                 : likedTrackRepository.findAllByUserId(loggingUserId).stream()
-                        .map(track -> track.getId()).toList();
+                        .map(track -> track.getTrackId()).toList();
 
         playlists.forEach(pl -> {
             pl.getPlaylistTracks().forEach(tr -> {
@@ -330,13 +344,6 @@ public class PlaylistService {
     }
 
 
-    private void sendToSearchService(Playlist playlist){
-        PlaylistKafkaRequest playlistKafkaRequest = new PlaylistKafkaRequest();
-        playlistKafkaRequest.setPlaylistId(playlist.getId());
-        playlistKafkaRequest.setDescription(playlist.getDescription());
-        playlistKafkaRequest.setTitle(playlist.getTitle());
-        this.kafkaTemplate.send("add_playlist_to_search",playlistKafkaRequest);
-    }
 
     //done
     @Transactional
@@ -358,7 +365,7 @@ public class PlaylistService {
         playlist.setUserId(userId);
         Playlist savedPlaylist = playlistRepository.save(playlist);
         PlaylistResponse playlistResponse = convertFromPlaylistToPlaylistResponse(savedPlaylist);
-        this.sendToSearchService(savedPlaylist);
+        this.kafkaService.sendPlaylistToSearchService(savedPlaylist);
         return playlistResponse;
     }
 
@@ -401,6 +408,7 @@ public class PlaylistService {
         Playlist savedPlaylist = playlistRepository.save(playlist);
         PlaylistResponse playlistResponse =convertFromPlaylistToPlaylistResponse(savedPlaylist);
         // PlaylistResponse playlistResponse = this.playlistMapper.toPlaylistResponse(savedPlaylist);
+        this.kafkaService.sendUpdatedPlaylistToSearchService(savedPlaylist);
         return playlistResponse;
     }
 
@@ -421,5 +429,6 @@ public class PlaylistService {
             this.fileClient.deleteCoverImage(playlist.getImagePath());
         }
         this.playlistRepository.delete(playlist);
+        this.kafkaService.deletePlaylistFromSearchService(playlist.getId());
     }
 }

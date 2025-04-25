@@ -22,6 +22,13 @@ public class SearchPlaylistService {
         Playlist playlist = playlistMapper.toEntity(request);
         return playlistRepository.save(playlist);
     }
+    public void update(PlaylistRequest playlistRequest){
+        Playlist playlist = this.playlistRepository.findByPlaylistId(playlistRequest.getPlaylistId()).get();
+        if(playlist==null) return;
+        playlist.setDescription(playlistRequest.getDescription());
+        playlist.setTitle(playlistRequest.getTitle());
+        this.playlistRepository.save(playlist);
+    }
     public void deletePlaylistByPlaylistId(String playlistId) {
         playlistRepository.deleteByPlaylistId(playlistId);
     }

@@ -45,12 +45,14 @@ public class UserProfileService {
     UserProfileMapper userProfileMapper;
     FileClient fileClient;
     FollowsRepository followsRepository;
+    KafkaService kafkaService;
     public UserProfileResponse create(ProfileCreationRequest request) {
         String email = request.getEmail();
         if (userProfileRepository.findByEmail(email).isPresent()) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
         UserProfile userProfile =  userProfileRepository.save(userProfileMapper.toUserProfile(request));
+        kafkaService.addUserToSearchService(userProfile);
         return  userProfileMapper.toUserProfileResponse(userProfile);
     }
 
@@ -63,7 +65,8 @@ public class UserProfileService {
         UserProfile userProfile = userProfileRepository.findByUserId(id).orElseThrow(() ->new AppException(ErrorCode.PROFILE_NOT_FOUND));
         userProfileMapper.updateUserProfile(userProfile, request);
         userProfile.setUpdateAt(LocalDateTime.now());
-        userProfileRepository.save(userProfile);
+        UserProfile updatedUserProfile =  userProfileRepository.save(userProfile);
+        kafkaService.updateUserToSearchService(updatedUserProfile);
         return userProfileMapper.toUserProfileResponse(userProfile);
     }
 

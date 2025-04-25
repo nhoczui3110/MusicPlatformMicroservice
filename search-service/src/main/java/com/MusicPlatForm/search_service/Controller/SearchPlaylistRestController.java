@@ -43,5 +43,8 @@ public class SearchPlaylistRestController {
     public void deletePlaylistFromSearch(String playlistId) {
         searchPlaylistService.deletePlaylistByPlaylistId(playlistId);
     }
-
+    @KafkaListener(topics = "update_playlist_to_search",groupId = "search_group")
+    public void updatePlaylistToSearch(PlaylistRequest playlist){
+        
+    }
 }
