@@ -168,46 +168,12 @@ public class TrackService implements TrackServiceInterface{
             TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
             List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
             trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
-            // trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
-            trackResponses.add(trackResponse);
-        }
-        return trackResponses;
-    }
-
-    @Override
-    public List<List<TrackResponse>> getRelatedTracksForIds(List<String> ids,int limit) {
-        List<Track> tracks = this.trackRepository.findAllById(ids);
-        List<List<TrackResponse>> listOfListTrackResponses = new ArrayList<>();
-        List<TrackResponse> trackResponses;
-        TrackResponse trackResponse;
-        for(Track track:tracks){
-            Genre genre = track.getGenre();
-            if(genre !=null){
-                trackResponses= getTracksByGenre(genre.getId(), limit-1);
-                trackResponses.addFirst(trackMapper.toTrackResponseFromTrack(track));
-            }
-            else{
-                trackResponse = trackMapper.toTrackResponseFromTrack(track);
-                trackResponses = List.of(trackResponse);
-            }
-            listOfListTrackResponses.add(trackResponses);
-        }
-        return listOfListTrackResponses;
-    }
-
-    @Override
-    public List<TrackResponse> getRandomTracks(int limit) {
-        List<Track> tracks = this.trackRepository.findRandomTracks(limit);
-        List<TrackResponse> trackResponses = new ArrayList<>();
-        for(Track track:tracks){
-            TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
-            List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
-            trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
             trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
             trackResponses.add(trackResponse);
         }
         return trackResponses;
     }
+
 
     @Override
     public TrackResponse updateTrack(String trackId, UpdateTrackRequest request, MultipartFile imageFile, MultipartFile trackFile) {
@@ -269,6 +235,19 @@ public class TrackService implements TrackServiceInterface{
             userId = authentication.getName();
         }
         List<Track> tracks = this.trackRepository.findTrackByUserId(userId);
+        List<TrackResponse> trackResponses = new ArrayList<>();
+        for(Track track:tracks){
+            TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
+            List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
+            trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
+            trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponses.add(trackResponse);
+        }
+        return trackResponses;
+    }
+    @Override
+    public List<TrackResponse> getRandomTracks(int limit) {
+        List<Track> tracks = this.trackRepository.findRandomTracks(limit);
         List<TrackResponse> trackResponses = new ArrayList<>();
         for(Track track:tracks){
             TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);

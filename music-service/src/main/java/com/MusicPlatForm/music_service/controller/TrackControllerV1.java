@@ -86,18 +86,7 @@ public class TrackControllerV1 {
         List<TrackResponse> tracks = this.trackService.getTracksByGenre(genreId, limit);
         return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
     }
-    @GetMapping("/related")
-    public ApiResponse<?> getRelatedTracksForIds(@RequestParam(name = "track-ids") List<String> trackIds, @RequestParam(name = "limit") int limit) {
-        return ApiResponse.builder()
-            .data(trackService.getRelatedTracksForIds(trackIds, limit))
-            .code(200).build();
-    }
-    @GetMapping("/random")
-    public ApiResponse<?> getRandomTracks( @RequestParam(name = "limit") int limit) {
-        return ApiResponse.builder()
-            .data(trackService.getRandomTracks(limit))
-            .code(200).build();
-    }
+
     @PutMapping("/{trackId}")
     public ApiResponse<TrackResponse> updateTrack(@PathVariable("trackId") String trackId, @RequestPart("meta-data") UpdateTrackRequest request, @RequestPart(name = "image", required = false)MultipartFile imageFile, @RequestPart(name = "track", required = false) MultipartFile trackFile ) {
         return ApiResponse.<TrackResponse>builder().data(trackService.updateTrack(trackId, request, imageFile, trackFile)).build();

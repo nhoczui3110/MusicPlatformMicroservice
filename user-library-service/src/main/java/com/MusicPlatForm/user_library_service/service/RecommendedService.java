@@ -1,14 +1,19 @@
 package com.MusicPlatForm.user_library_service.service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.entity.History;
+import com.MusicPlatForm.user_library_service.entity.LikedTrack;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
 import com.MusicPlatForm.user_library_service.repository.HistoryRepository;
 import com.MusicPlatForm.user_library_service.service.iface.RecommendedServiceInterface;
@@ -17,41 +22,61 @@ import com.MusicPlatForm.user_library_service.service.iface.RecommendedServiceIn
 @Service
   
 public class RecommendedService implements RecommendedServiceInterface{
+
     @Value("${track.related.limit}")
-    private int relatedTrackLimit;
+    private int relatedTrackLimit;// trong 1 related track thì lấy bao nhiêu track
+
     @Value("${history.top-recentlyplayed.limit}")
-    private int recentlyPlayedLimit;
+    private int recentlyPlayedLimit;// số lượng track vừa nghe gần đây
+
     @Value("${history.size-of-list}")
-    private int listSize;
+    private int listSize;// số lượng related track đề xuất
+
+
     private MusicClient musicClient;
     private HistoryRepository historyRepository;
     private LikedTrackService likedTrackService;
-    public RecommendedService(MusicClient musicClient,HistoryRepository historyRepository){
+    public RecommendedService(MusicClient musicClient,HistoryRepository historyRepository,LikedTrackService likedTrackService){
         this.musicClient = musicClient;
         this.historyRepository = historyRepository;
+        this.likedTrackService = likedTrackService;
     }
     @Override
-    public List<List<TrackResponse>> getMixedForUser() {
-        List<History> histories = this.historyRepository.findTopRecentlyPlayed(recentlyPlayedLimit);
+    public List<TrackResponse> getMixedForUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        List<String> likedTrackIds = likedTrackService.getLikedTrack().stream().map(l->l.getTrackId()).toList();
+        List<History> histories = this.historyRepository.findTopRecentlyPlayed(recentlyPlayedLimit,userId);
         Collections.shuffle(histories);
         List<History> list = histories.subList(0, Math.min(histories.size(), listSize));
-        List<String> topIds = list.stream().map(h->h.getTrackId()).toList();
-        List<List<TrackResponse>> listOfListRelatedTracks = musicClient.getRelatedTracksForIds(topIds, relatedTrackLimit).getData();
-        for(var trackResponses:listOfListRelatedTracks){
-            if(trackResponses.size()<relatedTrackLimit){
-                var addMoreTrack = musicClient.getRandomTracks(recentlyPlayedLimit-trackResponses.size()).getData();
-                trackResponses.addAll(addMoreTrack);
-            }
-        }
-        return listOfListRelatedTracks;
+        List<String> topIds = list.stream()
+                                        .map(History::getTrackId)
+                                        .distinct()
+                                        .toList();
+
+        List<TrackResponse> mixFor = musicClient.getTrackByIds(topIds).getData();
+        mixFor.forEach(m->m.setIsLiked(likedTrackIds.contains(m.getId())));
+        return mixFor;
     }
 
     
 
     @Override
-    public Map<String, List<TrackResponse>> getGroupedTrackByTags() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getGroupedTrackByTags'");
+    public Map<String, List<TrackResponse>> getGroupedTrackByGenres() {
+        List<GenreResponse> genres = musicClient.getGenres().getData();
+        Map<String, List<TrackResponse>> tracksGroupedByGenre = new HashMap<>();
+        List<String> likedTrackIds = likedTrackService.getLikedTrack().stream().map(l->l.getTrackId()).toList();
+        List<TrackResponse> trackList;
+        for(var genre:genres){
+            trackList = musicClient.getTracksByGenre(genre.getId(), listSize).getData();
+            trackList.forEach(t->{
+                t.setIsLiked(likedTrackIds.contains(t.getId()));
+            });
+            if(trackList.size()>0){
+                tracksGroupedByGenre.put(genre.getName(), trackList);
+            }
+        }
+        return tracksGroupedByGenre;
     }
 
 
@@ -65,10 +90,20 @@ public class RecommendedService implements RecommendedServiceInterface{
             trackResponses = likedTrackService.getAllLikedTracks();
         }
         else{
-            musicClient.getTracksByGenre(track.getGenre().getId(), relatedTrackLimit).getData();
+            trackResponses= musicClient.getTracksByGenre(track.getGenre().getId(), relatedTrackLimit).getData();
         }
-        trackResponses.removeIf(tr->tr.getId()==trackId);
+        if(trackResponses.size()==0){
+            trackResponses = musicClient.getRandomTracks(relatedTrackLimit).getData();
+        }
+        // trackResponses.removeIf(tr->tr.getId()==trackId);
         return trackResponses;
+    }
+    @Override
+    public List<TrackResponse> getMoreOfWhatYouLike() {
+        List<TrackResponse> likedTracks = likedTrackService.getAllLikedTracks();
+        Collections.shuffle(likedTracks);
+        // likedTracks.removeIf(t->t.getGenre()==null);
+        return likedTracks;
     }
     
 }

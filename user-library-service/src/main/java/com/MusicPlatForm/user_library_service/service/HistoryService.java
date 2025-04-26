@@ -1,7 +1,14 @@
 package com.MusicPlatForm.user_library_service.service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,9 +41,18 @@ public class HistoryService implements HistorySerivceInterface {
     public List<TrackResponse> getHistory() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-
         List<History> histories = this.historyRepository.findAllByUserIdOrderByListenedAtDesc(userId);
-        List<String> trackIds = histories.stream().map(h->h.getTrackId()).toList();
+        Set<String> seenTrackIds = new HashSet<>();
+        List<History> uniqueHistories = new ArrayList<>();
+    
+        for (History history : histories) {
+            if (!seenTrackIds.contains(history.getTrackId())) {
+                seenTrackIds.add(history.getTrackId());
+                uniqueHistories.add(history);
+            }
+        }
+    
+        List<String> trackIds = uniqueHistories.stream().map(h->h.getTrackId()).toList();
         List<TrackResponse> trackResponses = musicClient.getTrackByIds(trackIds).getData();
         List<String> likedTrackIds =  likedTrackRepository.findAllByUserId(userId).stream().map(l->l.getTrackId()).toList();
         for(var track: trackResponses){
@@ -50,14 +66,33 @@ public class HistoryService implements HistorySerivceInterface {
     public HistoryResponse addHistory(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        History history = this.historyRepository.findByUserIdAndTrackId(userId,trackId);
+        History history = this.historyRepository.findFirstByUserIdAndTrackIdOrderByListenedAtAsc(userId,trackId);
+        LocalDateTime now = LocalDateTime.now();
         if(history==null)
         {
             history = new History();
             history.setUserId(userId);
             history.setTrackId(trackId);
+            history.setCount(1);
         }
-        history.setListenedAt(LocalDateTime.now());
+        else{
+            LocalDateTime listenedAt = history.getListenedAt();
+            if(listenedAt.toLocalDate().isBefore(now.toLocalDate())){
+                history = new History();
+                history.setUserId(userId);
+                history.setTrackId(trackId);
+                history.setCount(1);
+            }
+            else 
+            {
+                TrackResponse track = musicClient.getTrackById(history.getTrackId()).getData();
+                if(track!=null)
+                if(Duration.between(now, listenedAt).getSeconds()>LocalTime.parse(track.getDuration()).toSecondOfDay()){
+                        history.setCount(history.getCount()+1);
+                }
+            } 
+        }
+        history.setListenedAt(now);
         History savedHistory = this.historyRepository.save(history);
         return historyMapper.toHistoryResponse(savedHistory);
     }

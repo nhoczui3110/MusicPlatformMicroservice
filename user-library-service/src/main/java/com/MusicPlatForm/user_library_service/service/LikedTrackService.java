@@ -30,6 +30,13 @@ public class LikedTrackService {
     MusicClient musicClient;
     LikedTrackMapper likedTrackMapper;
 
+    public List<LikedTrack> getLikedTrack(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+
+        List<LikedTrack> likedTracks = likedTrackRepository.findAllByUserId(userId);
+        return likedTracks;
+    }
     public List<TrackResponse> getAllLikedTracks() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -42,6 +49,7 @@ public class LikedTrackService {
         }
 
         ApiResponse<List<TrackResponse>> response = musicClient.getTrackByIds(trackIds);
+        response.getData().forEach(tr->tr.setIsLiked(true));
         return response.getData();
     }
 

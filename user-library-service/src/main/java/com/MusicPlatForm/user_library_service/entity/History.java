@@ -9,22 +9,25 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 
 @Table(
-    name = "History",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"User_id", "Track_id"})
+    name = "History"
+    // uniqueConstraints = @UniqueConstraint(columnNames = {"User_id", "Track_id"})
 )
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class History {
     @Id
-    @Column(name = "id")
+    @Column(name = "Id")
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
@@ -37,4 +40,6 @@ public class History {
     @Column(name="Listened_at",nullable = false)
     LocalDateTime listenedAt;
     
+    @Column(name = "Count",nullable = false)
+    Integer count;
 }

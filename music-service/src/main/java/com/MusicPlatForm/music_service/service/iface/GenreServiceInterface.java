@@ -16,4 +16,5 @@ public interface GenreServiceInterface {
     public List<GenreResponse> getGenres();
     public List<GenreResponse> getGenresByIds(List<String>ids);
     public GenreResponse getGenreById(String id);
+    public List<GenreResponse> getAllGenres();
 }

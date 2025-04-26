@@ -1,13 +1,13 @@
 package com.MusicPlatForm.user_library_service.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
@@ -26,7 +26,7 @@ public class RecommendedController {
     RecommendedServiceInterface recommendedService;
     @GetMapping("/mixed-for")
     public ResponseEntity<ApiResponse<?>> getMixforUser(){
-        return null;
+        return ResponseEntity.ok().body( ApiResponse.builder().data(recommendedService.getMixedForUser()).build());
     } 
 
 
@@ -45,4 +45,14 @@ public class RecommendedController {
                                             .build()
         );
     } 
+
+    @GetMapping("/group-by-genre")
+    public ResponseEntity<ApiResponse<Map<String,List<TrackResponse>>>> getTracksGroupedByGenre(){
+        return ResponseEntity.ok().body(ApiResponse.<Map<String,List<TrackResponse>>>builder().data(recommendedService.getGroupedTrackByGenres()).build());
+    }
+
+    @GetMapping("/more-of-you-like")
+    public ResponseEntity<ApiResponse<?>> moreOfWhatYouLike(){
+        return ResponseEntity.ok().body(ApiResponse.builder().data(recommendedService.getMoreOfWhatYouLike()).build());
+    }
 }

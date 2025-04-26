@@ -90,12 +90,6 @@ public class TrackController {
         List<TrackResponse> tracks = this.trackService.getTracksByGenre(genreId, limit);
         return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
     }
-    @GetMapping("/list-ids-related")
-    public ApiResponse<?> getRelatedTracksForIds(@RequestParam(name = "track-ids") List<String> trackIds, @RequestParam(name = "limit") int limit) {
-        return ApiResponse.builder()
-            .data(trackService.getRelatedTracksForIds(trackIds, limit))
-            .code(200).build();
-    }
     @GetMapping("/random")
     public ApiResponse<?> getRandomTracks( @RequestParam(name = "limit") int limit) {
         return ApiResponse.builder()

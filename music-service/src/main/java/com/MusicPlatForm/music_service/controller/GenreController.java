@@ -20,6 +20,10 @@ public class GenreController {
     public ApiResponse<List<GenreResponse>> getGenres() {
         return ApiResponse.<List<GenreResponse>>builder().data(genreService.getGenres()).build();
     }
+    @GetMapping("/all")
+    public ApiResponse<List<GenreResponse>> getAllGenres() {
+        return ApiResponse.<List<GenreResponse>>builder().data(genreService.getAllGenres()).build();
+    }
     
     @GetMapping("/bulk")
     public ApiResponse<List<GenreResponse>> getGenresByIds(@RequestParam List<String> ids) {

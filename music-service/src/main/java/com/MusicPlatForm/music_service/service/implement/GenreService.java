@@ -66,4 +66,9 @@ public class GenreService implements GenreServiceInterface {
         Genre genres = genreRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.GENRE_NOT_FOUND));
         return  genreMapper.toGenreResponseFromGenre(genres);
     }
+    @Override
+    public List<GenreResponse> getAllGenres() {
+        List<Genre> genres = genreRepository.findAll();
+        return  genreMapper.toGenreResponsesFromGenres(genres);
+    }
 }

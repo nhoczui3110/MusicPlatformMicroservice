@@ -44,7 +44,6 @@ public interface TrackServiceInterface {
     
     public List<TrackResponse> getTracksByUserId(String userId);
 
-
     /**
      * Delete track by track id
      * @param trackId
@@ -52,8 +51,6 @@ public interface TrackServiceInterface {
     public void deleteTrack(String trackId);
 
     public List<TrackResponse> getTracksByGenre(String genreId,int limit);
-
-    public List<List<TrackResponse>> getRelatedTracksForIds(List<String>ids,int limit);
 
     public List<TrackResponse> getRandomTracks(int limit);
 
