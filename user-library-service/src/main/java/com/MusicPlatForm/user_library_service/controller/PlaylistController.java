@@ -31,9 +31,17 @@ public class PlaylistController {
     private PlaylistService playlistService;
 
     //Done
-    @GetMapping("/you")
-    public ApiResponse<List<PlaylistTypeResponse>> getPlaylist(){
-        return playlistService.getPlaylists();
+    @GetMapping("/you/all")
+    public ApiResponse<List<PlaylistResponse>> getAllPlaylist(){
+        return playlistService.getPlaylists("ALL");
+    }
+    @GetMapping("/you/liked")
+    public ApiResponse<List<PlaylistResponse>> getLikedPlaylist(){
+        return playlistService.getPlaylists("LIKED");
+    }
+    @GetMapping("/you/created")
+    public ApiResponse<List<PlaylistResponse>> getCreatedPlaylist(){
+        return playlistService.getPlaylists("CREATED");
     }
 
     @GetMapping("/users/{user_id}")

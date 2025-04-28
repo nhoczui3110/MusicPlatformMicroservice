@@ -228,9 +228,10 @@ public class PlaylistService {
     }
 
  
-    public ApiResponse<List<PlaylistTypeResponse>> getPlaylists(){
+    public ApiResponse<List<PlaylistResponse>> getPlaylists(String option){
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!authentication.isAuthenticated()) throw new AppException(ErrorCode.UNAUTHENTICATED);
         String userId = authentication.getName();
         //To get from music service
         List<String> trackIds = new ArrayList<>();
@@ -241,8 +242,19 @@ public class PlaylistService {
         Map<String, TrackResponse> idToTrackResponse = new HashMap<>();
         Map<String, TagResponse> idToTagResponse = new HashMap<>();
         Map<String,GenreResponse> idToGenreResponse = new HashMap<>();
-        List<Playlist> createdPlaylists = playlistRepository.getPlaylistsByUserId(userId);
-        List<Playlist> likedPlaylists = this.likedPlaylistRepository.findAllByUserId(userId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist()).toList();
+        List<Playlist> createdPlaylists = new ArrayList<>();
+        List<Playlist> likedPlaylists = new ArrayList<>();
+
+        if(option == "ALL"){
+           createdPlaylists = this.playlistRepository.getPlaylistsByUserId(userId);
+           likedPlaylists = this.likedPlaylistRepository.findAllByUserId(userId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist()).toList();
+        }
+        else if(option=="LIKED"){
+            likedPlaylists = this.likedPlaylistRepository.findAllByUserId(userId).stream().map((likedPlaylist)->likedPlaylist.getPlaylist()).toList();
+        }
+        else{
+           createdPlaylists = this.playlistRepository.getPlaylistsByUserId(userId);
+        }
 
         for(var pl: Stream.concat(createdPlaylists.stream(), likedPlaylists.stream())
                                 .collect(Collectors.toList())){
@@ -296,11 +308,7 @@ public class PlaylistService {
             }
             playlistResponses.add(playlistResponse);
         }
-        List<PlaylistTypeResponse> createdPlaylistResponse = toPlaylistTypeResponse(playlistResponses,"Created");
-        
 
-        
-        playlistResponses.clear();
         for(var playlist:likedPlaylists){
             var playlistResponse = playlistMapper.toPlaylistResponse(playlist);
             playlistResponse.setPlaylistTags(new ArrayList<>());
@@ -316,16 +324,11 @@ public class PlaylistService {
             }
             playlistResponses.add(playlistResponse);
         }
-        List<PlaylistTypeResponse> likedPlaylistResponse = toPlaylistTypeResponse(playlistResponses,"Liked");
 
+        playlistResponses.sort((e1,e2)-> e2.getCreatedAt().compareTo(e1.getCreatedAt()));
 
-
-        createdPlaylistResponse.addAll(likedPlaylistResponse);
-        List<PlaylistTypeResponse> all = createdPlaylistResponse;
-        all.sort((e1,e2)-> e2.getPlaylistResponse().getCreatedAt().compareTo(e1.getPlaylistResponse().getCreatedAt()));
-
-        return ApiResponse.<List<PlaylistTypeResponse>>builder()
-                                            .data(all)
+        return ApiResponse.<List<PlaylistResponse>>builder()
+                                            .data(playlistResponses)
                                             .code(200)
                                             .message("Playlists for user")
                                             .build();

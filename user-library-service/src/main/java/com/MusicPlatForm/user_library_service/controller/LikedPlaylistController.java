@@ -22,7 +22,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LikedPlaylistController {
     LikedPlaylistService likedPlaylistService;
-    
+    @Deprecated
     @GetMapping("/all")
     public ApiResponse<List<LikedPlaylistResponse>> getAllLikedPlaylist(){
         List<LikedPlaylistResponse> likedPlaylistResponses = this.likedPlaylistService.getAllLikedPlaylist();
