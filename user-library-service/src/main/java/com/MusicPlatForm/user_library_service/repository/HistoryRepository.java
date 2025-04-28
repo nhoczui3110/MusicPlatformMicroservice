@@ -15,6 +15,6 @@ public interface HistoryRepository extends JpaRepository<History,String> {
     public void deleteByUserIdAndTrackId(String userId,String trackId);
     public void deleteAllByUserId(String userId);
 
-    @Query(value = "SELECT TOP(:limit) * FROM History WHERE userI=:userId ORDER BY Listened_at", nativeQuery = true)
+    @Query(value = "SELECT TOP(:limit) * FROM History WHERE userId=:userId ORDER BY Listened_at", nativeQuery = true)
     public List<History> findTopRecentlyPlayed(int limit,String userId);
 }

@@ -43,4 +43,8 @@ public class AlbumController {
     public ApiResponse<List<AlbumResponse>> getAll(@PathVariable("userId") String userId) {
         return ApiResponse.<List<AlbumResponse>>builder().data(albumService.getCreatedAndLikedAlbum(userId)).build();
     }
+    @GetMapping("/count/{albumId}")
+    public ApiResponse<Integer> getLikedCount(@PathVariable String albumId){
+        return ApiResponse.<Integer>builder().data(albumService.getLikedCount(albumId)).build();
+    }
 }

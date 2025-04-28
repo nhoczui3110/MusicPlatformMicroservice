@@ -42,4 +42,9 @@ public class LikedPlaylistController {
         return ApiResponse.<Boolean>builder().data(likedPlaylistService.unLikePlaylist(playlistId)).code(200).build();
     }
 
+    @GetMapping("/count/{playlistId}")
+    public ApiResponse<Integer> getLikedCount(@PathVariable String playlistId){
+        return ApiResponse.<Integer>builder().data(likedPlaylistService.getLikedCount(playlistId)).code(200).build();
+        
+    }
 }

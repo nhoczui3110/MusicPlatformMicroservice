@@ -59,4 +59,8 @@ public class LikedPlaylistService {
         this.likedPlaylistRepository.delete(likedPlaylist);
         return true;
     }
+
+    public Integer getLikedCount(String playlistId){
+        return likedPlaylistRepository.countByPlaylistId(playlistId);
+    }
 }

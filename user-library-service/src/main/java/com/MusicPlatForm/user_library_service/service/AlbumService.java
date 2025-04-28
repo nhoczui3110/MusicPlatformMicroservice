@@ -313,4 +313,8 @@ public class AlbumService {
         AlbumTrack albumTrack = AlbumTrack.builder().album(album).trackId(request.getTrackId()).addedAt(LocalDateTime.now()).build();
         albumTrackRepository.save(albumTrack);
     }
+
+    public Integer getLikedCount(String albumId){
+        return likedAlbumRepository.countByAlbumId(albumId);
+    }
 }

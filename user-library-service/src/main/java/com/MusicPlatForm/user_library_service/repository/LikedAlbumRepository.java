@@ -13,4 +13,5 @@ public interface LikedAlbumRepository extends JpaRepository<LikedAlbum, String> 
     List<LikedAlbum> findByUserId(String userId);
     List<LikedAlbum> findByUserIdOrderByLikedAtDesc(String userId);
     Optional<LikedAlbum> findByUserIdAndAlbumId(String userId, String albumId);
+    Integer countByAlbumId(String albumId);
 }
