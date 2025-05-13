@@ -46,6 +46,7 @@ public class UserProfileService {
     FileClient fileClient;
     FollowsRepository followsRepository;
     KafkaService kafkaService;
+    @Transactional
     public UserProfileResponse create(ProfileCreationRequest request) {
         String email = request.getEmail();
         if (userProfileRepository.findByEmail(email).isPresent()) {

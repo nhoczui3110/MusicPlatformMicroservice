@@ -25,4 +25,6 @@ public interface AlbumRepository extends ElasticsearchRepository<Album,String>{
     List<Album> findAlbums(String query);
     void deleteByAlbumId(String albumId);
     Album findByAlbumId(String albumId);
+
+    List<Album> findAll();
 }

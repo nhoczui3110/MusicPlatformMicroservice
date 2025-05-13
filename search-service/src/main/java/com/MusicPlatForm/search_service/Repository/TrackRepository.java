@@ -26,7 +26,7 @@ public interface TrackRepository extends ElasticsearchRepository<Track,String>{
     List<Track> findTracks(String query);
     
     void deleteByTrackId(String trackId);
-
+    List<Track> findAll();
 }
 
 

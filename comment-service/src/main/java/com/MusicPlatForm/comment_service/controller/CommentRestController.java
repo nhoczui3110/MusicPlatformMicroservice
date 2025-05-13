@@ -1,4 +1,4 @@
-package com.MusicPlatForm.comment_service.restcontroller;
+package com.MusicPlatForm.comment_service.controller;
 
 import com.MusicPlatForm.comment_service.dto.ApiResponse;
 import com.MusicPlatForm.comment_service.dto.request.CommentRequest;

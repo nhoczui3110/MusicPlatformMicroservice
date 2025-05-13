@@ -29,4 +29,6 @@ public interface PlaylistRepository extends ElasticsearchRepository<Playlist,Str
     void deleteByPlaylistId(String playlistId);
 
     Optional<Playlist> findByPlaylistId(String playlistId);
+
+    List<Playlist> findAll();
 }

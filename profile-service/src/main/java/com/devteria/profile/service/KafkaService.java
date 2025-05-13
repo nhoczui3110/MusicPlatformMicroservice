@@ -21,7 +21,7 @@ public class KafkaService {
     public void addUserToSearchService(UserProfile userpProfile){
         UserRequest userRequest =UserRequest.builder()
                                     .userId(userpProfile.getUserId())
-                                    .fullname(userpProfile.getLastName()+""+userpProfile.getLastName())
+                                    .fullname(userpProfile.getLastName()+" "+userpProfile.getFirstName())
                                     .displayName(userpProfile.getDisplayName())
                                     .build();
         this.kafkaTemplate.send("add_user_to_search",userRequest);
