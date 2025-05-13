@@ -1,7 +1,6 @@
 package com.example.api_gateway.configuration;
 
 import com.example.api_gateway.dto.ApiResponse;
-import com.example.api_gateway.dto.response.IntrospectResponse;
 import com.example.api_gateway.service.IdentityService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +23,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

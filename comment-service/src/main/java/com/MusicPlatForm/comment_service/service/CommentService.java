@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +34,10 @@ public class CommentService {
     public CommentResponse addComment(CommentRequest commentRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
+        if(authentication==null || !authentication.isAuthenticated()||authentication instanceof AnonymousAuthenticationToken){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
         Comment comment = commentMapper.toComment(commentRequest);
         comment.setUserId(userId);
         comment.setCommentAt(LocalDateTime.now());
