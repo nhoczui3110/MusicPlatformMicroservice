@@ -21,8 +21,14 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class LikedPlaylistService {
     private LikedPlaylistRepository likedPlaylistRepository;
-    PlaylistRepository playlistRepository;
+    private PlaylistRepository playlistRepository;
     private LikedPlaylistMapper likedPlaylistMapper;
+
+    public List<String> getUserIdsLikedPlaylist(String playlistId){
+        List<String> userIds = this.likedPlaylistRepository.findByPlaylistId(playlistId).stream().map(l->l.getUserId()).distinct().toList();
+        return userIds;
+    }
+
     public List<LikedPlaylistResponse> getAllLikedPlaylist(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();

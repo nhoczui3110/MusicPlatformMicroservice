@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface LikedTrackRepository extends JpaRepository<LikedTrack,String> {
     public List<LikedTrack> findAllByUserId(String userId);
-    LikedTrack findByUserIdAndTrackId(String userId, String trackId);
-    int countByTrackId(String trackId);
+    public LikedTrack findByUserIdAndTrackId(String userId, String trackId);
+    public int countByTrackId(String trackId);
+    public List<LikedTrack> findByTrackId(String trackId);
 }

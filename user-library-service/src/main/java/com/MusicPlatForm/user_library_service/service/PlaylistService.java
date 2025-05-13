@@ -31,6 +31,7 @@ import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.FileClient;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
+import com.MusicPlatForm.user_library_service.httpclient.ProfileClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTagMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTrackMapper;
@@ -53,12 +54,6 @@ public class PlaylistService {
     private final MusicClient musicClient;
     private final LikedPlaylistRepository likedPlaylistRepository;
     private final KafkaService kafkaService;
-    private List<PlaylistTypeResponse> toPlaylistTypeResponse(List<PlaylistResponse> playlistResponses,String type){
-        List<PlaylistTypeResponse> playlistTypeResponses = playlistResponses.stream().map((playlistResponse)->{
-            return new PlaylistTypeResponse(playlistResponse,type);
-        }).collect(Collectors.toList());
-        return playlistTypeResponses;
-    }
 
     private PlaylistResponse convertFromPlaylistToPlaylistResponse(Playlist playlist){
         List<String> trackIds = new ArrayList<>();

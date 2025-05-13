@@ -30,6 +30,11 @@ public class LikedTrackService {
     MusicClient musicClient;
     LikedTrackMapper likedTrackMapper;
 
+    public List<String> getUserIdsLikedTrack(String trackId){
+        return likedTrackRepository.findByTrackId(trackId).stream().map(l->l.getUserId()).distinct().toList();
+    }
+
+
     public List<LikedTrack> getLikedTrack(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -56,15 +61,6 @@ public class LikedTrackService {
     public int getTrackLikeCount(String trackId) {
         return likedTrackRepository.countByTrackId(trackId);
     }
-
-    // @Deprecated
-    // public List<LikedTrackResponse> getLikedTrackResponses() {
-    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    //     String userId = authentication.getName();
-
-    //     List<LikedTrack> likedTracks = likedTrackRepository.findAllByUserId(userId);
-    //     return likedTrackMapper.toLikedTrackResponses(likedTracks);
-    // }
 
     public Boolean isLiked(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -108,17 +104,4 @@ public class LikedTrackService {
         likedTrackRepository.delete(likedTrack);
         return true;
     }
-    // unlike theo trackid
-//    public Boolean unLikeTrack(String trackId) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        String userId = authentication.getName();
-//
-//        LikedTrack likedTrack = likedTrackRepository.findByUserIdAndTrackId(userId, trackId);
-//        if (likedTrack == null) {
-//            throw new AppException(ErrorCode.NOT_FOUND);
-//        }
-//
-//        likedTrackRepository.deleteById(likedTrack.getId());
-//        return true;
-//    }
 }

@@ -11,7 +11,9 @@ import java.util.Optional;
 public interface LikedAlbumRepository extends JpaRepository<LikedAlbum, String> {
     boolean existsByUserIdAndAlbumId(String userId, String albumId);
     List<LikedAlbum> findByUserId(String userId);
+    List<LikedAlbum> findByAlbumId(String albumId);
     List<LikedAlbum> findByUserIdOrderByLikedAtDesc(String userId);
     Optional<LikedAlbum> findByUserIdAndAlbumId(String userId, String albumId);
     Integer countByAlbumId(String albumId);
+    
 }

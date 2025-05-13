@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCountFollowResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 
 @Service
@@ -13,4 +14,5 @@ public interface RecommendedServiceInterface {
     public List<TrackResponse> getRelatedTrack(String trackId);
     public Map<String,List<TrackResponse>> getGroupedTrackByGenres();
     public List<TrackResponse> getMoreOfWhatYouLike();
+    public List<ProfileWithCountFollowResponse> getArtirstsShouldKnow();
 }

@@ -317,4 +317,8 @@ public class AlbumService {
     public Integer getLikedCount(String albumId){
         return likedAlbumRepository.countByAlbumId(albumId);
     }
+
+    public List<String> getUserIdsLikedAlbum(String albumId){
+        return likedAlbumRepository.findByAlbumId(albumId).stream().map(l->l.getUserId()).distinct().toList();
+    }
 }

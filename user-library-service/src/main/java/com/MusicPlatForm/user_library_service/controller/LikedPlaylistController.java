@@ -47,4 +47,9 @@ public class LikedPlaylistController {
         return ApiResponse.<Integer>builder().data(likedPlaylistService.getLikedCount(playlistId)).code(200).build();
         
     }
+
+    @GetMapping("/users/{playlistId}")
+    public ApiResponse<List<String>> getUserIdsLikedPlaylist(@PathVariable String playlistId){
+        return ApiResponse.<List<String>>builder().data(this.likedPlaylistService.getUserIdsLikedPlaylist(playlistId)).code(200).build();
+    }
 }

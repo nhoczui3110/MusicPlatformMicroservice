@@ -11,10 +11,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCountFollowResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.entity.History;
-import com.MusicPlatForm.user_library_service.entity.LikedTrack;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
+import com.MusicPlatForm.user_library_service.httpclient.ProfileClient;
 import com.MusicPlatForm.user_library_service.repository.HistoryRepository;
 import com.MusicPlatForm.user_library_service.service.iface.RecommendedServiceInterface;
 
@@ -34,6 +35,7 @@ public class RecommendedService implements RecommendedServiceInterface{
 
 
     private MusicClient musicClient;
+    private ProfileClient profileClient;
     private HistoryRepository historyRepository;
     private LikedTrackService likedTrackService;
     public RecommendedService(MusicClient musicClient,HistoryRepository historyRepository,LikedTrackService likedTrackService){
@@ -106,4 +108,10 @@ public class RecommendedService implements RecommendedServiceInterface{
         return likedTracks;
     }
     
+    public List<ProfileWithCountFollowResponse> getArtirstsShouldKnow(){
+        List<TrackResponse> tracks = likedTrackService.getAllLikedTracks();
+        List<String> artirtsIds = tracks.stream().map(a->a.getUserId()).distinct().toList();
+        List<ProfileWithCountFollowResponse> artirsts = this.profileClient.getUserProfileByIds(artirtsIds).getData();
+        return artirsts;
+    }
 }

@@ -47,4 +47,8 @@ public class AlbumController {
     public ApiResponse<Integer> getLikedCount(@PathVariable String albumId){
         return ApiResponse.<Integer>builder().data(albumService.getLikedCount(albumId)).build();
     }
+    @GetMapping("/users/{albumId}")
+    public ApiResponse<List<String>> getUserLikedAlbum(@PathVariable String albumId){
+        return ApiResponse.<List<String>> builder().data(this.albumService.getUserIdsLikedAlbum(albumId)).build();
+    }
 }
