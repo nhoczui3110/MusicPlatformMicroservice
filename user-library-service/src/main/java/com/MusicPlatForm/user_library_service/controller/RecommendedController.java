@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCountFollowResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.service.iface.RecommendedServiceInterface;
 
@@ -54,5 +55,10 @@ public class RecommendedController {
     @GetMapping("/more-of-you-like")
     public ResponseEntity<ApiResponse<?>> moreOfWhatYouLike(){
         return ResponseEntity.ok().body(ApiResponse.builder().data(recommendedService.getMoreOfWhatYouLike()).build());
+    }
+
+    @GetMapping("/artist-you-should-know")
+    public ApiResponse<List<ProfileWithCountFollowResponse>> artirstYouShouldKnow(){
+        return ApiResponse.<List<ProfileWithCountFollowResponse>> builder().data(this.recommendedService.getArtirstsShouldKnow()).build();
     }
 }
