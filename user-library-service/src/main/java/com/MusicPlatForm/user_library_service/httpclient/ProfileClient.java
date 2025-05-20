@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCountFollowResponse;
 
-@FeignClient(name = "profile-service")
+@FeignClient(name = "profile-service",url = "${app.services.profile}")
 public interface ProfileClient {
-  @GetMapping("/bulk")
+  @GetMapping("/users/bulk")
   public ApiResponse<List<ProfileWithCountFollowResponse>> getUserProfileByIds(@RequestParam List<String> userIds);
 }

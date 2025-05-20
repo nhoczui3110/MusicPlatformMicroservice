@@ -302,6 +302,7 @@ public class PlaylistService {
                 playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
             }
             playlistResponses.add(playlistResponse);
+            playlistResponse.setIsLiked(false);
         }
 
         for(var playlist:likedPlaylists){
@@ -317,6 +318,7 @@ public class PlaylistService {
             if(playlist.getGenreId()!=null){
                 playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
             }
+            playlistResponse.setIsLiked(true);
             playlistResponses.add(playlistResponse);
         }
 

@@ -35,7 +35,8 @@ app:
     services:
         file: http://localhost:8083/file-service
         music: http://localhost:8082/music-service
-        profile: lb://profile-service
+        comment: http://localhost:8086/comment-service
+        profile: http://localhost:8081/profile
 
 track:
   related:

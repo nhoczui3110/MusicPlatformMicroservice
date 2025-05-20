@@ -38,7 +38,12 @@ public class RecommendedService implements RecommendedServiceInterface{
     private ProfileClient profileClient;
     private HistoryRepository historyRepository;
     private LikedTrackService likedTrackService;
-    public RecommendedService(MusicClient musicClient,HistoryRepository historyRepository,LikedTrackService likedTrackService){
+    public RecommendedService(MusicClient musicClient,
+        HistoryRepository historyRepository,
+        LikedTrackService likedTrackService,
+        ProfileClient profileClient
+    ){
+        this.profileClient = profileClient;
         this.musicClient = musicClient;
         this.historyRepository = historyRepository;
         this.likedTrackService = likedTrackService;
