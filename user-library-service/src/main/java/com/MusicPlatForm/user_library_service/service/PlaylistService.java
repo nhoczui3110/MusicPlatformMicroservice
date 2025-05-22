@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,7 +24,6 @@ import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TagResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistResponse;
-import com.MusicPlatForm.user_library_service.dto.response.playlist.PlaylistTypeResponse;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTag;
 import com.MusicPlatForm.user_library_service.entity.PlaylistTrack;
@@ -31,7 +31,6 @@ import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.FileClient;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
-import com.MusicPlatForm.user_library_service.httpclient.ProfileClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTagMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTrackMapper;
@@ -250,6 +249,9 @@ public class PlaylistService {
         else{
            createdPlaylists = this.playlistRepository.getPlaylistsByUserId(userId);
         }
+        // trường hợp người dùng tạo và like playlist đó thì xóa bớt trong phần tạo
+        Set<String> playlistIds = likedPlaylists.stream().map(pl->pl.getId()).collect(Collectors.toSet());
+        createdPlaylists.removeIf(pl->playlistIds.contains(pl.getId()));
 
         for(var pl: Stream.concat(createdPlaylists.stream(), likedPlaylists.stream())
                                 .collect(Collectors.toList())){

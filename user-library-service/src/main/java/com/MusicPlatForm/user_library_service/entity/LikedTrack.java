@@ -1,5 +1,7 @@
 package com.MusicPlatForm.user_library_service.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -19,4 +21,6 @@ public class LikedTrack {
     String trackId;
     @Column(name="User_id",nullable = false)
     String userId;
+    @Column(name="Liked_at",nullable = false)
+    LocalDateTime likedAt;
 }

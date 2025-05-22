@@ -4,8 +4,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.MusicPlatForm.user_library_service.dto.request.kafka.AlbumKafkaRequest;
+import com.MusicPlatForm.user_library_service.dto.request.kafka.NotificationRequest;
 import com.MusicPlatForm.user_library_service.dto.request.kafka.PlaylistKafkaRequest;
+import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.entity.Album;
+import com.MusicPlatForm.user_library_service.entity.LikedTrack;
 import com.MusicPlatForm.user_library_service.entity.Playlist;
 
 import lombok.AccessLevel;
@@ -55,5 +58,17 @@ public class KafkaService {
         playlistKafkaRequest.setDescription(playlist.getDescription());
         playlistKafkaRequest.setTitle(playlist.getTitle());
         this.kafkaTemplate.send("update_playlist_to_search",playlistKafkaRequest);
+    }
+
+    public void sendNotificationForLikedTrack(TrackResponse track, LikedTrack likedTrack){
+        if(likedTrack.getUserId().equals(track.getUserId()))return;
+        NotificationRequest notification = NotificationRequest
+                                            .builder()
+                                            .trackId(track.getId())
+                                            .recipientId(track.getUserId())
+                                            .senderId(likedTrack.getUserId())
+                                            .message("like your track \"" + track.getTitle()+"\"")
+                                            .build();
+        this.kafkaTemplate.send("like",notification);
     }
 }

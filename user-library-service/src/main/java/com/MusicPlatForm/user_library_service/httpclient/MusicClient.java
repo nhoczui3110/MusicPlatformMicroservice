@@ -46,6 +46,9 @@ public interface MusicClient {
     @GetMapping("/tracks/random")
     public ApiResponse<List<TrackResponse>> getRandomTracks(@RequestParam int limit);
 
+    @GetMapping("tracks/users/{user_id}")
+    public ApiResponse<List<TrackResponse>> getTracksByUserId(@PathVariable(name = "user_id") String userId);
+
     // =========== Tag===============
     @GetMapping("/tags/bulk")//ok
     public ApiResponse<List<TagResponse>> getTagsByIds(@RequestParam List<String> ids);

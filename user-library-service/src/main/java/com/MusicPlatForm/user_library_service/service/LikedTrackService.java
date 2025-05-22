@@ -2,7 +2,6 @@ package com.MusicPlatForm.user_library_service.service;
 
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
-import com.MusicPlatForm.user_library_service.dto.response.liketrack.LikedTrackResponse;
 import com.MusicPlatForm.user_library_service.entity.LikedTrack;
 import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
@@ -17,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,8 +28,7 @@ import java.util.stream.Collectors;
 public class LikedTrackService {
     LikedTrackRepository likedTrackRepository;
     MusicClient musicClient;
-    LikedTrackMapper likedTrackMapper;
-
+    KafkaService kafkaService;
     public List<String> getUserIdsLikedTrack(String trackId){
         return likedTrackRepository.findByTrackId(trackId).stream().map(l->l.getUserId()).distinct().toList();
     }
@@ -87,8 +86,9 @@ public class LikedTrackService {
         LikedTrack likedTrack = new LikedTrack();
         likedTrack.setTrackId(trackId);
         likedTrack.setUserId(userId);
-
+        likedTrack.setLikedAt(LocalDateTime.now());
         likedTrackRepository.save(likedTrack);
+        this.kafkaService.sendNotificationForLikedTrack(track, likedTrack);
         return true;
     }
     //unlike theo id

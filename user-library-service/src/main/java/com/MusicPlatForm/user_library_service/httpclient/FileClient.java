@@ -12,7 +12,6 @@ import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 
 
-//Usee Kafka instead
 @FeignClient(name = "file-service",url = "${app.services.file}")
 public interface FileClient {
     @PostMapping(value = "/images/covers",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
