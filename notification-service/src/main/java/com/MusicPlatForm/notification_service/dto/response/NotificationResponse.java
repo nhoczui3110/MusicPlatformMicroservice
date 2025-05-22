@@ -17,4 +17,5 @@ public class NotificationResponse {
     private String commentId;
     private boolean isRead;
     private LocalDateTime createdAt;
+    private String type;
 }

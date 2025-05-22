@@ -3,10 +3,13 @@ package com.MusicPlatForm.notification_service.controller;
 import com.MusicPlatForm.notification_service.dto.ApiResponse;
 import com.MusicPlatForm.notification_service.dto.request.EmailResetPasswordRequest;
 import com.MusicPlatForm.notification_service.dto.request.NotificationRequest;
+import com.MusicPlatForm.notification_service.dto.response.NotificationResponse;
 import com.MusicPlatForm.notification_service.service.NotificationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -37,7 +40,7 @@ public class NotificationController {
     // Listener cho hành động comment
     @KafkaListener(topics = "comment", groupId = "notification_group")
     public void commentListener(NotificationRequest request) {
-        request.setMessage(request.getSenderId() + " commented: " + request.getMessage());
+        // request.setMessage(request.getSenderId() + " commented: " + request.getMessage());
         notificationService.sendNotificationWebSocket(request);
     }
 
@@ -67,6 +70,15 @@ public class NotificationController {
                 .code(200)
                 .message("Email notification sent")
                 .data("OK")
+                .build();
+    }
+
+    @GetMapping("/all")
+    public ApiResponse<List<NotificationResponse>> getAllNotification(){
+        return ApiResponse.<List<NotificationResponse>>builder()
+                .code(200)
+                .message("Email notification sent")
+                .data(this.notificationService.getAllNotification())
                 .build();
     }
 }

@@ -19,9 +19,9 @@ public class WebSocketBrokerConfiguration implements WebSocketMessageBrokerConfi
     @Override
     public void registerStompEndpoints(@SuppressWarnings("null") StompEndpointRegistry registry){
         registry
-                .addEndpoint("/ws-notifications")
+                .addEndpoint("/ws-notification")
                 .setHandshakeHandler(new UserHandShake())
-                .setAllowedOriginPatterns("*")
+                // .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
     @Override

@@ -11,10 +11,13 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -38,17 +41,7 @@ public class NotificationService {
 
         notificationRepository.save(notification);
 
-        NotificationResponse response = NotificationResponse.builder()
-                .id(notification.getId())
-                .senderId(notification.getSenderId())
-                .recipientId(notification.getRecipientId())
-                .message(notification.getMessage())
-                .trackId(notification.getTrackId())
-                .commentId(notification.getCommentId())
-                .isRead(false)
-                .createdAt(notification.getCreatedAt())
-                .build();
-
+        NotificationResponse response = convertTotNotificationResponse(notification);
         simpMessagingTemplate.convertAndSendToUser(
                 notification.getRecipientId(),
                 "/queue/message",
@@ -84,5 +77,38 @@ public class NotificationService {
             payload.put("commentId", request.getCommentId());
         }
         simpMessagingTemplate.convertAndSend(destination, payload);
+    }
+
+    public List<NotificationResponse> getAllNotification(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        List<Notification> notifications = this.notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
+        
+        return notifications.stream().map(n->{
+            return convertTotNotificationResponse(n);
+        }).toList();
+    }
+
+    private NotificationResponse convertTotNotificationResponse(Notification notification){
+         NotificationResponse response = NotificationResponse.builder()
+                .id(notification.getId())
+                .senderId(notification.getSenderId())
+                .recipientId(notification.getRecipientId())
+                .message(notification.getMessage())
+                .trackId(notification.getTrackId())
+                .commentId(notification.getCommentId())
+                .isRead(false)
+                .createdAt(notification.getCreatedAt())
+                .build();
+        if(notification.getCommentId()==null&& notification.getTrackId()==null){
+            response.setType("Follow");
+        }
+        else if(notification.getCommentId()==null){
+            response.setType("Like");
+        }
+        else{
+            response.setType("Comment");
+        }
+        return response;
     }
 }

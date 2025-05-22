@@ -19,8 +19,7 @@
     var socket = null;
     var stompClient = null;
     function connect(){
-        socket= new SockJS('http://localhost:8087/notification/hello');
-        // alert('a')
+        socket= new SockJS('/notification/ws-notification');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);

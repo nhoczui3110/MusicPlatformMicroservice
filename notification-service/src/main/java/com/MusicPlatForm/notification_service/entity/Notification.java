@@ -18,8 +18,10 @@ public class Notification {
     String senderId;  // Người gửi thông báo (người follow, người comment, ...)
     String recipientId; // Người nhận thông báo
     String message;
-    String trackId;  // ID bài nhạc liên quan (nếu có)
+    
+    String trackId;  // ID bài nhạc liên quan (nếu có) -> có thể suy ra từ comment nhưng để vào giúp truy vấn nhanh
     String commentId; // ID comment liên quan (nếu có)
+
     boolean isRead;
     LocalDateTime createdAt;
 }

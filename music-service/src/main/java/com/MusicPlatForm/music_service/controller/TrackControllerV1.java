@@ -71,7 +71,7 @@ public class TrackControllerV1 {
         return ApiResponse.<TrackResponse> builder().code(HttpStatus.OK.value()).data(track).build();
     }
     @GetMapping("/users/{user_id}")
-    public ApiResponse<?> getTracksByUserId(@PathVariable String userId){
+    public ApiResponse<?> getTracksByUserId(@PathVariable(name = "user_id") String userId){
         List<TrackResponse> tracks = this.trackService.getTracksByUserId(userId);
         return ApiResponse.<List<TrackResponse>> builder().code(HttpStatus.OK.value()).data(tracks).build();
     }
