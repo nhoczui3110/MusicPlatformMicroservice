@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -14,4 +15,11 @@ public interface CommentRepository extends JpaRepository<Comment,String> {
 
     @Query("FROM Comment c WHERE c.trackId = :trackId AND c.repliedUserId is null")
     List<Comment> findByTrackId(String trackId);
+
+    @Query("FROM Comment c WHERE c.trackId IN :trackIds AND c.commentAt BETWEEN :fromDate AND :toDate")
+    public List<Comment> findCommentsFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate, List<String> trackIds);
+
+    @Query("FROM Comment c WHERE c.commentAt BETWEEN :fromDate AND :toDate")
+    public List<Comment> findAllCommentsFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate);
+
 }

@@ -13,8 +13,19 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     defer-datasource-initialization: true
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        acks: -1
+        retries: 1 #gửi lại nếu lỗi
+        # properties: 
+        #     enable.idempotence: true
+        #     max.
 app:
-  services:
+    services:
+      music: http://localhost:8082/music-service
 
 server:
   port: 8086

@@ -10,9 +10,12 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -115,15 +118,6 @@ public class CommentRestController {
                 .build();
     }
 
-    // @Deprecated
-    // @PostMapping("/reply/{commentId}")
-    // public ApiResponse<CommentResponse> replyToComment(@PathVariable String commentId, @RequestBody @Valid CommentRequest request) {
-    //     return ApiResponse.<CommentResponse>builder()
-    //             .code(HttpStatus.CREATED.value())
-    //             .message("Reply added successfully")
-    //             .data(commentService.replyToComment(commentId, request))
-    //             .build();
-    // }
     @PostMapping("/{commentId}/replies")
     public ApiResponse<CommentResponse> replyComment(@PathVariable String commentId, @RequestBody @Valid RepliedCommentRequest request) {
         return ApiResponse.<CommentResponse>builder()
@@ -131,5 +125,10 @@ public class CommentRestController {
                 .message("Reply added successfully")
                 .data(commentService.replyComment(commentId, request))
                 .build();
+    }
+
+    @GetMapping("/bulk")
+    public ApiResponse<List<CommentResponse>> getComments(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate,@RequestParam(name = "track_ids")List<String> ids){
+        return ApiResponse.<List<CommentResponse>>builder().data(commentService.getComments(fromDate, toDate, ids)).build();
     }
 }

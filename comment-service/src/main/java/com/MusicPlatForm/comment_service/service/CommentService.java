@@ -1,5 +1,8 @@
 package com.MusicPlatForm.comment_service.service;
 
+import com.MusicPlatForm.comment_service.client.MusicClient;
+import com.MusicPlatForm.comment_service.dto.client.TrackResponse;
+import com.MusicPlatForm.comment_service.dto.kafka.NotificationRequest;
 import com.MusicPlatForm.comment_service.dto.request.CommentRequest;
 import com.MusicPlatForm.comment_service.dto.request.RepliedCommentRequest;
 import com.MusicPlatForm.comment_service.dto.response.CommentResponse;
@@ -14,12 +17,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +36,43 @@ public class CommentService {
     CommentRepository commentRepository;
     LikedCommentRepository likedCommentRepository;
     CommentMapper  commentMapper;
-
+    KafkaTemplate<String,Object> kafkaTemplate;
+    MusicClient musicClient;
+    private void sendNotification(Comment comment){
+        String trackId = comment.getTrackId();
+        TrackResponse track = musicClient.getTrackById(trackId).getData();
+        NotificationRequest notification;
+        // trường hợp 1 tự comment trên track của mình và không reply -> không cần thông báo
+        if(track.getUserId().equals(comment.getUserId())&&comment.getRepliedUserId()==null) return;
+        
+        // trường hợp 2 người tự reply chính mình
+        if(comment.getUserId().equals(comment.getRepliedUserId())) return;
+        
+        // trường hợp 3 người khác comment trên track của mình -> gửi thông báo tới chủ track
+        if(!track.getUserId().equals(comment.getUserId())){
+            notification = NotificationRequest
+                            .builder()
+                            .senderId(comment.getUserId())// người gửi là người comment;
+                            .recipientId(track.getUserId())// người nhận là chủ track
+                            .trackId(trackId)
+                            .commentId(comment.getId())
+                            .message("commented \"" + comment.getContent() +"\" on your track")
+                            .build();
+            kafkaTemplate.send("comment",notification);
+        }
+        // Trường hợp 4 người khác reply comment của 1 người khác nữa(không phải chủ track) -> gửi thông báo tới người khác đó
+        if(comment.getRepliedUserId()!=null&&!comment.getRepliedUserId().equals("")){
+             notification = NotificationRequest
+                            .builder()
+                            .senderId(comment.getUserId())// người gửi là người comment;
+                            .recipientId(comment.getRepliedUserId())// người nhận là chủ track
+                            .trackId(trackId)
+                            .commentId(comment.getId())
+                            .message("mention you \"" + comment.getContent()+"\"")
+                            .build();
+            kafkaTemplate.send("comment",notification);
+        }
+    }
     public CommentResponse addComment(CommentRequest commentRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -43,9 +85,11 @@ public class CommentService {
         comment.setCommentAt(LocalDateTime.now());
         comment.setLikeCount(0);
         comment.setParentComment(null);
+        comment.setRepliedUserId(null);
         comment = commentRepository.save(comment);
         CommentResponse commentResponse =  commentMapper.toCommentResponse(comment);
         commentResponse.setIsLiked(false);
+        sendNotification(comment);
         return commentResponse;
     }
 
@@ -168,6 +212,12 @@ public class CommentService {
         replyComment.setTrackId(parentComment.getTrackId());
         replyComment.setParentComment(parentComment);
         replyComment = commentRepository.save(replyComment);
+        sendNotification(replyComment);
         return commentMapper.toCommentResponse(replyComment);
+    }
+
+    public List<CommentResponse> getComments(LocalDate fromDate, LocalDate toDate, List<String> trackIds){
+        List<Comment> comments = this.commentRepository.findCommentsFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
+        return commentMapper.toCommentResponseList(comments);
     }
 }
