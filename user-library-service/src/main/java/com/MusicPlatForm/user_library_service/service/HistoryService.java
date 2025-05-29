@@ -2,12 +2,9 @@ package com.MusicPlatForm.user_library_service.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.core.Authentication;
@@ -23,6 +20,7 @@ import com.MusicPlatForm.user_library_service.repository.HistoryRepository;
 import com.MusicPlatForm.user_library_service.repository.LikedTrackRepository;
 import com.MusicPlatForm.user_library_service.service.iface.HistorySerivceInterface;
 
+import org.springframework.transaction.annotation.Transactional;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -62,12 +60,24 @@ public class HistoryService implements HistorySerivceInterface {
         }
         return trackResponses;
     }
+    public static int convertMinuteSecondToSeconds(String time) {
+        String[] parts = time.split(":");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid time format, expected m:ss");
+        }
+        int minutes = Integer.parseInt(parts[0]);
+        int seconds = Integer.parseInt(parts[1]);
+        return minutes * 60 + seconds;
+    }
+
     @Override
+    @Transactional
     public HistoryResponse addHistory(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         History history = this.historyRepository.findFirstByUserIdAndTrackIdOrderByListenedAtAsc(userId,trackId);
         LocalDateTime now = LocalDateTime.now();
+        boolean isUpdatePlayCount = false;
         if(history==null)
         {
             history = new History();
@@ -87,13 +97,15 @@ public class HistoryService implements HistorySerivceInterface {
             {
                 TrackResponse track = musicClient.getTrackById(history.getTrackId()).getData();
                 if(track!=null)
-                if(Duration.between(now, listenedAt).getSeconds()>LocalTime.parse(track.getDuration()).toSecondOfDay()){
+                if(Duration.between(listenedAt, now).getSeconds()>convertMinuteSecondToSeconds(track.getDuration())){
                         history.setCount(history.getCount()+1);
+                        isUpdatePlayCount = true;
                 }
             } 
         }
         history.setListenedAt(now);
         History savedHistory = this.historyRepository.save(history);
+        if(isUpdatePlayCount)musicClient.updatePlayCount(trackId);
         return historyMapper.toHistoryResponse(savedHistory);
     }
     @Override

@@ -24,7 +24,7 @@ public interface LikedTrackRepository extends JpaRepository<LikedTrack,String> {
     
     @Query("FROM LikedTrack WHERE likedAt BETWEEN :fromDate AND :toDate")
     public List<LikedTrack> findAllLikedTrackFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate);
-    @Query("FROM LikedTrack WHERE likedAt")
+    @Query("FROM LikedTrack")
     public List<LikedTrack> findAllLikedTrack();
 
 }

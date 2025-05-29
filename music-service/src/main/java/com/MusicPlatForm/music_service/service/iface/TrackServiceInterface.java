@@ -12,6 +12,9 @@ import com.MusicPlatForm.music_service.dto.request.TrackRequest;
 
 @Service
 public interface TrackServiceInterface {
+
+    public void updatePlayCountByTrackId(String trackId);
+
     /**
      * Upload track
      * @param coverImage

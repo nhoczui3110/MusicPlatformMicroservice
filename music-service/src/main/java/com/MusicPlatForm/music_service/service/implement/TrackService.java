@@ -258,4 +258,13 @@ public class TrackService implements TrackServiceInterface{
         }
         return trackResponses;
     }
+    @Override
+    @Transactional
+    public void updatePlayCountByTrackId(String trackId) {
+        Track track = trackRepository.findById(trackId)
+            .orElseThrow(()->new AppException(ErrorCode.TRACK_N0T_FOUND));
+        track.setCountPlay(track.getCountPlay()+1);
+        trackRepository.save(track);
+        return;
+    }
 }

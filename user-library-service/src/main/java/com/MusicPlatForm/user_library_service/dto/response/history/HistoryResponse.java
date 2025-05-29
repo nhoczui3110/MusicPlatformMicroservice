@@ -14,5 +14,5 @@ import lombok.experimental.FieldDefaults;
 public class HistoryResponse {
     String id;
     String userId;
-    String trakcId;
+    String trackId;
 }

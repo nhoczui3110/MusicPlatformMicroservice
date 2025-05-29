@@ -39,6 +39,9 @@ public interface MusicClient {
                                                @RequestPart("trackRequests") String trackRequests);
     @GetMapping("/tracks/{id}")
     public ApiResponse<TrackResponse> getTrackById(@PathVariable String id);
+
+    @PostMapping("/tracks/plays-cout/{id}")
+    public ApiResponse<?> updatePlayCount(@PathVariable String id);
     @GetMapping("/tracks/bulk")//ok
     public ApiResponse<List<TrackResponse>> getTrackByIds(@RequestParam List<String> ids);
     @GetMapping("/tracks/by-genre")

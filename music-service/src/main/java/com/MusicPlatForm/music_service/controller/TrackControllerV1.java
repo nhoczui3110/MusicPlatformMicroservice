@@ -25,6 +25,12 @@ import lombok.experimental.FieldDefaults;
 public class TrackControllerV1 {
     TrackServiceInterface trackService;
 
+    @PostMapping("/plays-cout/{id}")
+    public ApiResponse<String> updatePlayCount(@PathVariable String id){
+        trackService.updatePlayCountByTrackId(id);
+        return ApiResponse.<String>builder().data("Success").build();
+    }
+
    @PostMapping(value = "",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
    public ApiResponse<TrackResponse> addTrack(@RequestPart(name = "cover_image", required = false) MultipartFile coverImage,
                                        @RequestPart(name = "track_audio", required = false) MultipartFile trackAudio,
