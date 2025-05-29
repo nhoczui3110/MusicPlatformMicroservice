@@ -73,12 +73,29 @@ public class NotificationController {
                 .build();
     }
 
-    @GetMapping("/all")
-    public ApiResponse<List<NotificationResponse>> getAllNotification(){
+    @GetMapping("/bulk")
+    public ApiResponse<List<NotificationResponse>> getNotificationByIds(@RequestParam(name = "ids") List<String> ids){
         return ApiResponse.<List<NotificationResponse>>builder()
                 .code(200)
-                .message("Email notification sent")
-                .data(this.notificationService.getAllNotification())
+                .message("Notification by bulk")
+                .data(this.notificationService.getNotificationByIds(ids))
                 .build();
+    }
+    @GetMapping("/all")
+    public ApiResponse<List<String>> getAll(){
+        return ApiResponse.<List<String>>builder()
+                .code(200)
+                .message("All notification ids")
+                .data(this.notificationService.getAllByUserId())
+                .build();
+    }
+
+    @PostMapping("/bulk")
+    public ApiResponse<?> markAsRead(@RequestParam(name = "ids") List<String> ids){
+        this.notificationService.markAsRead(ids);
+        return ApiResponse.<String>builder()
+            .code(200)
+            .message("Update successfully")
+            .build();
     }
 }
