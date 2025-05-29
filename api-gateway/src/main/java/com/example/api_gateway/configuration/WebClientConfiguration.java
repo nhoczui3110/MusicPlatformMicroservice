@@ -22,7 +22,7 @@ public class WebClientConfiguration {
     @Bean
     CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http:localhost:4200")); // Không dùng '*'
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:4200")); // Không dùng '*'
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);
