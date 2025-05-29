@@ -217,7 +217,7 @@ public class CommentService {
     }
 
     public List<CommentResponse> getComments(LocalDate fromDate, LocalDate toDate, List<String> trackIds){
-        List<Comment> comments = this.commentRepository.findCommentsFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
+        List<Comment> comments = this.commentRepository.findCommentsFromDateToDateByTrackIds(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
         return commentMapper.toCommentResponseList(comments);
     }
 }

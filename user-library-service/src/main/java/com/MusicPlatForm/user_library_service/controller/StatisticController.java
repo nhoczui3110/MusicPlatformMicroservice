@@ -26,43 +26,41 @@ public class StatisticController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/plays")
-    public ApiResponse<PlayResponse> getPlays(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<PlayResponse> getPlays(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<PlayResponse>builder().data(statisticService.getPlays(fromDate, toDate)).build();
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/likes")
-    public ApiResponse<LikeResponse> getLiked(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<LikeResponse> getLiked(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<LikeResponse>builder().data(statisticService.getLiked(fromDate, toDate)).build();
     }
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/comments")
-    public ApiResponse<CommentStatisticResponse> getCommentStatistic(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<CommentStatisticResponse> getCommentStatistic(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<CommentStatisticResponse>builder().data(statisticService.getComments(fromDate, toDate)).build();
-
-
     }
 
     @GetMapping("/top-tracks")
-    public ApiResponse<List<TopTrack>> getTopTracks(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<List<TopTrack>> getTopTracks(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<List<TopTrack>>builder().data(statisticService.getUserTopTracks(fromDate, toDate)).build();
     }
 
     // @PreAuthorize("isAuthenticated()") chờ test
     @GetMapping("/plays/all")
-    public ApiResponse<PlayResponse> getAllPlays(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<PlayResponse> getAllPlays(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<PlayResponse>builder().data(statisticService.getAllPlays(fromDate, toDate)).build();
     }
 
     // @PreAuthorize("isAuthenticated()") chờ test
     @GetMapping("/likes/all")
-    public ApiResponse<LikeResponse> getAllLiked(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<LikeResponse> getAllLiked(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<LikeResponse>builder().data(statisticService.getAllLiked(fromDate, toDate)).build();
     }
 
 
     @GetMapping("/top-tracks/all")
-    public ApiResponse<List<TopTrack>> getAllTopTracks(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<List<TopTrack>> getAllTopTracks(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<List<TopTrack>>builder().data(statisticService.getTopTracks(fromDate, toDate)).build();
     }
 }

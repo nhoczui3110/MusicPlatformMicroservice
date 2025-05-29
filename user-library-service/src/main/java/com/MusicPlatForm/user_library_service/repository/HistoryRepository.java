@@ -21,7 +21,12 @@ public interface HistoryRepository extends JpaRepository<History,String> {
     public List<History> findTopRecentlyPlayed(int limit,String userId);
     
     @Query(value = "FROM History WHERE trackId In :trackIds AND listenedAt BETWEEN :fromDate AND :toDate  ORDER BY listenedAt")
-    public List<History> findHistoryOfTracksFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate,List<String> trackIds);
+    public List<History> findHistoryOfTracksFromDateToDateByTrackIds(LocalDateTime fromDate, LocalDateTime toDate,List<String> trackIds);
+    
+    @Query(value = "FROM History WHERE trackId In :trackIds  ORDER BY listenedAt")
+    public List<History> findAllHistoryOfTracksByTrackIds(List<String> trackIds);
+    
+
     @Query(value = "FROM History WHERE listenedAt BETWEEN :fromDate AND :toDate  ORDER BY listenedAt")
     public List<History> findAllHistoryFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate);
 }

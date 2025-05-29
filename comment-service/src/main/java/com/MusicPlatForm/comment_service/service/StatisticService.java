@@ -69,14 +69,16 @@ public class StatisticService {
         String userId = authentication.getName();
         List<TrackResponse> tracks = musicClient.getTracksByUserId(userId).getData();
         List<String> trackIds = tracks.stream().map(TrackResponse::getId).toList();
-        List<Comment> comments = this.commentRepository.findCommentsFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
+        List<Comment> comments;
+        if(fromDate != null){
+            comments = this.commentRepository.findCommentsFromDateToDateByTrackIds(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
+        }else comments = this.commentRepository.findAllCommentsByTrackIds(trackIds);
         return getCommentStats(comments);
     }
     @PreAuthorize("hasRole('ADMIN')")
     public CommentStatisticResponse getAllComments(LocalDate fromDate, LocalDate toDate) {
         List<Comment> comments = this.commentRepository.findAllCommentsFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX));
                 return getCommentStats(comments);
-
     }
 
 }

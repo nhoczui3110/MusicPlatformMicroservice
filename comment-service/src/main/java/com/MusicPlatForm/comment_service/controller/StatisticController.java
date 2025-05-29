@@ -20,11 +20,11 @@ public class StatisticController {
     private StatisticService statisticService;
 
     @GetMapping("/comments")
-    public ApiResponse<CommentStatisticResponse> getCommentStatistic(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<CommentStatisticResponse> getCommentStatistic(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<CommentStatisticResponse>builder().data(statisticService.getComments(fromDate, toDate)).build();
     }
     @GetMapping("/comments/all")
-    public ApiResponse<CommentStatisticResponse> getAllCommentStatistic(@RequestParam(name = "from_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date")@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
+    public ApiResponse<CommentStatisticResponse> getAllCommentStatistic(@RequestParam(name = "from_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate fromDate,@RequestParam(name = "to_date",required = false)@DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate toDate){
         return ApiResponse.<CommentStatisticResponse>builder().data(statisticService.getAllComments(fromDate, toDate)).build();
     }
 

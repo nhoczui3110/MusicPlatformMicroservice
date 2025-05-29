@@ -17,9 +17,14 @@ public interface CommentRepository extends JpaRepository<Comment,String> {
     List<Comment> findByTrackId(String trackId);
 
     @Query("FROM Comment c WHERE c.trackId IN :trackIds AND c.commentAt BETWEEN :fromDate AND :toDate")
-    public List<Comment> findCommentsFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate, List<String> trackIds);
+    public List<Comment> findCommentsFromDateToDateByTrackIds(LocalDateTime fromDate, LocalDateTime toDate, List<String> trackIds);
+
+    @Query("FROM Comment c WHERE c.trackId IN :trackIds")
+    public List<Comment> findAllCommentsByTrackIds(List<String> trackIds);
 
     @Query("FROM Comment c WHERE c.commentAt BETWEEN :fromDate AND :toDate")
     public List<Comment> findAllCommentsFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate);
-
+    
+    @Query("FROM Comment")
+    public List<Comment> findAllComments();
 }

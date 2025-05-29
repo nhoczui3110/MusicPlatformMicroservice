@@ -16,8 +16,15 @@ public interface LikedTrackRepository extends JpaRepository<LikedTrack,String> {
     public List<LikedTrack> findByTrackId(String trackId);
 
     @Query("FROM LikedTrack WHERE trackId IN :trackIds AND likedAt BETWEEN :fromDate AND :toDate")
-    public List<LikedTrack> findLikedTrackFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate, List<String> trackIds);
+    public List<LikedTrack> findLikedTrackFromDateToDateByTrackIds(LocalDateTime fromDate, LocalDateTime toDate, List<String> trackIds);
+    
+    @Query("FROM LikedTrack WHERE trackId IN :trackIds")
+    public List<LikedTrack> findAllLikedTrackByTrackIds(List<String> trackIds);
+    
+    
     @Query("FROM LikedTrack WHERE likedAt BETWEEN :fromDate AND :toDate")
     public List<LikedTrack> findAllLikedTrackFromDateToDate(LocalDateTime fromDate, LocalDateTime toDate);
+    @Query("FROM LikedTrack WHERE likedAt")
+    public List<LikedTrack> findAllLikedTrack();
 
 }

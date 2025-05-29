@@ -52,8 +52,9 @@ public class StatisticViewService implements StatisticServiceInterface {
         List<TrackResponse> tracks = musicClient.getTracksByUserId(userId).getData();
         List<String> trackIds = tracks.stream().map(TrackResponse::getId).toList();
 
-        List<History> histories = historyRepository.findHistoryOfTracksFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
-
+        List<History> histories ;
+        if(fromDate==null) histories = historyRepository.findAllHistoryOfTracksByTrackIds(trackIds);
+        else histories = historyRepository.findHistoryOfTracksFromDateToDateByTrackIds(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
         Map<LocalDate, DailyPlay> groupPlayByDate = new HashMap<>();
         Map<String, Integer> countListenerIds = new HashMap<>();
 
@@ -111,7 +112,10 @@ public class StatisticViewService implements StatisticServiceInterface {
         String userId = authentication.getName();
         List<TrackResponse> tracks = musicClient.getTracksByUserId(userId).getData();
         List<String> trackIds = tracks.stream().map(TrackResponse::getId).toList();
-        List<LikedTrack> likedTracks = this.likedTrackRepository.findLikedTrackFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
+        List<LikedTrack> likedTracks ;
+        if(fromDate==null) 
+        likedTracks = likedTrackRepository.findAllLikedTrackByTrackIds(trackIds);
+        else likedTracks = this.likedTrackRepository.findLikedTrackFromDateToDateByTrackIds(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
         Map<LocalDate, DailyLike> groupLikedByDate = new HashMap<>();
         Map<String, Integer> userLikedCounts = new HashMap<>();
         for(var likedTrack:likedTracks){
@@ -210,7 +214,9 @@ public class StatisticViewService implements StatisticServiceInterface {
     @PreAuthorize("hasRole('ADMIN')")
     @Override
     public LikeResponse getAllLiked(LocalDate fromDate, LocalDate toDate) {
-        List<LikedTrack> likedTracks = this.likedTrackRepository.findAllLikedTrackFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX));
+        List<LikedTrack> likedTracks ;
+        if(fromDate!=null)likedTracks = this.likedTrackRepository.findAllLikedTrackFromDateToDate(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX));
+        else likedTracks = this.likedTrackRepository.findAllLikedTrack();
         Map<LocalDate, DailyLike> groupLikedByDate = new HashMap<>();
         Map<String, Integer> userLikedCounts = new HashMap<>();
         for(var likedTrack:likedTracks){
@@ -251,7 +257,9 @@ public class StatisticViewService implements StatisticServiceInterface {
         String userId = authentication.getName();
         List<TrackResponse> tracks = musicClient.getTracksByUserId(userId).getData();
         List<String> trackIds = tracks.stream().map(TrackResponse::getId).toList();
-        List<History> histories = historyRepository.findHistoryOfTracksFromDateToDate(fromDate.atStartOfDay(),toDate.atTime(LocalTime.MAX), trackIds);
+        List<History> histories ;
+        if(fromDate!=null)histories = historyRepository.findHistoryOfTracksFromDateToDateByTrackIds(fromDate.atStartOfDay(),toDate.atTime(LocalTime.MAX), trackIds);
+        else histories = historyRepository.findAll();
         Map<String, Integer> topTracksCount = new HashMap<>();
         Map<String,TrackResponse> searchTrackHelper = new HashMap<>();
         // tính số lược nghe
