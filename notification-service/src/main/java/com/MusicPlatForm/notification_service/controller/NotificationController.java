@@ -90,7 +90,7 @@ public class NotificationController {
                 .build();
     }
 
-    @PostMapping("/bulk")
+    @PutMapping("/bulk")
     public ApiResponse<?> markAsRead(@RequestParam(name = "ids") List<String> ids){
         this.notificationService.markAsRead(ids);
         return ApiResponse.<String>builder()
