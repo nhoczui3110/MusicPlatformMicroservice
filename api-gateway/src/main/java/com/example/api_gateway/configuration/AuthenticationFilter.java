@@ -49,7 +49,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         "/user-library/v3/api-docs", 
         "/swagger-ui/index.html",
         "/swagger-ui/.*",
-        "/v3/api-docs/.*"
+        "/v3/api-docs/.*",
+        "/notification-service/.*"
         };
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

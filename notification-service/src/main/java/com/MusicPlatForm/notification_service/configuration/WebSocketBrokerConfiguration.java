@@ -21,7 +21,7 @@ public class WebSocketBrokerConfiguration implements WebSocketMessageBrokerConfi
         registry
                 .addEndpoint("/ws-notification")
                 .setHandshakeHandler(new UserHandShake())
-                // .setAllowedOriginPatterns("*")
+                .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
     @Override
