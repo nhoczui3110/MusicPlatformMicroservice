@@ -11,7 +11,7 @@ import java.util.List;
 public interface NotificationRepository extends MongoRepository<Notification,String> {
     List<Notification> findByRecipientIdOrderByCreatedAtDesc(String recipientId);
 
-    @Query("From Notification n where n.id in :ids")
+    @Query("{ '_id': { '$in': ?0 } }")
     List<Notification> findBulkByIds(List<String>ids);
 
     List<Notification> findAllByRecipientId(String recipientId);
