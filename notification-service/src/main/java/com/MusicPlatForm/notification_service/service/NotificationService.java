@@ -81,7 +81,7 @@ public class NotificationService {
     }
 
     public List<NotificationResponse> getNotificationByIds(List<String> ids){
-        List<Notification> notifications = this.notificationRepository.findBulkByIds(ids);
+        List<Notification> notifications = this.notificationRepository.findAllById(ids);
         
         return notifications.stream().map(n->{
             return convertTotNotificationResponse(n);
@@ -95,9 +95,8 @@ public class NotificationService {
         return notifications.stream().map(n->n.getId()).toList();
     }
 
-    @Transactional
     public void markAsRead(List<String>ids){
-        List<Notification> notifications = this.notificationRepository.findBulkByIds(ids);
+        List<Notification> notifications = this.notificationRepository.findAllById(ids);
         notifications.forEach(n->n.setRead(true));
         this.notificationRepository.saveAll(notifications);
     }
@@ -109,7 +108,7 @@ public class NotificationService {
                 .message(notification.getMessage())
                 .trackId(notification.getTrackId())
                 .commentId(notification.getCommentId())
-                .isRead(false)
+                .isRead(notification.isRead())
                 .createdAt(notification.getCreatedAt())
                 .build();
         if(notification.getCommentId()==null&& notification.getTrackId()==null){
