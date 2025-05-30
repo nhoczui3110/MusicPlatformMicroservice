@@ -1,5 +1,6 @@
 package com.devteria.profile.service;
 
+import com.ctc.wstx.util.StringUtil;
 import com.devteria.profile.dto.request.ApiResponse;
 import com.devteria.profile.dto.request.DeleteAvatarRequest;
 import com.devteria.profile.dto.request.ProfileCreationRequest;
@@ -29,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -73,7 +75,7 @@ public class UserProfileService {
 
     @Transactional
     public List<ProfileWithCountFollowResponse> getByIds(List<String> userIds){
-        List<UserProfile> userProfiles = userProfileRepository.findAllById(userIds);
+        List<UserProfile> userProfiles = userProfileRepository.findAllByUserIdIn(userIds);
         List<ProfileWithCountFollowResponse> userProfileResponses = new ArrayList<>();
         for(var userProfile: userProfiles){
             ProfileWithCountFollowResponse response = userProfileMapper.toProfileWithCountFollowResponse(userProfile);
@@ -141,7 +143,7 @@ public class UserProfileService {
         UserProfile userProfile = userProfileRepository.findByUserId(userId).orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         String oldCover = userProfile.getCover();
         ApiResponse<UploadCoverResponse> response;
-        if (oldCover != null) {
+        if (StringUtils.hasText(oldCover)) {
             response = fileClient.replaceCover(cover, oldCover);
         } else {
             response = fileClient.addCover(cover);
