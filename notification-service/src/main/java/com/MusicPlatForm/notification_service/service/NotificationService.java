@@ -99,6 +99,7 @@ public class NotificationService {
     public void markAsRead(List<String>ids){
         List<Notification> notifications = this.notificationRepository.findBulkByIds(ids);
         notifications.forEach(n->n.setRead(true));
+        this.notificationRepository.saveAll(notifications);
     }
     private NotificationResponse convertTotNotificationResponse(Notification notification){
          NotificationResponse response = NotificationResponse.builder()
