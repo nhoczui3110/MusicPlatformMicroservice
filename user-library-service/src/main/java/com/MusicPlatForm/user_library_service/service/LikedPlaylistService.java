@@ -61,7 +61,7 @@ public class LikedPlaylistService {
         String userId = authentication.getName();
         LikedPlaylist likedPlaylist = this.likedPlaylistRepository.findByUserIdAndPlaylistId(userId, playlistId);
         if(likedPlaylist == null) throw new AppException(ErrorCode.NOT_FOUND);
-        if(!likedPlaylist.getPlaylist().getUserId().equals(userId))throw new AppException(ErrorCode.UNAUTHORIZED);
+        if(likedPlaylist.getPlaylist().getUserId().equals(userId))throw new AppException(ErrorCode.UNAUTHORIZED);
         this.likedPlaylistRepository.delete(likedPlaylist);
         return true;
     }

@@ -38,7 +38,7 @@ public class LikedPlaylistController {
         return ApiResponse.<Boolean>builder().data(likedPlaylistService.likePlaylist(playlistId)).code(200).build();
     }
     @PostMapping("/unlike/{playlistId}")
-    public ApiResponse<Boolean> unLikePlaylist(@PathVariable(name = "playlistID") String playlistId){
+    public ApiResponse<Boolean> unLikePlaylist(@PathVariable(name = "playlistId") String playlistId){
         return ApiResponse.<Boolean>builder().data(likedPlaylistService.unLikePlaylist(playlistId)).code(200).build();
     }
 

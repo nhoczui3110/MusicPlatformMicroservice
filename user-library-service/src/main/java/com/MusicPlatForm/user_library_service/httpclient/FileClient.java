@@ -18,7 +18,7 @@ public interface FileClient {
     public ApiResponse<AddCoverFileResponse> addCover(@RequestPart MultipartFile cover);
 
 
-    @PutMapping(value = "/images/covers/{coverName}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/images/covers/{oldCoverName}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<AddCoverFileResponse> replaceCover(@RequestPart MultipartFile newCover, @PathVariable String oldCoverName);
 
     @DeleteMapping(value = "/images/covers/{coverName}")
