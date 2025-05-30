@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -79,16 +80,26 @@ public class NotificationService {
         simpMessagingTemplate.convertAndSend(destination, payload);
     }
 
-    public List<NotificationResponse> getAllNotification(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
-        List<Notification> notifications = this.notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
+    public List<NotificationResponse> getNotificationByIds(List<String> ids){
+        List<Notification> notifications = this.notificationRepository.findBulkByIds(ids);
         
         return notifications.stream().map(n->{
             return convertTotNotificationResponse(n);
         }).toList();
     }
+    public List<String> getAllByUserId(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        List<Notification> notifications = this.notificationRepository.findAllByUserId(userId);
+        
+        return notifications.stream().map(n->n.getId()).toList();
+    }
 
+    @Transactional
+    public void markAsRead(List<String>ids){
+        List<Notification> notifications = this.notificationRepository.findBulkByIds(ids);
+        notifications.forEach(n->n.setRead(true));
+    }
     private NotificationResponse convertTotNotificationResponse(Notification notification){
          NotificationResponse response = NotificationResponse.builder()
                 .id(notification.getId())
