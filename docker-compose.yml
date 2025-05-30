@@ -110,7 +110,128 @@ services:
         restart: unless-stopped
         volumes:
           - notification-volume:/data/db
-
+    admin-service:
+        image: phuongnbp/admin-service:0.0.1
+        container_name: admin-service
+        ports:
+          - 8088:8088
+        environment: 
+            - COMMENT_SERVICE_URL=http://comment-service:8086/comment-service
+            - USERLIB_SERVICE_URL=http://localhost:8085/user-library
+    comment-service:
+        image: phuongnbp/comment-service:0.0.1
+        container_name: comment-service
+        ports:
+            - 8086:8086
+        depends_on:
+            - kafka
+            - mssql_for_comment
+        environment: 
+            - DBMS_CONNECTION_URL=jdbc:sqlserver://sql-server-for-comment:1433;databaseName=Comment;encrypt=true;trustServerCertificate=true
+            - DBMS_CONNECTION_USERNAME=sa
+            - DBMS_CONNECTION_PASSWORD=YourStrong!Passw0rd
+            - MUSIC_SERVICE_URL=http://localhost:8082/music-service
+            - KAFKA_CONNECTION=kafka:9092
+    music-service:
+        image: phuongnbp/music-service:0.0.1
+        container_name: music-service
+        ports:
+            - 8082:8082
+        depends_on:
+            - kafka
+            - mssql_for_music
+        environment: 
+            - DBMS_CONNECTION_URL=jdbc:sqlserver://sql-server-for-music:1433;databaseName=Music;encrypt=true;trustServerCertificate=true
+            - DBMS_CONNECTION_USERNAME=sa
+            - DBMS_CONNECTION_PASSWORD=YourStrong!Passw0rd
+            - COMMENT_SERVICE_URL=http://comment-service:8086/comment-service
+            - USERLIB_SERVICE_URL=http://user-library-service:8085
+            - KAFKA_CONNECTION=kafka:9092
+    user-library-service:
+        image: phuongnbp/user-library-service:0.0.1
+        container_name: user-library-service
+        ports:
+            - 8085:8085
+        depends_on:
+            - kafka
+            - mssql_for_library
+        environment: 
+            - DBMS_CONNECTION_URL=jdbc:sqlserver://sql-server-for-library:1433;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
+            - DBMS_CONNECTION_USERNAME=sa
+            - DBMS_CONNECTION_PASSWORD=YourStrong!Passw0rd
+            - FILE_SERVICE_URL=http://file-service:8083/file-service
+            - MUSIC_SERVICE_URL=http://music-service:8082/music-service
+            - COMMENT_SERVICE_URL=http://comment-service:8086/comment-service
+            - PROFILE_SERVICE_URL=http://profile-service:8081/profile
+            - KAFKA_CONNECTION=kafka:9092
+    file-service:
+        image: phuongnbp/file-service:0.0.1
+        container_name: file-service
+        ports:
+            - 8083:8083
+        depends_on:
+            - mssql_for_file
+        environment: 
+            - DBMS_CONNECTION_URL=jdbc:sqlserver://sql-server-for-file:1433;databaseName=File;encrypt=true;trustServerCertificate=true
+            - DBMS_CONNECTION_USERNAME=sa
+            - DBMS_CONNECTION_PASSWORD=YourStrong!Passw0rd
+        volumes:
+            - upload-volume:/app/uploads
+    identity-service:
+        image: phuongnbp/identity-service:0.0.1
+        container_name: identity-service
+        ports:
+            - 8080:8080
+        depends_on:
+            - mssql_for_identity
+            - redis
+        environment: 
+            - DBMS_CONNECTION_URL=jdbc:sqlserver://sql-server-for-identity:1433;databaseName=Identity;encrypt=true;trustServerCertificate=true
+            - DBMS_CONNECTION_USERNAME=sa
+            - DBMS_CONNECTION_PASSWORD=YourStrong!Passw0rd
+            - FRONTEND_URL=http://host.docker.internal:4200
+            - REDIS_HOST=redis
+            - REDIRECT_URI=http://identity-service:8080/identity/login/oauth2/code/google
+    profile-service:
+        image: phuongnbp/profile-service:0.0.1
+        container_name: profile-service
+        ports:
+            - 8081:8081
+        depends_on:
+            - mssql_for_profile
+            - kafka
+        environment:
+            - DBMS_CONNECTION_URL=jdbc:sqlserver://sql-server-for-profile:1433;databaseName=Profile;encrypt=true;trustServerCertificate=true
+            - DBMS_CONNECTION_USERNAME=sa
+            - DBMS_CONNECTION_PASSWORD=YourStrong!Passw0rd
+            - KAFKA_CONNECTION=kafka:9092
+            - FILE_SERVICE_URL=http://file-service:8083/file-service
+    search-service:
+        image: phuongnbp/search-service:0.0.1
+        container_name: search-service
+        ports:
+            - 8084:8084
+        depends_on:
+            - elasticsearch
+            - kafka
+        environment:
+            - KAFKA_CONNECTION=kafka:9092
+    notification-service:
+        image: phuongnbp/notification-service:0.0.1
+        container_name: notification-service
+        ports:
+            - 8087:8087
+        depends_on:
+            - mongodb-notification
+            - kafka
+        environment:
+            - KAFKA_CONNECTION=kafka:9092
+            - DBMS_CONNECTION_URL=mongodb://root:123@mongodb-notification:27017/notification-service?authSource=admin
+    api-gateway:
+        image: phuongnbp/api-gateway:0.0.1
+        container_name: api-gateway
+        ports:
+            - 8888:8888
 volumes:
     library-volume:
     music-volume:
@@ -120,3 +241,4 @@ volumes:
     comment-volume:
     redis-data:
     notification-volume:
+    upload-volume:
