@@ -14,5 +14,5 @@ public interface NotificationRepository extends MongoRepository<Notification,Str
     @Query("From Notification n where n.id in :ids")
     List<Notification> findBulkByIds(List<String>ids);
 
-    List<Notification> findAllByUserId(String userId);
+    List<Notification> findAllByRecipientId(String recipientId);
 }
