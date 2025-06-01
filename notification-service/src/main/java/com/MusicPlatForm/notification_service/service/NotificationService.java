@@ -90,8 +90,7 @@ public class NotificationService {
     public List<String> getAllByUserId(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        List<Notification> notifications = this.notificationRepository.findAllByRecipientId(userId);
-        
+        List<Notification> notifications = this.notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
         return notifications.stream().map(n->n.getId()).toList();
     }
 
