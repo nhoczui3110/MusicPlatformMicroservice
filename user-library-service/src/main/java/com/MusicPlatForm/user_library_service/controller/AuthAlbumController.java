@@ -6,6 +6,7 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackR
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
 import com.MusicPlatForm.user_library_service.service.AlbumService;
+import com.MusicPlatForm.user_library_service.service.iface.AlbumServiceInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -22,7 +23,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/auth/album")
 public class AuthAlbumController {
-    AlbumService  albumService;
+    AlbumServiceInterface  albumService;
 
     @PostMapping(path = "/add-album", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ApiResponse<AlbumResponse> addAlbum(@Valid @RequestPart("meta-data") AlbumRequest request,

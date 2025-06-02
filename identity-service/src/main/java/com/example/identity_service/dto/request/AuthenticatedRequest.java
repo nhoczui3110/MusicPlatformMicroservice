@@ -1,6 +1,5 @@
 package com.example.identity_service.dto.request;
 
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

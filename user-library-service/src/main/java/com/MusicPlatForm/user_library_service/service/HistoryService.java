@@ -3,9 +3,14 @@ package com.MusicPlatForm.user_library_service.service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+
+import javax.management.Notification;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,17 +45,14 @@ public class HistoryService implements HistorySerivceInterface {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         List<History> histories = this.historyRepository.findAllByUserIdOrderByListenedAtDesc(userId);
-        Set<String> seenTrackIds = new HashSet<>();
-        List<History> uniqueHistories = new ArrayList<>();
+        List<String> trackIds = new ArrayList<>();
     
         for (History history : histories) {
-            if (!seenTrackIds.contains(history.getTrackId())) {
-                seenTrackIds.add(history.getTrackId());
-                uniqueHistories.add(history);
+            if (!trackIds.contains(history.getTrackId())) {
+                trackIds.add(history.getTrackId());
             }
         }
     
-        List<String> trackIds = uniqueHistories.stream().map(h->h.getTrackId()).toList();
         List<TrackResponse> trackResponses = musicClient.getTrackByIds(trackIds).getData();
         List<String> likedTrackIds =  likedTrackRepository.findAllByUserId(userId).stream().map(l->l.getTrackId()).toList();
         for(var track: trackResponses){

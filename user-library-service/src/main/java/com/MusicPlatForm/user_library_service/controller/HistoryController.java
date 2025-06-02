@@ -31,11 +31,12 @@ public class HistoryController {
     HistorySerivceInterface historySerivce;
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<?>> getHistory(){
+        var a = historySerivce.getHistory();
         return ResponseEntity
         .ok()
         .body(
             ApiResponse.<List<TrackResponse>>builder()
-            .data(historySerivce.getHistory())
+            .data(a)
             .code(HttpStatus.OK.value())
             .message("Get data successfully")
             .build()

@@ -4,6 +4,7 @@ package com.MusicPlatForm.comment_service.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,11 +19,18 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     @Autowired
     private  CustomJwtDecoder customJwtDecoder;
+    private static final String[] PUBLIC_ENDPOINTS = {
+        "/comments",                         // GET /comments?track_id=...
+        "/comments/track/*",                 // Deprecated: GET /comments/track/{trackId}
+        "/comments/likes/*",                 // GET /comments/likes/{commentId}
+        "/comments/bulk"                     // GET /comments/bulk?from_date=...&to_date=...&track_ids=...
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(request -> request
-                .requestMatchers("/**").permitAll()  // Cho phép tất cả các yêu cầu
+                .requestMatchers(HttpMethod.GET,PUBLIC_ENDPOINTS).permitAll()  // Cho phép tất cả các yêu cầu get
                 .anyRequest().authenticated()  // Yêu cầu xác thực cho các yêu cầu khác
             ).oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJwtDecoder)

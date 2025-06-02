@@ -19,10 +19,10 @@ public class Album {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    @Column(name = "Album_title", nullable = false)
+    @Column(name = "Album_title", nullable = false,columnDefinition = "NVARCHAR(255)")
     String albumTitle;
 
-    @Column(name = "Description", nullable = true)
+    @Column(name = "Description", nullable = true,columnDefinition = "NVARCHAR(255)")
     String description;
 
     @Column(name = "Album_link", nullable = false)
@@ -38,16 +38,16 @@ public class Album {
     @Column(name = "User_id", nullable = false)
     String userId;
 
-    @Column(name = "Image_path", nullable = false)
+    @Column(name = "Image_path", nullable = true,columnDefinition = "NVARCHAR(255)")
     String imagePath;
 
     @Column(name = "Album_type", nullable = false)
     String albumType;
 
-    @Column(name = "Genre_id", nullable = false)
+    @Column(name = "Genre_id", nullable = true)
     String genreId;
 
-    @Column(name = "Main_artists", nullable = false)
+    @Column(name = "Main_artists", nullable = false,columnDefinition = "NVARCHAR(255)")
     String mainArtists;
 
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)

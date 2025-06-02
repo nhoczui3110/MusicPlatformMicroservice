@@ -23,17 +23,21 @@ import feign.Headers;
 @FeignClient(name = "music-service",url = "${app.services.music}")
 public interface MusicClient {
 
+    @Deprecated
     @PostMapping(value = "/track/add/multi",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<TrackResponse>> addMultiTrack(@RequestPart MultipartFile[] trackFiles,
                                                           @RequestPart TrackRequest[] trackRequests);
+    
+                                                          @Deprecated
     @PostMapping(value = "/track/add/multi",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<List<TrackResponse>> addMultiTrack(@RequestPart MultipartFile[] trackFiles,
                                                           @RequestPart String trackRequests);
-
+    @Deprecated
     @PostMapping(value = "/track/add",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> addTrack(@RequestPart("track_audio") MultipartFile trackAudio, @RequestPart("track") TrackRequest trackRequest);
 
-    @PostMapping(value = "/track/add/multi", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+
+    @PostMapping(value = "/tracks/bulk", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Headers("Content-Type: multipart/form-data")
     ApiResponse<List<TrackResponse>> addMultiTrack(@RequestPart("trackFiles") List<MultipartFile> trackFiles,
                                                @RequestPart("trackRequests") String trackRequests);

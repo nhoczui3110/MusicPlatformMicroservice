@@ -32,22 +32,22 @@ import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.FileClient;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistMapper;
-import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTagMapper;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.PlaylistTrackMapper;
 import com.MusicPlatForm.user_library_service.repository.LikedPlaylistRepository;
 import com.MusicPlatForm.user_library_service.repository.LikedTrackRepository;
 import com.MusicPlatForm.user_library_service.repository.PlaylistRepository;
+import com.MusicPlatForm.user_library_service.service.iface.PlaylistServiceInterface;
 import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
 import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class PlaylistService {
+public class PlaylistService  implements PlaylistServiceInterface{
 
     private final LikedTrackRepository likedTrackRepository;
     private final PlaylistRepository playlistRepository;
     private final PlaylistMapper playlistMapper;
-    private final PlaylistTagMapper playlistTagMapper;
+    // private final PlaylistTagMapper playlistTagMapper;
     private final PlaylistTrackMapper playlistTrackMapper;
     private final FileClient fileClient;
     private final MusicClient musicClient;

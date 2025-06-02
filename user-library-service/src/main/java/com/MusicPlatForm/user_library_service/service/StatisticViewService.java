@@ -2,7 +2,6 @@ package com.MusicPlatForm.user_library_service.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -252,14 +251,12 @@ public class StatisticViewService implements StatisticServiceInterface {
     }
 
     @Override
-    public List<TopTrack> getUserTopTracks(LocalDate fromDate, LocalDate toDate) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
+    public List<TopTrack> getUserTopTracks(String userId,LocalDate fromDate, LocalDate toDate) {
         List<TrackResponse> tracks = musicClient.getTracksByUserId(userId).getData();
         List<String> trackIds = tracks.stream().map(TrackResponse::getId).toList();
         List<History> histories ;
         if(fromDate!=null)histories = historyRepository.findHistoryOfTracksFromDateToDateByTrackIds(fromDate.atStartOfDay(),toDate.atTime(LocalTime.MAX), trackIds);
-        else histories = historyRepository.findAll();
+        else histories = historyRepository.findAllByUserIdOrderByListenedAtDesc(userId);
         Map<String, Integer> topTracksCount = new HashMap<>();
         Map<String,TrackResponse> searchTrackHelper = new HashMap<>();
         // tính số lược nghe

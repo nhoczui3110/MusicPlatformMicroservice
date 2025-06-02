@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-library-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: user-library-service
+  ports:
+    - port: 8085
+      targetPort: 8085
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-library-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-library-service
+  template:
+    metadata:
+      labels:
+        app: user-library-service
+    spec:
+      containers:
+        - name: user-library-service
+          image: phuongnbp/user-library-service:0.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8085
+          env:
+            - name: DBMS_CONNECTION_URL
+              value: jdbc:sqlserver://mssql-service:1433;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
+            - name: DBMS_CONNECTION_USERNAME
+              value: sa
+            - name: DBMS_CONNECTION_PASSWORD
+              value: YourStrong!Passw0rd
+            - name: FILE_SERVICE_URL
+              value: http://file-service:8083/file-service
+            - name: MUSIC_SERVICE_URL
+              value: http://music-service:8082/music-service
+            - name: COMMENT_SERVICE_URL
+              value: http://comment-service:8086/comment-service
+            - name: PROFILE_SERVICE_URL
+              value: http://profile-service:8081/profile
+            - name: KAFKA_CONNECTION
+              value: kafka:9092

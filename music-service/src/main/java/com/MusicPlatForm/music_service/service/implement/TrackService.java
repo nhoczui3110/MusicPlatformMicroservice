@@ -2,13 +2,16 @@ package com.MusicPlatForm.music_service.service.implement;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.MusicPlatForm.music_service.dto.reponse.*;
 import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
 
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -55,6 +58,7 @@ public class TrackService implements TrackServiceInterface{
     }
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public TrackResponse uploadTrack(MultipartFile coverImage, MultipartFile trackAudio,TrackRequest trackRequest) {
         ApiResponse<AddCoverFileResponse> uploadTrackCoverResponse = null;
         if (coverImage != null && !coverImage.isEmpty()) {
@@ -92,6 +96,7 @@ public class TrackService implements TrackServiceInterface{
         return trackResponse;
     }
 
+    @PreAuthorize("isAuthenticated()")
     public List<TrackResponse> uploadTracks(List<MultipartFile> trackFiles, List<TrackRequest> trackRequests){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -137,10 +142,12 @@ public class TrackService implements TrackServiceInterface{
 
     @Override
     public List<TrackResponse> getTracksByIds(List<String> ids) {
-
         List<Track> tracks = this.trackRepository.findAllById(ids);
+        Map<String,Track> idToTrack= new HashMap<>();
+        tracks.forEach(t->idToTrack.put(t.getId(), t));
         List<TrackResponse> trackResponses = new ArrayList<>();
-        for(Track track:tracks){
+        for(String id: ids){
+            Track track = idToTrack.get(id);
             TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
             List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
             trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
@@ -151,6 +158,7 @@ public class TrackService implements TrackServiceInterface{
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public void deleteTrack(String trackId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -176,11 +184,15 @@ public class TrackService implements TrackServiceInterface{
 
 
     @Override
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
     public TrackResponse updateTrack(String trackId, UpdateTrackRequest request, MultipartFile imageFile, MultipartFile trackFile) {
         Track track = trackRepository.findById(trackId)
                 .orElseThrow(() -> new AppException(ErrorCode.TRACK_NOT_FOUND));
 
-        String createdUserId = track.getUserId();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        if(!track.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
 
         List<TagResponse> tagResponses = new ArrayList<>();
         GenreResponse genreResponse = null;
@@ -260,6 +272,7 @@ public class TrackService implements TrackServiceInterface{
     }
     @Override
     @Transactional
+    @PreAuthorize("isAuthenticated()")
     public void updatePlayCountByTrackId(String trackId) {
         Track track = trackRepository.findById(trackId)
             .orElseThrow(()->new AppException(ErrorCode.TRACK_N0T_FOUND));

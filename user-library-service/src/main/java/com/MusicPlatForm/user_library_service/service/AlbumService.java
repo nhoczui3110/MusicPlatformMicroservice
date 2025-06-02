@@ -22,6 +22,7 @@ import com.MusicPlatForm.user_library_service.repository.AlbumRepository;
 import com.MusicPlatForm.user_library_service.repository.AlbumTrackRepository;
 import com.MusicPlatForm.user_library_service.repository.LikedAlbumRepository;
 import com.MusicPlatForm.user_library_service.repository.LikedTrackRepository;
+import com.MusicPlatForm.user_library_service.service.iface.AlbumServiceInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class AlbumService {
+public class AlbumService  implements AlbumServiceInterface{
     AlbumRepository albumRepository;
     AlbumTrackRepository albumTrackRepository;
     LikedAlbumRepository likedAlbumRepository;
@@ -204,7 +205,7 @@ public class AlbumService {
         }
         String imagePath = album.getImagePath();
         if (imagePath != null) {
-            String name = imagePath.substring(imagePath.lastIndexOf("/") + 1);
+            String name = imagePath;
             log.info(name);
             fileClient.deleteCoverImage(name);
         }

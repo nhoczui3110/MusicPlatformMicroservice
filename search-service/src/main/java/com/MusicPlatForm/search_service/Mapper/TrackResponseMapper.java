@@ -16,6 +16,6 @@ public interface TrackResponseMapper {
 
     List<String> toTrackIds(List<Track> tracks);
     
-    @Mapping(target = "id", ignore = true)
+   
     Track toEntity(TrackRequest request);
 }

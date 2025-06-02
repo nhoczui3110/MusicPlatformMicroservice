@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: profile-service
+  ports:
+    - port: 8081
+      targetPort: 8081
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: profile-service
+  template:
+    metadata:
+      labels:
+        app: profile-service
+    spec:
+      containers:
+        - name: profile-service
+          image: phuongnbp/profile-service:0.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: DBMS_CONNECTION_URL
+              value: jdbc:sqlserver://mssql-service:1433;databaseName=Profile;encrypt=true;trustServerCertificate=true
+            - name: DBMS_CONNECTION_USERNAME
+              value: sa
+            - name: DBMS_CONNECTION_PASSWORD
+              value: YourStrong!Passw0rd
+            - name: FILE_SERVICE_URL
+              value: http://file-service:8083/file-service
+            - name: KAFKA_CONNECTION
+              value: kafka:9092

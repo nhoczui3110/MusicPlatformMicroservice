@@ -27,12 +27,12 @@ public class FileStorageConfig {
             avatarsFolder.mkdirs();
             System.out.println("Created avatar folder directory: " + avatarsFolder);
         }
-        File musicsFolder = new File(uploadDir+"/avatars");
+        File musicsFolder = new File(uploadDir+"/covers");
         if (!musicsFolder.exists()) {
             musicsFolder.mkdirs();
             System.out.println("Created avatar folder directory: " + musicsFolder);
         }
-        File coversFolder = new File(uploadDir+"/avatars");
+        File coversFolder = new File(uploadDir+"/musics");
         if (!coversFolder.exists()) {
             coversFolder.mkdirs();
             System.out.println("Created avatar folder directory: " + coversFolder);

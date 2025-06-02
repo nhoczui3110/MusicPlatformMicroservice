@@ -6,8 +6,9 @@ import com.MusicPlatForm.user_library_service.entity.LikedTrack;
 import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
-import com.MusicPlatForm.user_library_service.mapper.Playlist.LikedTrackMapper;
 import com.MusicPlatForm.user_library_service.repository.LikedTrackRepository;
+import com.MusicPlatForm.user_library_service.service.iface.LikeTrackServiceInterface;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
-public class LikedTrackService {
+public class LikedTrackService implements LikeTrackServiceInterface {
     LikedTrackRepository likedTrackRepository;
     MusicClient musicClient;
     KafkaService kafkaService;
@@ -76,9 +77,9 @@ public class LikedTrackService {
         if (track == null) {
             throw new AppException(ErrorCode.TRACK_N0T_FOUND);
         }
-        if (track.getUserId().equals(userId)) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
+        // if (track.getUserId().equals(userId)) {
+        //     throw new AppException(ErrorCode.UNAUTHORIZED);
+        // }
 
         if (likedTrackRepository.findByUserIdAndTrackId(userId, trackId) != null) {
             throw new AppException(ErrorCode.ALREADY_LIKED);

@@ -25,14 +25,19 @@ public class Tag {
     @Id
     @Column(name = "Id")
     String id;
-    @Column(name = "Name")
+
+    @Column(name = "Name",nullable = false,columnDefinition = "NVARCHAR(255)")
     String name;
+
     @Column(name = "Created_at")
     LocalDateTime createdAt;
+
     @Column(name = "User_id")
     String userId;   
+
     @Column(name = "Is_used")
     boolean isUsed = true;
+    
     @OneToMany(mappedBy = "tag",fetch = FetchType.LAZY, cascade = CascadeType.ALL,orphanRemoval = true)
     List<TrackTag> trackTags;
 

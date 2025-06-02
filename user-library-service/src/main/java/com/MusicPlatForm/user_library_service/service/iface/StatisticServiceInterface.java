@@ -12,7 +12,7 @@ import com.MusicPlatForm.user_library_service.dto.response.statistic.TopTrack;
 
 @Service
 public interface StatisticServiceInterface {
-    public List<TopTrack> getUserTopTracks(LocalDate fromDate,LocalDate toDate);
+    public List<TopTrack> getUserTopTracks(String userId,LocalDate fromDate,LocalDate toDate);
     public List<TopTrack> getTopTracks(LocalDate fromDate,LocalDate toDate);
     public PlayResponse getPlays(LocalDate fromDate,LocalDate toDate);
     public PlayResponse getAllPlays(LocalDate fromDate, LocalDate toDate);

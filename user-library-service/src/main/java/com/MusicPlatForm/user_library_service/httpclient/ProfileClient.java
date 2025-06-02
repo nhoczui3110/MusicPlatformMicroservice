@@ -13,4 +13,7 @@ import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCou
 public interface ProfileClient {
   @GetMapping("/users/bulk")
   public ApiResponse<List<ProfileWithCountFollowResponse>> getUserProfileByIds(@RequestParam List<String> userIds);
+  @GetMapping("/users/top-followed")
+  public ApiResponse<List<ProfileWithCountFollowResponse>> getTopFollowedUser(@RequestParam(name = "limit",defaultValue = "10") int limit );
+
 }

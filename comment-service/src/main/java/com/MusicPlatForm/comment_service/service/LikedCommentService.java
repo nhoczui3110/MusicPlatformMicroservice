@@ -1,7 +1,7 @@
-package com.MusicPlatForm.comment_service.service;
+// package com.MusicPlatForm.comment_service.service;
 
-import org.springframework.stereotype.Service;
+// import org.springframework.stereotype.Service;
 
-@Service
-public class LikedCommentService {
-}
+// @Service
+// public class LikedCommentService {
+// }

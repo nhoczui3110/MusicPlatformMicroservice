@@ -26,7 +26,7 @@ public class Genre {
     @Id
     @Column(name = "Id")
     String id;
-    @Column(name = "Name")
+    @Column(name = "Name",columnDefinition = "NVARCHAR(255)",nullable = false)
     String name;
     @Column(name = "Created_at")
     LocalDateTime createdAt;

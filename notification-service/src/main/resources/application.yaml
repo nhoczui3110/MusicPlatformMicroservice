@@ -1,13 +1,13 @@
 server:
   port: 8087
   servlet:
-    context-path: /notification
+    context-path: /notification-service
 spring:
   application:
     name: notification-service
   data:
     mongodb:
-      uri: mongodb://root:123@localhost:27017/notification-service?authSource=admin
+      uri: ${DBMS_CONNECTION_URL:mongodb://root:123@mongodb-notification:27017/notification-service?authSource=admin}
   mail:
     host: smtp.gmail.com
     port: 587
@@ -17,7 +17,7 @@ spring:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
   kafka:
-    bootstrap-servers: localhost:9094
+    bootstrap-servers: ${KAFKA_CONNECTION:kafka:9092}
     consumer:
       group-id: notification-group
       auto-offset-reset: earliest
@@ -39,3 +39,6 @@ spring:
       properties:
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
+
+app:
+  web-url: http://localhost:4200

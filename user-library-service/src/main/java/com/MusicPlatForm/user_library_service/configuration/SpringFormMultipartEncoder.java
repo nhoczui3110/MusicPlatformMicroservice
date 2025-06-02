@@ -1,14 +1,11 @@
 package com.MusicPlatForm.user_library_service.configuration;
 import feign.RequestTemplate;
-import feign.codec.Encoder;
 import feign.form.FormData;
 import feign.form.spring.SpringFormEncoder;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 

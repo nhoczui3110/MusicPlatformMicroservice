@@ -4,6 +4,8 @@ import java.util.List;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.MusicPlatForm.music_service.dto.request.UpdateTrackRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +25,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TrackControllerV1 {
-    TrackServiceInterface trackService;
+    @Autowired private TrackServiceInterface trackService;
 
     @PostMapping("/plays-cout/{id}")
     public ApiResponse<String> updatePlayCount(@PathVariable String id){

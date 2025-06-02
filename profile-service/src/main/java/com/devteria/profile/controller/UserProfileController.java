@@ -38,15 +38,12 @@ public class UserProfileController {
                 .data(response)
                 .build();
     }
-
-//    @GetMapping("/avatar/{fileName}")
-//    public ResponseEntity<Resource> getProfileAvatar(@PathVariable String fileName) {
-//        Resource file = userProfileService.getProfileAvatar(fileName);
-//
-//        return ResponseEntity.ok()
-//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-//                .body(file);
-//    }
-
+    @GetMapping("/top-followed")
+    public ApiResponse<List<ProfileWithCountFollowResponse>> getTopFollowedUser(@RequestParam(name = "limit",defaultValue = "10") int limit ){
+         List<ProfileWithCountFollowResponse> response = userProfileService.getTopFollowedUser(limit);
+        return ApiResponse.<List<ProfileWithCountFollowResponse>>builder()
+                .data(response)
+                .message("Top followed user")
+                .build();
+    }
 }

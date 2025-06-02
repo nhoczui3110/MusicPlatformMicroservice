@@ -10,7 +10,7 @@ import com.MusicPlatForm.search_service.Entity.Playlist;
 
 @Mapper(componentModel = "spring")
 public interface PlaylistMapper {
-    @Mapping(target = "id", ignore = true)
+    
     Playlist toEntity(PlaylistRequest request);
 
     List<String> toPlaylistIds(List<Playlist> playlists);

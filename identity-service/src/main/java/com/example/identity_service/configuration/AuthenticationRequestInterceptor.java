@@ -1,6 +1,6 @@
 package com.example.identity_service.configuration;
 
-import ch.qos.logback.core.util.StringUtil;
+
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.extern.slf4j.Slf4j;

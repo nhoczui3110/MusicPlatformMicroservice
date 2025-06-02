@@ -1,10 +1,7 @@
 package com.example.identity_service.controller;
 
 import com.example.identity_service.dto.request.*;
-import com.example.identity_service.dto.response.AuthenticatedResponse;
-import com.example.identity_service.dto.response.UserProfileResponse;
 import com.example.identity_service.dto.response.UserResponse;
-import com.example.identity_service.entity.User;
 import com.example.identity_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -43,10 +40,6 @@ public class UserController {
         return userService.getUser(userId);
     }
 
-//    @PutMapping("/{userId}")
-//    UserResponse updateUser(@RequestBody UserUpdateRequest request, @PathVariable String userId) {
-//        return userService.updateUser(userId, request);
-//    }
 
     @DeleteMapping("/{userId}")
     String deleteUser(@PathVariable String userId) {
@@ -58,15 +51,4 @@ public class UserController {
     ApiResponse<UserResponse> getMyinfo() {
         return  ApiResponse.<UserResponse>builder().data(userService.getMyInfo()).build();
     }
-
-//    @PutMapping("/update-my-info")
-//    ApiResponse<UserResponse> updateMyInfo(UserUpdateRequest request) {
-//        return ApiResponse.<UserResponse>builder().data(userService.updateUser(request)).build();
-//    }
-//    @PatchMapping("/change-password")
-//    ApiResponse changePassword(@RequestBody @Valid ChangePasswordRequest request) {
-//        userService.changePassword(request);
-//        return  ApiResponse.builder().build();
-//    }
-
 }

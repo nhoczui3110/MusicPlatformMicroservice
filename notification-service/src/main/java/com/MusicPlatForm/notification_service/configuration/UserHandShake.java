@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.MusicPlatForm.notification_service.model.User;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.access.prepost.PreAuthorize;

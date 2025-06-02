@@ -31,22 +31,21 @@ public class Track {
     @Column(name = "Id")
     String id;
 
-    @Column(name = "Title", nullable = false)
+    @Column(name = "Title", nullable = false, columnDefinition = "NVARCHAR(255)")
     String title;
 
-    @Column(name = "Description")
+    @Column(name = "Description", columnDefinition = "NVARCHAR(255)")
     String description;
 
-    @Column(name = "File_name", nullable = false)
+    @Column(name = "File_name", nullable = false, columnDefinition = "NVARCHAR(255)")
     String fileName;
 
-    @Column(name = "Cover_image_name",nullable = true)
+    @Column(name = "Cover_image_name",nullable = true, columnDefinition = "NVARCHAR(255)")
     String coverImageName;
 
     @Column(name = "Created_at", nullable = false)
     LocalDateTime createdAt;
 
-    
 
     @Column(name = "User_id", nullable = false)
     String userId;

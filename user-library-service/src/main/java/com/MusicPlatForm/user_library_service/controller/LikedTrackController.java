@@ -2,7 +2,8 @@ package com.MusicPlatForm.user_library_service.controller;
 
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
-import com.MusicPlatForm.user_library_service.service.LikedTrackService;
+import com.MusicPlatForm.user_library_service.service.iface.LikeTrackServiceInterface;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LikedTrackController {
-    LikedTrackService likedTrackService;
+    LikeTrackServiceInterface likedTrackService;
 
     /**
      * Lấy toàn bộ nhạc user đó đã like

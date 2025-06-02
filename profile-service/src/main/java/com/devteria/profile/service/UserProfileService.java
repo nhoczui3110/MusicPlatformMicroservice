@@ -1,6 +1,5 @@
 package com.devteria.profile.service;
 
-import com.ctc.wstx.util.StringUtil;
 import com.devteria.profile.dto.request.ApiResponse;
 import com.devteria.profile.dto.request.DeleteAvatarRequest;
 import com.devteria.profile.dto.request.ProfileCreationRequest;
@@ -153,4 +152,19 @@ public class UserProfileService {
         return response;
     }
 
+    public List<ProfileWithCountFollowResponse> getTopFollowedUser(int limit){
+        Pageable pageable = PageRequest.of(0, limit);
+        List<UserProfile> userProfiles = userProfileRepository.findTopFollowedUsers(pageable);
+        List<ProfileWithCountFollowResponse> userProfileResponses = new ArrayList<>();
+        for(var userProfile: userProfiles){
+            ProfileWithCountFollowResponse response = userProfileMapper.toProfileWithCountFollowResponse(userProfile);
+            int followingCount = followsRepository.countByFollower_UserId(userProfile.getUserId());
+            int followerCount = followsRepository.countByFollowing_UserId(userProfile.getUserId());
+    
+            response.setFollowingCount(followingCount);
+            response.setFollowerCount(followerCount);
+            userProfileResponses.add(response);
+        }
+        return userProfileResponses;
+    }
 }

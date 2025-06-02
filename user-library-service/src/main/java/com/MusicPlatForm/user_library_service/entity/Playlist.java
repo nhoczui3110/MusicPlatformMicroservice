@@ -36,7 +36,7 @@ public class Playlist {
     @Column(name = "Release_date")
     LocalDateTime releaseDate;
     
-    @Column(name = "Description")
+    @Column(name = "Description",columnDefinition = "NVARCHAR(255)",nullable = true)
     String description;
     
     @Column(name = "Privacy",nullable = false)
@@ -48,7 +48,7 @@ public class Playlist {
     @Column(name = "Genre_id")
     String genreId;
 
-    @Column(name = "Image_path")
+    @Column(name = "Image_path",columnDefinition = "NVARCHAR(255)",nullable = true)
     String imagePath;
 
     @Column(name="created_at")

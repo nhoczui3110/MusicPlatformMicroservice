@@ -2,7 +2,8 @@ package com.MusicPlatForm.user_library_service.controller;
 
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
-import com.MusicPlatForm.user_library_service.service.AlbumService;
+import com.MusicPlatForm.user_library_service.service.iface.AlbumServiceInterface;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,7 +16,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/album")
 public class AlbumController {
-    AlbumService  albumService;
+    AlbumServiceInterface  albumService;
 
     @GetMapping("/bulk")
     public ApiResponse<List<AlbumResponse>> getAllByIds(@RequestParam(name = "album_ids") List<String> ids){

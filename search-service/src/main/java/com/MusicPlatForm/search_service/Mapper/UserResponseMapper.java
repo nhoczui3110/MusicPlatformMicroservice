@@ -17,6 +17,6 @@ public interface UserResponseMapper {
     // Map list of User to list of userId (String)
     List<String> toUserIds(List<User> users);
 
-    @Mapping(target = "id",ignore = true)
+    
     User toUserEntity(UserRequest userRequest);
 }

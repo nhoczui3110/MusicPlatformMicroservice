@@ -10,7 +10,9 @@ import java.util.List;
 
 @Repository
 public interface NotificationRepository extends MongoRepository<Notification,String> {
-    List<Notification> findByRecipientIdOrderByCreatedAtDesc(String recipientId);
+    List<Notification> findByRecipientIdOrderByCreatedAtAsc(String recipientId);
 
     List<Notification> findAllByRecipientId(String recipientId);
+
+    List<Notification> findAllByIdOrderByCreatedAtDesc(List<String> ids);
 }

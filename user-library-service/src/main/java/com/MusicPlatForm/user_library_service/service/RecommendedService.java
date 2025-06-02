@@ -114,9 +114,23 @@ public class RecommendedService implements RecommendedServiceInterface{
     }
     
     public List<ProfileWithCountFollowResponse> getArtirstsShouldKnow(){
-        List<TrackResponse> tracks = likedTrackService.getAllLikedTracks();
-        List<String> artirtsIds = tracks.stream().map(a->a.getUserId()).distinct().toList();
-        List<ProfileWithCountFollowResponse> artirsts = this.profileClient.getUserProfileByIds(artirtsIds).getData();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        List<ProfileWithCountFollowResponse> artirsts =null;
+        // đã đăng nhập
+        if(authentication.isAuthenticated()){
+            List<TrackResponse> tracks = likedTrackService.getAllLikedTracks();
+            List<String> artirtsIds = tracks.stream().map(a->a.getUserId()).distinct().toList();    
+            artirsts = this.profileClient.getUserProfileByIds(artirtsIds).getData();
+            artirsts.removeIf(a->a.getUserId().equals(authentication.getName()));
+        }
+        // đã đăng nhập nhưng chưa thích gì hoặc thích mỗi bài hát của mình hoặc chưa đăng nhập 
+        if(artirsts==null||artirsts.size()==0){
+            artirsts =this.profileClient.getTopFollowedUser(listSize).getData();
+        }
+        // xóa đi chính user đó nếu dc đề xuất
+        if(authentication.isAuthenticated()){
+            artirsts.removeIf(a->a.getUserId().equals(authentication.getName()));
+        }
         return artirsts;
     }
 }
