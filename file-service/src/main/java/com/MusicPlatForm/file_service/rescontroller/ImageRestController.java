@@ -24,16 +24,17 @@ import org.springframework.web.multipart.MultipartFile;
 import com.MusicPlatForm.file_service.dto.ApiResponse;
 import com.MusicPlatForm.file_service.dto.response.AvatarResponse;
 import com.MusicPlatForm.file_service.dto.response.CoverResponse;
-import com.MusicPlatForm.file_service.service.ImageService;
+import com.MusicPlatForm.file_service.service.FileStorageService;
+import com.MusicPlatForm.file_service.type.FileType;
 
 @RestController
 @RequestMapping("/images") //-> image-> images
 public class ImageRestController {
-    private ImageService imageService;
+    private FileStorageService fileStorageService;
     @Value("${file.upload-dir}")
     private String uploadDir;
-    public ImageRestController(ImageService imageService){
-        this.imageService =imageService;
+    public ImageRestController(FileStorageService fileStorageService){
+        this.fileStorageService = fileStorageService;
     }
 
     /*
@@ -73,7 +74,7 @@ public class ImageRestController {
      */
     @PostMapping(value = "avatars",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AvatarResponse>> addAvatar(@RequestPart MultipartFile avatar) throws IOException{
-        String avatarName = imageService.addAvatar(avatar);
+        String avatarName = fileStorageService.upload(FileType.AVATAR,avatar).toString();
         return ResponseEntity.ok().body(
                 ApiResponse.<AvatarResponse>
                     builder()
@@ -86,7 +87,7 @@ public class ImageRestController {
     }
     @PostMapping(value = "covers",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<CoverResponse>> addCoverImage(@RequestPart MultipartFile cover) throws IOException{
-        String coverName = imageService.addcoverImage(cover);
+        String coverName = fileStorageService.upload(FileType.COVER,cover).toString();
         return ResponseEntity.ok().body(
                 ApiResponse.<CoverResponse>
                     builder()
@@ -102,7 +103,7 @@ public class ImageRestController {
 
     @DeleteMapping("avatars/{avatarName}")
     public ResponseEntity<ApiResponse<String>> deleteAvatar(@PathVariable String avatarName) throws IOException, NoSuchFileException{
-        imageService.deleteAvatar(avatarName);
+        fileStorageService.delete(FileType.AVATAR, avatarName);;
         return ResponseEntity.ok().body(
             ApiResponse.<String>
                 builder()
@@ -115,7 +116,7 @@ public class ImageRestController {
 
     @DeleteMapping("covers/{coverName}")
     public ResponseEntity<ApiResponse<String>> deleteCover(@PathVariable String coverName) throws IOException, NoSuchFileException{
-        imageService.deleteCover(coverName);
+        fileStorageService.delete(FileType.COVER,coverName);
         return ResponseEntity.ok().body(
             ApiResponse.<String>
                 builder()
@@ -132,7 +133,7 @@ public class ImageRestController {
 
     @PutMapping(value="avatars/{avatarName}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AvatarResponse>> replaceAvatar(@RequestPart("newAvatar") MultipartFile newAvatar,@PathVariable(name = "avatarName") String oldAvatarName) throws IOException, NoSuchFileException{
-        String newAvatarName = imageService.replaceAvatar(newAvatar, oldAvatarName);
+        String newAvatarName = fileStorageService.replace(FileType.AVATAR,newAvatar, oldAvatarName);
         return ResponseEntity.ok().body(
                 ApiResponse.<AvatarResponse>
                     builder()
@@ -149,7 +150,7 @@ public class ImageRestController {
     }
     @PutMapping(value = "covers/{coverName}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<CoverResponse>> replaceCover(@RequestPart MultipartFile newCover,@PathVariable(name="coverName") String oldCoverName) throws IOException, NoSuchFileException{
-        String newCoverName = imageService.replaceCover(newCover, oldCoverName);
+        String newCoverName = fileStorageService.replace(FileType.COVER,newCover, oldCoverName);
         return ResponseEntity.ok().body(
                 ApiResponse.<CoverResponse>
                     builder()

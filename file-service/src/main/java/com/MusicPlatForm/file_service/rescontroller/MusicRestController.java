@@ -24,17 +24,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.MusicPlatForm.file_service.dto.ApiResponse;
 import com.MusicPlatForm.file_service.dto.response.AudioResponse;
-import com.MusicPlatForm.file_service.service.MusicService;
+import com.MusicPlatForm.file_service.service.FileStorageService;
+import com.MusicPlatForm.file_service.service.MultiAudioServiceInteface;
+import com.MusicPlatForm.file_service.type.FileType;
 
 @RestController
 @RequestMapping("/audios")
 public class MusicRestController {
     @Value("${file.upload-dir}")
     private String uploadDir;
-    private MusicService musicService;
-    
-    public MusicRestController(MusicService musicService){
-        this.musicService = musicService;
+    private FileStorageService fileStorageService;
+    private MultiAudioServiceInteface audioServiceInteface;
+    public MusicRestController(FileStorageService fileStorageService){
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping("/{filename}")
@@ -53,7 +55,7 @@ public class MusicRestController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AudioResponse>> addAudio(@RequestPart MultipartFile audio) throws Exception, IOException {
-        AudioResponse audioResponse = musicService.addAudio(audio);
+        AudioResponse audioResponse =(AudioResponse) fileStorageService.upload(FileType.AUDIO,audio);
         return ResponseEntity.ok()
                             .body(
                                 ApiResponse
@@ -67,7 +69,7 @@ public class MusicRestController {
 
     @PostMapping("/bulk")
     public ApiResponse<List<AudioResponse>> addAudios(@RequestPart("audioFiles") List<MultipartFile> audioFiles) throws IOException {
-        List<AudioResponse> audioResponses = musicService.addAudios(audioFiles);
+        List<AudioResponse> audioResponses = audioServiceInteface.storeMulti(audioFiles);
         return ApiResponse.<List<AudioResponse>>builder()
                                 .code(HttpStatus.OK.value())
                                 .data(audioResponses)
@@ -76,7 +78,7 @@ public class MusicRestController {
 
     @DeleteMapping("/{audioName}")
     public ResponseEntity<ApiResponse<String>> deleteAudio(@PathVariable String audioName) throws IOException, NoSuchFileException {
-        musicService.deleteAudio(audioName);
+        fileStorageService.delete(FileType.AUDIO,audioName);
         return ResponseEntity.ok()
                 .body(
                     ApiResponse
