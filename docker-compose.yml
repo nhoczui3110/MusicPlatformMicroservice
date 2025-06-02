@@ -23,7 +23,7 @@ services:
             ACCEPT_EULA: "Y"
             SA_PASSWORD: "YourStrong!Passw0rd"
         ports:
-            - 1432:1433
+            - 1450:1433
         volumes:
             - library-volume:/var/opt/mssql
     mssql_for_music:
@@ -111,7 +111,7 @@ services:
         volumes:
           - notification-volume:/data/db
     admin-service:
-        image: phuongnbp/admin-service:0.0.1
+        image: phuongnbp/admin-service:0.0.2
         container_name: admin-service
         ports:
           - 8088:8088
@@ -119,7 +119,7 @@ services:
             - COMMENT_SERVICE_URL=http://comment-service:8086/comment-service
             - USERLIB_SERVICE_URL=http://localhost:8085/user-library
     comment-service:
-        image: phuongnbp/comment-service:0.0.1
+        image: phuongnbp/comment-service:0.0.2
         container_name: comment-service
         ports:
             - 8086:8086
@@ -133,7 +133,7 @@ services:
             - MUSIC_SERVICE_URL=http://localhost:8082/music-service
             - KAFKA_CONNECTION=kafka:9092
     music-service:
-        image: phuongnbp/music-service:0.0.1
+        image: phuongnbp/music-service:0.0.2
         container_name: music-service
         ports:
             - 8082:8082
@@ -148,7 +148,7 @@ services:
             - USERLIB_SERVICE_URL=http://user-library-service:8085
             - KAFKA_CONNECTION=kafka:9092
     user-library-service:
-        image: phuongnbp/user-library-service:0.0.1
+        image: phuongnbp/user-library-service:0.0.2
         container_name: user-library-service
         ports:
             - 8085:8085
@@ -165,7 +165,7 @@ services:
             - PROFILE_SERVICE_URL=http://profile-service:8081/profile
             - KAFKA_CONNECTION=kafka:9092
     file-service:
-        image: phuongnbp/file-service:0.0.1
+        image: phuongnbp/file-service:0.0.2
         container_name: file-service
         ports:
             - 8083:8083
@@ -178,7 +178,7 @@ services:
         volumes:
             - upload-volume:/app/uploads
     identity-service:
-        image: phuongnbp/identity-service:0.0.1
+        image: phuongnbp/identity-service:0.0.2
         container_name: identity-service
         ports:
             - 8080:8080
@@ -191,9 +191,9 @@ services:
             - DBMS_CONNECTION_PASSWORD=YourStrong!Passw0rd
             - FRONTEND_URL=http://host.docker.internal:4200
             - REDIS_HOST=redis
-            - REDIRECT_URI=http://identity-service:8080/identity/login/oauth2/code/google
+            - REDIRECT_URI=http://host.docker.internal:8080/identity/login/oauth2/code/google
     profile-service:
-        image: phuongnbp/profile-service:0.0.1
+        image: phuongnbp/profile-service:0.0.2
         container_name: profile-service
         ports:
             - 8081:8081
@@ -207,7 +207,7 @@ services:
             - KAFKA_CONNECTION=kafka:9092
             - FILE_SERVICE_URL=http://file-service:8083/file-service
     search-service:
-        image: phuongnbp/search-service:0.0.1
+        image: phuongnbp/search-service:0.0.2
         container_name: search-service
         ports:
             - 8084:8084
@@ -217,7 +217,7 @@ services:
         environment:
             - KAFKA_CONNECTION=kafka:9092
     notification-service:
-        image: phuongnbp/notification-service:0.0.1
+        image: phuongnbp/notification-service:0.0.2
         container_name: notification-service
         ports:
             - 8087:8087
@@ -228,7 +228,7 @@ services:
             - KAFKA_CONNECTION=kafka:9092
             - DBMS_CONNECTION_URL=mongodb://root:123@mongodb-notification:27017/notification-service?authSource=admin
     api-gateway:
-        image: phuongnbp/api-gateway:0.0.1
+        image: phuongnbp/api-gateway:0.0.2
         container_name: api-gateway
         ports:
             - 8888:8888
