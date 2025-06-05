@@ -6,9 +6,9 @@ spring:
   application:
     name: user-library-service
   datasource:
-    url:     ${DBMS_CONNECTION_URL:jdbc:sqlserver://localhost:1433;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true}
-    username: ${DBMS_CONNECTION_USERNAME:sa}
-    password: ${DBMS_CONNECTION_PASSWORD:123456789}
+    url: jdbc:sqlserver://localhost:1432;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: YourStrong!Passw0rd
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
@@ -22,7 +22,7 @@ spring:
       max-file-size: 50MB
       max-request-size: 100MB
   kafka:
-    bootstrap-servers: ${KAFKA_CONNECTION:kafka:9092}
+    bootstrap-servers: localhost:9094
     producer:
         key-serializer: org.apache.kafka.common.serialization.StringSerializer
         value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -33,11 +33,10 @@ spring:
         #     max.
 app:
     services:
-        file:  ${FILE_SERVICE_URL:http://file-service:8083/file-service}
-        music:  ${MUSIC_SERVICE_URL:http://music-service:8082/music-service}
-        comment: ${COMMENT_SERVICE_URL:http://comment-service:8086/comment-service}
-        profile: ${PROFILE_SERVICE_URL:http://profile-service:8081/profile}
-
+        file: http://localhost:8083/file-service
+        music: http://localhost:8082/music-service
+        comment: http://localhost:8086/comment-service
+        profile: http://localhost:8081/profile
 
 track:
   related:
@@ -46,3 +45,11 @@ history:
   top-recentlyplayed:
     limit: 30
   size-of-list: 10
+
+eureka:
+  client:
+    service-url:
+      default-zone:
+        http://localhost:8761/eureka/
+  instance:
+    preferIpAddress: true

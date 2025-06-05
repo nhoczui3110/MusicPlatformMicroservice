@@ -39,7 +39,7 @@ spec:
           - name: DBMS_CONNECTION_PASSWORD
             value: YourStrong!Passw0rd
           - name: MUSIC_SERVICE_URL
-            value: http://localhost:8082/music-service
+            value: http://music-service:8082/music-service
           - name: KAFKA_CONNECTION
             value: kafka:9092
 
