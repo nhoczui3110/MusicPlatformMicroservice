@@ -1,7 +1,6 @@
 package com.devteria.profile.service;
 
 import com.devteria.profile.dto.request.AddFollowRequest;
-import com.devteria.profile.dto.response.GetFollowersResponse;
 import com.devteria.profile.dto.response.ProfileWithCountFollowResponse;
 import com.devteria.profile.dto.response.UserProfileResponse;
 import com.devteria.profile.entity.Follows;

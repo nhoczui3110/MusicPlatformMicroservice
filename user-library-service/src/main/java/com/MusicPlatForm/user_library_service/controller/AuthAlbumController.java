@@ -5,7 +5,6 @@ import com.MusicPlatForm.user_library_service.dto.request.playlist.AlbumRequest;
 import com.MusicPlatForm.user_library_service.dto.request.playlist.client.TrackRequest;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
-import com.MusicPlatForm.user_library_service.service.AlbumService;
 import com.MusicPlatForm.user_library_service.service.iface.AlbumServiceInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;

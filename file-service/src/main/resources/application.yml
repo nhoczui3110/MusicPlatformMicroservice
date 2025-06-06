@@ -22,7 +22,7 @@ server:
   servlet:
     context-path: /file-service
 file:
-  upload-dir: /app/uploads
+  upload-dir: ./file-service/file
   musics-dir: musics
   avatars-dir: avatars
   covers-dir: covers

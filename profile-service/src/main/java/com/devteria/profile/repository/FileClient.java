@@ -4,11 +4,8 @@ import com.devteria.profile.dto.request.ApiResponse;
 import com.devteria.profile.dto.request.DeleteAvatarRequest;
 import com.devteria.profile.dto.response.UploadAvatarResponse;
 import com.devteria.profile.dto.response.UploadCoverResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +24,4 @@ public interface FileClient {
     @PutMapping(value = "/images/covers/{coverName}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ApiResponse<UploadCoverResponse> replaceCover(@RequestPart("newCover") MultipartFile newCover,
                                                     @PathVariable("coverName") String oldCoverName);
-
-//    @GetMapping(value = "/avatar/{fileName}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//    ResponseEntity<Resource> downloadFile(@PathVariable("fileName") String fileName);
 }

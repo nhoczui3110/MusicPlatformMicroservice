@@ -5,6 +5,7 @@ import java.util.List;
 
 
 import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCountFollowResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TagResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 
@@ -27,4 +28,5 @@ public class PlaylistResponse {
     private List<TrackResponse> playlistTracks;
     private List<TagResponse> playlistTags;
     private Boolean isLiked;
+    ProfileWithCountFollowResponse user;
 }

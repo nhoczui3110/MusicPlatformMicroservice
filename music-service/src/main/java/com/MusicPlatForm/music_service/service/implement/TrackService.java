@@ -3,8 +3,10 @@ package com.MusicPlatForm.music_service.service.implement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.MusicPlatForm.music_service.dto.reponse.*;
@@ -26,6 +28,7 @@ import com.MusicPlatForm.music_service.entity.TrackTag;
 import com.MusicPlatForm.music_service.exception.AppException;
 import com.MusicPlatForm.music_service.exception.ErrorCode;
 import com.MusicPlatForm.music_service.httpclient.FileClient;
+import com.MusicPlatForm.music_service.httpclient.ProfileClient;
 import com.MusicPlatForm.music_service.mapper.GenreMapper;
 import com.MusicPlatForm.music_service.mapper.TagMapper;
 import com.MusicPlatForm.music_service.mapper.TrackMapper;
@@ -44,6 +47,7 @@ public class TrackService implements TrackServiceInterface{
     TagRepository tagRepository;
     TrackRepository trackRepository;
     GenreRepository genreRepository;
+    ProfileClient profileClient;
     private KafkaTemplate<String,Object> kafkaTemplate;
     private void sendTrackToSearchService(Track track){
         com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest request = new com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest();
@@ -92,7 +96,8 @@ public class TrackService implements TrackServiceInterface{
         TrackResponse trackResponse = this.trackMapper.toTrackResponseFromTrack(savedTrack);
         trackResponse.setTags(this.tagMapper.toTagResponsesFromTags(tags));
         trackResponse.setGenre(this.genreMapper.toGenreResponseFromGenre(genre));
-
+        var userProfile = profileClient.getUserProfile(userId).getData();
+        trackResponse.setUser(userProfile);
         return trackResponse;
     }
 
@@ -133,25 +138,48 @@ public class TrackService implements TrackServiceInterface{
     public TrackResponse getTrackById(String id) {
 
         Track track = this.trackRepository.findById(id).orElseThrow();
+        
         TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
+
         List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
+        
         trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
         trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+
+        var userProfile = profileClient.getUserProfile(track.getUserId()).getData();
+        trackResponse.setUser(userProfile);
+
         return trackResponse;
     }
 
     @Override
     public List<TrackResponse> getTracksByIds(List<String> ids) {
         List<Track> tracks = this.trackRepository.findAllById(ids);
-        Map<String,Track> idToTrack= new HashMap<>();
-        tracks.forEach(t->idToTrack.put(t.getId(), t));
+
+        Map<String,ProfileWithCountFollowResponse> idToUser = new HashMap<>();
         List<TrackResponse> trackResponses = new ArrayList<>();
-        for(String id: ids){
-            Track track = idToTrack.get(id);
+        List<String> userIds = new ArrayList<>(); 
+        tracks.forEach(t->
+        {
+            if(!userIds.contains(t.getUserId())){
+                userIds.add(t.getUserId());
+            }
+        }
+        );
+        
+
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+        users.forEach(u->{
+            idToUser.put(u.getUserId(), u);
+        });
+
+        for(var track: tracks){
+            ProfileWithCountFollowResponse user = idToUser.get(track.getUserId());
             TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
             List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
             trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
             trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponse.setUser(user);
             trackResponses.add(trackResponse);
         }
         return trackResponses;
@@ -171,12 +199,29 @@ public class TrackService implements TrackServiceInterface{
     @Override
     public List<TrackResponse> getTracksByGenre(String genreId,int limit) {
         List<Track> tracks= trackRepository.findRandomTracksByGenre(genreId,limit);
+        Map<String,ProfileWithCountFollowResponse> idToUser = new HashMap<>();
+        List<String> userIds = new ArrayList<>(); 
         List<TrackResponse> trackResponses = new ArrayList<>();
+
+        tracks.forEach(t->
+            {
+                if(!userIds.contains(t.getUserId())){
+                    userIds.add(t.getUserId());
+                }
+            }
+        );
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+        users.forEach(u->{
+            idToUser.put(u.getUserId(), u);
+        });
+        
         for(Track track:tracks){
+            ProfileWithCountFollowResponse user = idToUser.get(track.getUserId());
             TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
             List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
             trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
             trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponse.setUser(user);
             trackResponses.add(trackResponse);
         }
         return trackResponses;
@@ -237,6 +282,9 @@ public class TrackService implements TrackServiceInterface{
             response.setGenre(genreResponse);
         }
 
+        ProfileWithCountFollowResponse user = profileClient.getUserProfile(userId).getData();
+        response.setUser(user);
+
         return response;
     }
 
@@ -248,11 +296,13 @@ public class TrackService implements TrackServiceInterface{
         }
         List<Track> tracks = this.trackRepository.findTrackByUserId(userId);
         List<TrackResponse> trackResponses = new ArrayList<>();
+        ProfileWithCountFollowResponse user = profileClient.getUserProfile(userId).getData();
         for(Track track:tracks){
             TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
             List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
             trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
             trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponse.setUser(user);
             trackResponses.add(trackResponse);
         }
         return trackResponses;
@@ -261,11 +311,30 @@ public class TrackService implements TrackServiceInterface{
     public List<TrackResponse> getRandomTracks(int limit) {
         List<Track> tracks = this.trackRepository.findRandomTracks(limit);
         List<TrackResponse> trackResponses = new ArrayList<>();
+        Map<String,ProfileWithCountFollowResponse> idToUser = new HashMap<>();
+        List<String> userIds = new ArrayList<>(); 
+       
+        tracks.forEach(t->
+            {
+                if(!userIds.contains(t.getUserId())){
+                    userIds.add(t.getUserId());
+                }
+            }
+        );
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+       
+        users.forEach(u->{
+            idToUser.put(u.getUserId(), u);
+        });
+
+
         for(Track track:tracks){
+            ProfileWithCountFollowResponse user = idToUser.get(track.getUserId());
             TrackResponse trackResponse = trackMapper.toTrackResponseFromTrack(track);
             List<Tag> tags = track.getTrackTags().stream().map(trackTag->trackTag.getTag()).toList();
             trackResponse.setTags(tagMapper.toTagResponsesFromTags(tags));
             trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
+            trackResponse.setUser(user);
             trackResponses.add(trackResponse);
         }
         return trackResponses;

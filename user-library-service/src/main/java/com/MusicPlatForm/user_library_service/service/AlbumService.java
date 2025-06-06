@@ -7,6 +7,7 @@ import com.MusicPlatForm.user_library_service.dto.response.AddCoverFileResponse;
 import com.MusicPlatForm.user_library_service.dto.response.ApiResponse;
 import com.MusicPlatForm.user_library_service.dto.response.album.AlbumResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCountFollowResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TagResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import com.MusicPlatForm.user_library_service.entity.Album;
@@ -17,6 +18,7 @@ import com.MusicPlatForm.user_library_service.exception.AppException;
 import com.MusicPlatForm.user_library_service.exception.ErrorCode;
 import com.MusicPlatForm.user_library_service.httpclient.FileClient;
 import com.MusicPlatForm.user_library_service.httpclient.MusicClient;
+import com.MusicPlatForm.user_library_service.httpclient.ProfileClient;
 import com.MusicPlatForm.user_library_service.mapper.Playlist.AlbumMapper;
 import com.MusicPlatForm.user_library_service.repository.AlbumRepository;
 import com.MusicPlatForm.user_library_service.repository.AlbumTrackRepository;
@@ -55,8 +57,8 @@ public class AlbumService  implements AlbumServiceInterface{
     AlbumMapper albumMapper;
     FileClient fileClient;
     MusicClient musicClient;
+    ProfileClient profileClient;
     KafkaService kafkaService;
-
     @Value("${app.services.file}")
     @NonFinal
     String fileServiceUrl;
@@ -140,6 +142,8 @@ public class AlbumService  implements AlbumServiceInterface{
         if (trackResponseList != null && !trackResponseList.getData().isEmpty()) {
             response.setTracks(trackResponseList.getData());
         }
+        ProfileWithCountFollowResponse user = profileClient.getUserProfile(userId).getData();
+        response.setUser(user);
         return response;
     }
 
@@ -148,6 +152,8 @@ public class AlbumService  implements AlbumServiceInterface{
         Album album = albumRepository.findById(albumId)
                 .orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_FOUND));
         AlbumResponse response = getFullAlbumResponse(album);
+        ProfileWithCountFollowResponse user = profileClient.getUserProfile(album.getUserId()).getData();
+        response.setUser(user);
         return response;
     }
 
@@ -156,6 +162,8 @@ public class AlbumService  implements AlbumServiceInterface{
         Album album = albumRepository.findByAlbumLink(albumLink)
                 .orElseThrow(() -> new AppException(ErrorCode.ALBUM_NOT_FOUND));
         AlbumResponse response = getFullAlbumResponse(album);
+        ProfileWithCountFollowResponse user = profileClient.getUserProfile(album.getUserId()).getData();
+        response.setUser(user);
         return response;
     }
 
@@ -175,9 +183,10 @@ public class AlbumService  implements AlbumServiceInterface{
             // If viewing own albums, get all (public + private)
             albums = albumRepository.findByUserId(userId);
         }
-
+        ProfileWithCountFollowResponse user = profileClient.getUserProfile(userId).getData();
         return albums.stream().map(album -> {
             AlbumResponse response = getFullAlbumResponse(album);
+            response.setUser(user);
             return response;
         }).toList();
     }
@@ -185,9 +194,15 @@ public class AlbumService  implements AlbumServiceInterface{
 
     public List<AlbumResponse> getByIds(List<String> ids) {
         List<Album> albums = this.albumRepository.findAllById(ids);
+        List<String> userIds = albums.stream().map(a->a.getUserId()).distinct().toList();
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+        Map<String,ProfileWithCountFollowResponse> idToUserMapping = new HashMap<>();
+        users.forEach(user->idToUserMapping.put(user.getUserId(),user));
 
         return albums.stream().map(album -> {
             AlbumResponse response = getFullAlbumResponse(album);
+            var user = idToUserMapping.get(album.getUserId());
+            response.setUser(user);
             return response;
         }).toList();
     }
@@ -255,7 +270,10 @@ public class AlbumService  implements AlbumServiceInterface{
 
         album = albumRepository.save(album);
         this.kafkaService.sendUpdatedAlbumToSearchService(album);
-        return getFullAlbumResponse(album);
+        ProfileWithCountFollowResponse user = profileClient.getUserProfile(album.getUserId()).getData();
+        var response =  getFullAlbumResponse(album);
+        response.setUser(user);
+        return response;
     }
 
     public void likeAlbum(String albumId) {
@@ -275,11 +293,17 @@ public class AlbumService  implements AlbumServiceInterface{
                 .map(LikedAlbum::getAlbum)
                 .toList();
 
+        List<String> userIds = albums.stream().map(a->a.getUserId()).distinct().toList();
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+        Map<String,ProfileWithCountFollowResponse> idToUserMapping = new HashMap<>();
+        users.forEach(user->idToUserMapping.put(user.getUserId(),user));
+
         List<AlbumResponse> albumResponses = new ArrayList<>();
 
         for (Album album : albums) {
             AlbumResponse response = getFullAlbumResponse(album);
-
+            var user = idToUserMapping.get(response.getUserId());
+            response.setUser(user);
             albumResponses.add(response);
         }
 
@@ -299,9 +323,15 @@ public class AlbumService  implements AlbumServiceInterface{
         List<Album> albums = albumRepository.findCreatedAndLikedAlbums(userId);
         List<AlbumResponse> albumResponses = new ArrayList<>();
 
+        List<String> userIds = albums.stream().map(a->a.getUserId()).distinct().toList();
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+        Map<String,ProfileWithCountFollowResponse> idToUserMapping = new HashMap<>();
+        users.forEach(user->idToUserMapping.put(user.getUserId(),user));
+
         for (Album album: albums) {
             AlbumResponse response = getFullAlbumResponse(album);
-
+            var user = idToUserMapping.get(album.getUserId());
+            response.setUser(user);
             albumResponses.add(response);
         }
         return albumResponses;

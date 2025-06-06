@@ -6,9 +6,7 @@ import com.MusicPlatForm.music_service.entity.Genre;
 import com.MusicPlatForm.music_service.exception.AppException;
 import com.MusicPlatForm.music_service.exception.ErrorCode;
 import com.MusicPlatForm.music_service.mapper.GenreMapper;
-import com.MusicPlatForm.music_service.mapper.TagMapper;
 import com.MusicPlatForm.music_service.repository.GenreRepository;
-import com.MusicPlatForm.music_service.repository.TagRepository;
 import com.MusicPlatForm.music_service.service.iface.GenreServiceInterface;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +25,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class GenreService implements GenreServiceInterface {
-    TagRepository tagRepository;
     GenreRepository genreRepository;
-    TagMapper tagMapper;
     GenreMapper genreMapper;
     @Override
     @PreAuthorize("hasRole('ADMIN')")

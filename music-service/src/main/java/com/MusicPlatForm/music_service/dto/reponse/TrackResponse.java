@@ -31,4 +31,5 @@ public class TrackResponse {
 
     List<TagResponse> tags;
     
+    ProfileWithCountFollowResponse user;
 }

@@ -1,6 +1,7 @@
 package com.MusicPlatForm.user_library_service.dto.response.album;
 
 import com.MusicPlatForm.user_library_service.dto.response.client.GenreResponse;
+import com.MusicPlatForm.user_library_service.dto.response.client.ProfileWithCountFollowResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TagResponse;
 import com.MusicPlatForm.user_library_service.dto.response.client.TrackResponse;
 import lombok.AllArgsConstructor;
@@ -30,5 +31,10 @@ public class AlbumResponse {
     LocalDateTime createdAt;
     List<TrackResponse> tracks;
     GenreResponse genre;
-    Boolean isLiked = false;
+    Boolean isLiked;
+    ProfileWithCountFollowResponse user;
+    public Boolean getIsLiked(){
+        if(isLiked==null) return false;
+        return isLiked;
+    }
 }

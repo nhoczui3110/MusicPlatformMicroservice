@@ -2,14 +2,12 @@ package com.devteria.profile.controller;
 
 import com.devteria.profile.dto.request.AddFollowRequest;
 import com.devteria.profile.dto.request.ApiResponse;
-import com.devteria.profile.dto.response.UserProfileResponse;
 import com.devteria.profile.service.FollowsService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

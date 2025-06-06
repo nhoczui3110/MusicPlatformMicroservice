@@ -51,7 +51,7 @@ public class PlaylistController {
     //Done
     @GetMapping("/{id}")
     public ApiResponse<PlaylistResponse> getPlaylistById(@PathVariable String id){
-        return this.playlistService.getPlaylistById(id);
+        return ApiResponse.<PlaylistResponse>builder().data(this.playlistService.getPlaylistById(id)).build();
     }
 
     @GetMapping("/bulk")

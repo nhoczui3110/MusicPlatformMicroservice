@@ -21,7 +21,7 @@ public interface PlaylistServiceInterface {
     public ApiResponse<List<PlaylistResponse>> getPlaylists(String option);
 
     //done
-    public ApiResponse<PlaylistResponse> getPlaylistById(String id);
+    public PlaylistResponse getPlaylistById(String id);
 
     //done
     @Transactional
