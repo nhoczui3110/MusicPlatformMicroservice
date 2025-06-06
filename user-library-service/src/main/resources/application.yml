@@ -6,7 +6,7 @@ spring:
   application:
     name: user-library-service
   datasource:
-    url: jdbc:sqlserver://localhost:1432;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
+    url: jdbc:sqlserver://localhost:1433;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
     username: sa
     password: YourStrong!Passw0rd
   jpa:
