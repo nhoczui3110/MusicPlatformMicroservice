@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=UserLibrary;encrypt=true;trustServerCertificate=true
     username: sa
-    password: YourStrong!Passw0rd
+    password: 123456789
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
