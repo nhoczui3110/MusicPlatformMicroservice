@@ -45,11 +45,3 @@ history:
   top-recentlyplayed:
     limit: 30
   size-of-list: 10
-
-eureka:
-  client:
-    service-url:
-      default-zone:
-        http://localhost:8761/eureka/
-  instance:
-    preferIpAddress: true

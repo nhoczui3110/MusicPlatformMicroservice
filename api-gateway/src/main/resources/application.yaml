@@ -2,7 +2,7 @@ server:
   port: 8888
 app:
   api-prefix: /api
-  identity-service: ${IDENTITY_SERVICE:http://identity-service:8080/identity}
+  identity-service: ${IDENTITY_SERVICE:http://localhost:8080/identity}
 spring:
   application:
     name: api-gateway
@@ -14,57 +14,57 @@ spring:
           lowerCaseServiceId: true
       routes:
         - id: identity-service
-          uri: http://identity-service:8080
+          uri: http://localhost:8080
           predicates:
             - Path=${app.api-prefix}/identity/**
           filters:
             - StripPrefix=1
         - id: profile
-          uri: http://profile-service:8081
+          uri: http://localhost:8081
           predicates:
             - Path=${app.api-prefix}/profile/**
           filters:
             - StripPrefix=1
         - id: music-service
-          uri: http://music-service:8082
+          uri: http:/localhost:8082
           predicates:
             - Path=${app.api-prefix}/music-service/**
           filters:
             - StripPrefix=1
 
         - id: file-service
-          uri:  http://file-service:8083
+          uri:  http://localhost:8083
           predicates:
             - Path=${app.api-prefix}/file-service/**
           filters:
             - StripPrefix=1
         - id: search-service
-          uri: http://search-service:8084
+          uri: http://localhost:8084
           predicates:
             - Path=${app.api-prefix}/search-service/**
           filters:
             - StripPrefix=1
         - id: user-library-service
-          uri: http://user-library-service:8085
+          uri: http://localhost:8085
           predicates:
             - Path=${app.api-prefix}/user-library/**
           filters:
             - StripPrefix=1
         - id: comment-service
-          uri: http://comment-service:8086
+          uri: http://localhost:8086
           predicates:
             - Path=${app.api-prefix}/comment-service/**
           filters:
             - StripPrefix=1
 
         - id: notification-service
-          uri: http://notification-service:8087
+          uri: http://localhost:8087
           predicates:
             - Path=${app.api-prefix}/notification-service/**
           filters:
             - StripPrefix=1
         - id: admin-service
-          uri: http://admin-service:8088
+          uri: http://localhost:8088
           predicates:
             - Path=${app.api-prefix}/admin-service/**
           filters:
