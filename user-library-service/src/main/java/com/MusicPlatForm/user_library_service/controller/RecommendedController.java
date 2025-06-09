@@ -61,4 +61,14 @@ public class RecommendedController {
     public ApiResponse<List<ProfileWithCountFollowResponse>> artirstYouShouldKnow(){
         return ApiResponse.<List<ProfileWithCountFollowResponse>> builder().data(this.recommendedService.getArtirstsShouldKnow()).build();
     }
+
+
+    // trending
+    // theo the loai
+    @GetMapping("/{genre_id}/trending/tracks")
+    public ApiResponse<List<TrackResponse>> trending(@PathVariable(name = "genre_id") String genreId){
+        return ApiResponse.<List<TrackResponse>> builder()
+                .data(this.recommendedService.getTrendingTracksByGenre(genreId))
+                .build();
+    }
 }

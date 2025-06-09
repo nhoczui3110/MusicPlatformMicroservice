@@ -15,4 +15,5 @@ public interface RecommendedServiceInterface {
     public Map<String,List<TrackResponse>> getGroupedTrackByGenres();
     public List<TrackResponse> getMoreOfWhatYouLike();
     public List<ProfileWithCountFollowResponse> getArtirstsShouldKnow();
+    public List<TrackResponse> getTrendingTracksByGenre(String genreId);
 }

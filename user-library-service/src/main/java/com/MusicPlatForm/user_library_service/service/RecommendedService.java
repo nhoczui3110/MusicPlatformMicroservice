@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -133,4 +135,12 @@ public class RecommendedService implements RecommendedServiceInterface{
         }
         return artirsts;
     }
+    @Override
+    public List<TrackResponse> getTrendingTracksByGenre(String genreId) {
+        var trackResponses= musicClient.getTracksByGenre(genreId, relatedTrackLimit).getData();
+        Set<String> likedTrackIds = likedTrackService.getLikedTrack().stream().map(l->l.getTrackId()).collect(Collectors.toSet());
+        trackResponses.forEach(t-> t.setIsLiked(likedTrackIds.contains(t.getId())));
+        return trackResponses;
+    }
+
 }
