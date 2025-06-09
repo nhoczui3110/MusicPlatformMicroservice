@@ -297,7 +297,7 @@ public class PlaylistService  implements PlaylistServiceInterface{
         tracksResponse.forEach(t->idToTrackResponse.put(t.getId(), t));
         tagsResponse.forEach(tag->idToTagResponse.put(tag.getId(), tag));
         genresResponse.forEach(genre->idToGenreResponse.put(genre.getId(),genre));
-        users.forEach(user->idToUserMapping.put(user.getId(), user));
+        users.forEach(user->idToUserMapping.put(user.getUserId(), user));
 
         List<PlaylistResponse> playlistResponses =  new ArrayList<>();// playlistMapper.toPlaylistResponses(createdPlaylists);
         for(var playlist: Stream.concat(createdPlaylists.stream(),likedPlaylists.stream()).collect(Collectors.toList())){
@@ -323,7 +323,6 @@ public class PlaylistService  implements PlaylistServiceInterface{
             playlistResponses.add(playlistResponse);
         }
 
-   
 
         playlistResponses.sort((e1,e2)-> e2.getCreatedAt().compareTo(e1.getCreatedAt()));
 
