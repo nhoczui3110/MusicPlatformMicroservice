@@ -15,21 +15,13 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CommentMapper {
-    // Comment toComment(CommentRequest commentRequest);
-    // @Mapping(source = "id", target = "id")
-    // CommentRespone toCommentResponse(Comment comment);
-
-    // List<CommentRespone> toCommentResponseList(List<Comment> comments);
 
     @Mapping(source = "trackId", target = "trackId")
     @Mapping(source = "content", target = "content")
     Comment toComment(CommentRequest commentRequest);
-    
-    
+        
     @Mapping(source = "content", target = "content")
     Comment toRepliedComment(RepliedCommentRequest repliedCommentRequest);
-
-
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "trackId", target = "trackId")

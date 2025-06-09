@@ -19,10 +19,10 @@ public class FollowsController {
     FollowsService followsService;
 
     @GetMapping("/get-followers/{userId}")
-    public ApiResponse<Page<UserProfileResponse>> getFollowers(@RequestParam(defaultValue = "0") int page,
+    public ApiResponse<Page<ProfileWithCountFollowResponse>> getFollowers(@RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size,
                                                                @PathVariable("userId") String userId) {
-        return ApiResponse.<Page<UserProfileResponse>>builder().data(followsService.getFollowers(page, size, userId)).build();
+        return ApiResponse.<Page<ProfileWithCountFollowResponse>>builder().data(followsService.getFollowers(page, size, userId)).build();
     }
 
     @GetMapping("/get-followings/{userId}")

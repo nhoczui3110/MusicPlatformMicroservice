@@ -19,5 +19,8 @@ public interface PlaylistRepository extends JpaRepository<Playlist,String>{
 
     @Query("FROM Playlist WHERE userId=:userId AND privacy='public'")
     public List<Playlist> getPublicPlaylistsByUserId(String userId);
-
+    
+    
+    @Query("FROM Playlist WHERE genreId=:genreId AND privacy='public'")
+    public List<Playlist> getPlaylistByGenreId(String genreId);
 }

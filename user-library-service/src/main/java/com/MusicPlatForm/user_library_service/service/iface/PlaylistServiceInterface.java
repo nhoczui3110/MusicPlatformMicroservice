@@ -20,6 +20,8 @@ public interface PlaylistServiceInterface {
 
     public ApiResponse<List<PlaylistResponse>> getPlaylists(String option);
 
+    public List<PlaylistResponse> getPlaylistsByGenre(String genreId);
+
     //done
     public PlaylistResponse getPlaylistById(String id);
 

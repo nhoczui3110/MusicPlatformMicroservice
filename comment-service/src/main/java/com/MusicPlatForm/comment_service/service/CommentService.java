@@ -16,6 +16,8 @@ public interface CommentService {
 
     public int getCommentLikeCount(String commentId);
 
+    public int getCommentCountByTrackId(String trackId);
+
     public List<CommentResponse> getCommentsByTrackId(String trackId) ;
 
     public void likeComment(String commentId) ;

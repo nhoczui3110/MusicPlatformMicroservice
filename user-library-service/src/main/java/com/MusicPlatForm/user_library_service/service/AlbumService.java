@@ -352,4 +352,21 @@ public class AlbumService  implements AlbumServiceInterface{
     public List<String> getUserIdsLikedAlbum(String albumId){
         return likedAlbumRepository.findByAlbumId(albumId).stream().map(l->l.getUserId()).distinct().toList();
     }
+
+
+    @Override
+    public List<AlbumResponse> getAlbumByGenre(String genreId) {
+        List<Album> albums = this.albumRepository.findAlbumByGenreId(genreId);
+        List<String> userIds = albums.stream().map(a->a.getUserId()).distinct().toList();
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+        Map<String,ProfileWithCountFollowResponse> idToUserMapping = new HashMap<>();
+        users.forEach(user->idToUserMapping.put(user.getUserId(),user));
+
+        return albums.stream().map(album -> {
+            AlbumResponse response = getFullAlbumResponse(album);
+            var user = idToUserMapping.get(album.getUserId());
+            response.setUser(user);
+            return response;
+        }).toList();
+    }
 }

@@ -1,15 +1,16 @@
-package com.devteria.profile.dto.response;
+package com.MusicPlatForm.comment_service.dto.client;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class ProfileWithCountFollowResponse {
+public class UserProfileResponse {
     String id;
     String firstName;
     String lastName;
@@ -20,10 +21,4 @@ public class ProfileWithCountFollowResponse {
     String cover;
     String avatar;
     String userId;
-    int followerCount;
-    int followingCount;
-    boolean isFollowing;
-    public boolean isFollowing(){
-        return this.isFollowing;
-    }
 }

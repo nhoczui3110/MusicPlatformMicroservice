@@ -13,7 +13,9 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment,String> {
     List<Comment> findByUserId(String userId);
 
-    @Query("FROM Comment c WHERE c.trackId = :trackId AND c.repliedUserId is null")
+    public int countByTrackId(String trackId);
+
+    @Query("FROM Comment c WHERE c.trackId = :trackId AND c.repliedUserId is null ORDER BY c.commentAt DESC")
     List<Comment> findByTrackId(String trackId);
 
     @Query("FROM Comment c WHERE c.trackId IN :trackIds AND c.commentAt BETWEEN :fromDate AND :toDate")

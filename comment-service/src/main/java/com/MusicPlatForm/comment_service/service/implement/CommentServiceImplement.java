@@ -1,7 +1,9 @@
 package com.MusicPlatForm.comment_service.service.implement;
 
 import com.MusicPlatForm.comment_service.client.MusicClient;
+import com.MusicPlatForm.comment_service.client.ProfileClient;
 import com.MusicPlatForm.comment_service.dto.client.TrackResponse;
+import com.MusicPlatForm.comment_service.dto.client.UserProfileResponse;
 import com.MusicPlatForm.comment_service.dto.kafka.NotificationRequest;
 import com.MusicPlatForm.comment_service.dto.request.CommentRequest;
 import com.MusicPlatForm.comment_service.dto.request.RepliedCommentRequest;
@@ -29,7 +31,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +46,7 @@ public class CommentServiceImplement implements CommentService{
     CommentMapper  commentMapper;
     KafkaTemplate<String,Object> kafkaTemplate;
     MusicClient musicClient;
+    ProfileClient profileClient;
     private void sendNotification(Comment comment){
         String trackId = comment.getTrackId();
         TrackResponse track = musicClient.getTrackById(trackId).getData();
@@ -99,22 +106,39 @@ public class CommentServiceImplement implements CommentService{
         return likedCommentRepository.countByCommentId(commentId);
     }
 
+    
     public List<CommentResponse> getCommentsByTrackId(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         List<Comment> comments = commentRepository.findByTrackId(trackId);
         List<CommentResponse> responseList = new ArrayList<>();
+
+        Map<String,UserProfileResponse> idToUser = new HashMap<>();
+        Set<String> userIds = new HashSet<>();
+        for(Comment comment: comments){
+            userIds.add(comment.getUserId());
+            for(Comment repliedComment: comment.getReplies()){
+                userIds.add(repliedComment.getUserId());
+            }
+        }
+        List<UserProfileResponse> users = profileClient.getBasicUserInfoByIds(new ArrayList<>(userIds)).getData();
+        users.forEach(u->idToUser.put(u.getUserId(), u));
+
         for (Comment parent : comments) {
             CommentResponse parentDto = commentMapper.toCommentResponse(parent);
             List<CommentResponse> replys = new ArrayList<>();
             List<Comment> replies = parent.getReplies();
             parentDto.setIsLiked(false);
+            UserProfileResponse user =idToUser.get(parent.getUserId());
+            parentDto.setUser(user);
             if(this.likedCommentRepository.countByCommentIdAndUserId(parent.getId(), userId)==1){
                 parentDto.setIsLiked(true);
             }
             if (replies != null) {
                 for (Comment reply : replies) {
                     CommentResponse commentResponse = commentMapper.toCommentResponse(reply);
+                    UserProfileResponse userRepliedComment = idToUser.get(reply.getUserId());
+                    commentResponse.setUser(userRepliedComment);
                     commentResponse.setIsLiked(false);
                     if(this.likedCommentRepository.countByCommentIdAndUserId(reply.getId(), userId)==1){
                         commentResponse.setIsLiked(true);
@@ -221,5 +245,9 @@ public class CommentServiceImplement implements CommentService{
     public List<CommentResponse> getComments(LocalDate fromDate, LocalDate toDate, List<String> trackIds){
         List<Comment> comments = this.commentRepository.findCommentsFromDateToDateByTrackIds(fromDate.atStartOfDay(), toDate.atTime(LocalTime.MAX), trackIds);
         return commentMapper.toCommentResponseList(comments);
+    }
+    @Override
+    public int getCommentCountByTrackId(String trackId) {
+        return this.commentRepository.countByTrackId(trackId);
     }
 }

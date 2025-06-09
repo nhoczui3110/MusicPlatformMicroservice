@@ -107,4 +107,14 @@ public class PlaylistController {
                 .data("Delete successfully")
                 .build();
     }
+
+    // cho tim kiem
+    @GetMapping("/{genre_id}/bulk")
+    public ApiResponse<List<PlaylistResponse>> getPlaylistsByGenre(@PathVariable(name = "genre_id") String genreId){
+       
+        return ApiResponse.<List<PlaylistResponse>> builder()
+                .data(playlistService.getPlaylistsByGenre(genreId))
+                .build();
+        
+    }
 }

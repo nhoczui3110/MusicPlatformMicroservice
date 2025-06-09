@@ -25,6 +25,13 @@ import java.util.List;
 public class CommentRestController {
     CommentService commentService;
 
+    @GetMapping("/count")
+    public ApiResponse<Integer> getCommentCountByTrackId(@RequestParam("track_id") String trackId){
+        return ApiResponse.<Integer>builder()
+            .data(commentService.getCommentCountByTrackId(trackId))
+            .build();
+    }
+
     @Deprecated
     @PostMapping("/add")
     public ApiResponse<CommentResponse> addComment(@RequestBody @Valid CommentRequest request) {

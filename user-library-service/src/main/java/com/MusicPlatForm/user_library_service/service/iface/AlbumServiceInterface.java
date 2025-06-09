@@ -47,4 +47,6 @@ public interface AlbumServiceInterface {
     public Integer getLikedCount(String albumId);
 
     public List<String> getUserIdsLikedAlbum(String albumId);
+
+    public List<AlbumResponse> getAlbumByGenre(String genreId);
 }

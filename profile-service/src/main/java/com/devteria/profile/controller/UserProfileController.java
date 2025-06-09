@@ -30,6 +30,13 @@ public class UserProfileController {
                 .data(response)
                 .build();
     }
+    @GetMapping("/basic-info")
+    public ApiResponse<List<UserProfileResponse>> getBasicUserInfoByIds(@RequestParam List<String> userIds){
+         List<UserProfileResponse> response = userProfileService.getBasicUserInfoByIds(userIds);
+        return ApiResponse.<List<UserProfileResponse>>builder()
+                .data(response)
+                .build();
+    }
 
     @GetMapping("/email/{email}")
     ApiResponse<UserProfileResponse> getUserProfileByEmail(@PathVariable("email") String email) {

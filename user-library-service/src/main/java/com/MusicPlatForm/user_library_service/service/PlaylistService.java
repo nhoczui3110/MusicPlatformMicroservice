@@ -442,4 +442,68 @@ public class PlaylistService  implements PlaylistServiceInterface{
         this.playlistRepository.delete(playlist);
         this.kafkaService.deletePlaylistFromSearchService(playlist.getId());
     }
+
+    @Override
+    public List<PlaylistResponse> getPlaylistsByGenre(String genreId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggingUserId = (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
+                ? null : authentication.getName();
+
+        List<String> trackIds = new ArrayList<>();
+        List<String> tagIds = new ArrayList<>();
+        List<String> genreIds = new ArrayList<>();
+        Map<String, TrackResponse> idToTrackResponse = new HashMap<>();
+        Map<String, TagResponse> idToTagResponse = new HashMap<>();
+        Map<String, GenreResponse> idToGenreResponse = new HashMap<>();
+        Map<String,ProfileWithCountFollowResponse> idToUserMapping = new HashMap<>();
+
+        List<Playlist> playlists =  playlistRepository.getPlaylistByGenreId(genreId);
+
+        List<String> likedPlaylistIds = (loggingUserId == null) ? null
+                : likedPlaylistRepository.findAllByUserId(loggingUserId).stream()
+                        .map(likedPlaylist -> likedPlaylist.getPlaylist().getId()).toList();
+
+        List<String> likedTrackIds = (loggingUserId == null) ? null
+                : likedTrackRepository.findAllByUserId(loggingUserId).stream()
+                        .map(track -> track.getTrackId()).toList();
+
+        playlists.forEach(pl -> {
+            pl.getPlaylistTracks().forEach(tr -> {
+                if (!trackIds.contains(tr.getTrackId())) trackIds.add(tr.getTrackId());
+            });
+            pl.getPlaylistTags().forEach(tg -> {
+                if (!tagIds.contains(tg.getTagId())) tagIds.add(tg.getTagId());
+            });
+            if (!genreIds.contains(pl.getGenreId())) genreIds.add(pl.getGenreId());
+        });
+
+        List<String> userIds = playlists.stream().map(p->p.getUserId()).distinct().toList();
+
+        List<ProfileWithCountFollowResponse> users = profileClient.getUserProfileByIds(userIds).getData();
+        users.forEach(user->idToUserMapping.put(user.getUserId(),user));
+
+        musicClient.getTrackByIds(trackIds).getData().forEach(track -> idToTrackResponse.putIfAbsent(track.getId(), track));
+        musicClient.getTagsByIds(tagIds).getData().forEach(tag -> idToTagResponse.putIfAbsent(tag.getId(), tag));
+        musicClient.getGenresByIds(tagIds).getData().forEach(genre -> idToGenreResponse.putIfAbsent(genre.getId(), genre));
+
+        List<PlaylistResponse> playlistResponses = playlists.stream().map(playlist -> {
+            PlaylistResponse playlistResponse = playlistMapper.toPlaylistResponse(playlist);
+            playlistResponse.setUser(idToUserMapping.get(playlist.getUserId()));
+            playlistResponse.setIsLiked(likedPlaylistIds != null && likedPlaylistIds.contains(playlist.getId()));
+            playlistResponse.setPlaylistTags(playlist.getPlaylistTags().stream()
+                    .map(tag -> idToTagResponse.get(tag.getTagId())).collect(Collectors.toList()));
+            playlistResponse.setPlaylistTracks(playlist.getPlaylistTracks().stream().map(track -> {
+                TrackResponse trackResponse = idToTrackResponse.get(track.getTrackId());
+                if (likedTrackIds != null && likedTrackIds.contains(track.getTrackId())) {
+                    trackResponse.setIsLiked(true);
+                }
+                return trackResponse;
+            }).collect(Collectors.toList()));
+            if (playlist.getGenreId() != null) {
+                playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
+            }
+            return playlistResponse;
+        }).collect(Collectors.toList());
+        return playlistResponses;
+    }
 }

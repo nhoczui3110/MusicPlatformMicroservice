@@ -21,4 +21,7 @@ public interface AlbumRepository extends JpaRepository<Album, String> {
     """)
     List<Album> findCreatedAndLikedAlbums(String userId);
     Optional<Album> findByAlbumLink(String albumLink);
+
+    @Query("From Album where genreId=:genreId and privacy='public'")
+    List<Album> findAlbumByGenreId(String genreId);
 }

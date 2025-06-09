@@ -83,6 +83,10 @@ public class UserProfileService {
         }
         return userProfileResponses;
     }
+    public List<UserProfileResponse> getBasicUserInfoByIds(List<String> ids){
+        List<UserProfile> userProfiles = userProfileRepository.findAllByUserIdIn(ids);
+        return userProfileMapper.toUserProfileResponses(userProfiles);
+    }
     
     public ProfileWithCountFollowResponse get(String userId) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)

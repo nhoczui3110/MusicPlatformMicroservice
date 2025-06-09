@@ -56,7 +56,7 @@ public class FollowsService {
 
         followsRepository.save(follows);
     }
-    public Page<UserProfileResponse> getFollowers(int page, int size, String userId) {
+    public Page<ProfileWithCountFollowResponse> getFollowers(int page, int size, String userId) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
         Pageable pageable = PageRequest.of(page, size, Sort.by("followedAt").descending());
@@ -64,7 +64,15 @@ public class FollowsService {
         Page<Follows> followers = followsRepository.findByFollowingId(pageable, userProfile.getId());
         Page<UserProfile> userProfileList = followers
                 .map(Follows::getFollower);
-        return userProfileList.map(userProfileMapper::toUserProfileResponse);
+        return userProfileList.map(profile -> {
+            ProfileWithCountFollowResponse response = userProfileMapper.toProfileWithCountFollowResponse(profile);
+            int followingCount = followsRepository.countByFollowing_UserId(userId);
+            int followerCount = followsRepository.countByFollower_UserId(userId);
+            response.setFollowingCount(followingCount);
+            response.setFollowerCount(followerCount);
+            response.setFollowing(isFollowing(userId, response.getUserId()));
+            return response;
+        });
     }
     public Page<ProfileWithCountFollowResponse> getFollowing(int page, int size, String userId) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
@@ -79,6 +87,7 @@ public class FollowsService {
             int followerCount = followsRepository.countByFollower_UserId(userId);
             response.setFollowingCount(followingCount);
             response.setFollowerCount(followerCount);
+            response.setFollowing(true);
             return response;
         });
     }

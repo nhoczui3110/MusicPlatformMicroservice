@@ -30,7 +30,7 @@ import lombok.experimental.FieldDefaults;
 public class HistoryController {
     HistorySerivceInterface historySerivce;
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<?>> getHistory(){
+    public ResponseEntity<ApiResponse<List<TrackResponse>>> getHistory(){
         var a = historySerivce.getHistory();
         return ResponseEntity
         .ok()

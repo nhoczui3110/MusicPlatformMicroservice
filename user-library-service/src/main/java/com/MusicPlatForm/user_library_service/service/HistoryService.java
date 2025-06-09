@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,8 @@ public class HistoryService implements HistorySerivceInterface {
     HistoryMapper historyMapper;
     LikedTrackRepository likedTrackRepository;
     MusicClient musicClient;
+
+    @PreAuthorize("isAuthenticated()")
     @Override
     public List<TrackResponse> getHistory() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -66,6 +69,7 @@ public class HistoryService implements HistorySerivceInterface {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     @Transactional
     public HistoryResponse addHistory(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -104,12 +108,16 @@ public class HistoryService implements HistorySerivceInterface {
         return historyMapper.toHistoryResponse(savedHistory);
     }
     @Override
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
     public void clearAllHistory() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         this.historyRepository.deleteAllByUserId(userId);
     }
     @Override
+    @PreAuthorize("isAuthenticated()")
+    @Transactional
     public void deleteHistoryById(String trackId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
