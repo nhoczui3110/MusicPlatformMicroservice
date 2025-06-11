@@ -31,44 +31,69 @@ public class KafkaService {
         this.kafkaTemplate.send("add_album_to_search",albumKafkaRequest);
     }
     public void sendPlaylistToSearchService(Playlist playlist){
-        PlaylistKafkaRequest playlistKafkaRequest = new PlaylistKafkaRequest();
-        playlistKafkaRequest.setPlaylistId(playlist.getId());
-        playlistKafkaRequest.setDescription(playlist.getDescription());
-        playlistKafkaRequest.setTitle(playlist.getTitle());
-        this.kafkaTemplate.send("add_playlist_to_search",playlistKafkaRequest);
+        try {
+            PlaylistKafkaRequest playlistKafkaRequest = new PlaylistKafkaRequest();
+            playlistKafkaRequest.setPlaylistId(playlist.getId());
+            playlistKafkaRequest.setDescription(playlist.getDescription());
+            playlistKafkaRequest.setTitle(playlist.getTitle());
+            this.kafkaTemplate.send("add_playlist_to_search",playlistKafkaRequest);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     public void deletePlaylistFromSearchService(String playlistId){
-        this.kafkaTemplate.send("delete_playlist_from_search",playlistId);
+        try {
+            this.kafkaTemplate.send("delete_playlist_from_search",playlistId);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
     public void deleteAlbumFromSearchService(String albumId){
-        this.kafkaTemplate.send("delete_album_from_search",albumId);
+        try {
+            this.kafkaTemplate.send("delete_album_from_search",albumId);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     public void sendUpdatedAlbumToSearchService(Album album){
-        AlbumKafkaRequest albumKafkaRequest = new AlbumKafkaRequest();
-        albumKafkaRequest.setAlbumId(album.getId());
-        albumKafkaRequest.setDescription(album.getDescription());
-        albumKafkaRequest.setTitle(album.getAlbumTitle());
-        this.kafkaTemplate.send("update_album_to_search",albumKafkaRequest);
+        try {
+            AlbumKafkaRequest albumKafkaRequest = new AlbumKafkaRequest();
+            albumKafkaRequest.setAlbumId(album.getId());
+            albumKafkaRequest.setDescription(album.getDescription());
+            albumKafkaRequest.setTitle(album.getAlbumTitle());
+            this.kafkaTemplate.send("update_album_to_search",albumKafkaRequest);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
     public void sendUpdatedPlaylistToSearchService(Playlist playlist){
-        PlaylistKafkaRequest playlistKafkaRequest = new PlaylistKafkaRequest();
-        playlistKafkaRequest.setPlaylistId(playlist.getId());
-        playlistKafkaRequest.setDescription(playlist.getDescription());
-        playlistKafkaRequest.setTitle(playlist.getTitle());
-        this.kafkaTemplate.send("update_playlist_to_search",playlistKafkaRequest);
+        try {
+            PlaylistKafkaRequest playlistKafkaRequest = new PlaylistKafkaRequest();
+            playlistKafkaRequest.setPlaylistId(playlist.getId());
+            playlistKafkaRequest.setDescription(playlist.getDescription());
+            playlistKafkaRequest.setTitle(playlist.getTitle());
+            this.kafkaTemplate.send("update_playlist_to_search",playlistKafkaRequest);
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     public void sendNotificationForLikedTrack(TrackResponse track, LikedTrack likedTrack){
-        if(likedTrack.getUserId().equals(track.getUserId()))return;
-        NotificationRequest notification = NotificationRequest
-                                            .builder()
-                                            .trackId(track.getId())
-                                            .recipientId(track.getUserId())
-                                            .senderId(likedTrack.getUserId())
-                                            .message("like your track \"" + track.getTitle()+"\"")
-                                            .build();
-        this.kafkaTemplate.send("like",notification);
+        try {
+            if(likedTrack.getUserId().equals(track.getUserId()))return;
+            NotificationRequest notification = NotificationRequest
+                                                .builder()
+                                                .trackId(track.getId())
+                                                .recipientId(track.getUserId())
+                                                .senderId(likedTrack.getUserId())
+                                                .message("like your track \"" + track.getTitle()+"\"")
+                                                .build();
+            this.kafkaTemplate.send("like",notification);
+    
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 }

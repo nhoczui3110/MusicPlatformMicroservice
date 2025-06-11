@@ -48,8 +48,10 @@ public class UserServiceImplement implements UserService {
         }
 
         User newUser = userMapper.toUser(request);
-        HashSet<Role> roles = new HashSet<>(roleRepository.findAllById(request.getRoles()));
-        newUser.setRoles(roles);
+        if(request.getRoles()!=null){
+            HashSet<Role> roles = new HashSet<>(roleRepository.findAllById(request.getRoles()));
+            newUser.setRoles(roles);
+        }
         if (newUser.getPassword() != null) {
             newUser.setPassword(passwordEncoder.encode((newUser.getPassword())));
         }

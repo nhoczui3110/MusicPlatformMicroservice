@@ -56,7 +56,6 @@ public class PlaylistService  implements PlaylistServiceInterface{
     private final ProfileClient profileClient;
     private final LikedPlaylistRepository likedPlaylistRepository;
     private final KafkaService kafkaService;
-
     private PlaylistResponse convertFromPlaylistToPlaylistResponse(Playlist playlist){
         List<String> trackIds = new ArrayList<>();
         List<String> tagIds = new ArrayList<>();
@@ -94,7 +93,7 @@ public class PlaylistService  implements PlaylistServiceInterface{
             });
         }
         playlistResponse.setPlaylistTracks(tracksResponse.getData());
-        if(playlistResponse.getImagePath()==null){
+        if(playlistResponse.getImagePath()==null&&playlistResponse.getPlaylistTracks()!=null&&playlistResponse.getPlaylistTracks().size()>0){
             playlistResponse.setImagePath(playlistResponse.getPlaylistTracks().get(0).getCoverImageName());
         }
         return playlistResponse;
@@ -148,7 +147,10 @@ public class PlaylistService  implements PlaylistServiceInterface{
             playlistResponse.setIsLiked(likedPlaylistIds != null && likedPlaylistIds.contains(playlist.getId()));
             playlistResponse.setPlaylistTags(playlist.getPlaylistTags().stream()
                     .map(tag -> idToTagResponse.get(tag.getTagId())).collect(Collectors.toList()));
-            playlistResponse.setPlaylistTracks(playlist.getPlaylistTracks().stream().map(track -> {
+            playlistResponse.setPlaylistTracks(playlist.getPlaylistTracks()
+            .stream()
+            .filter(track -> idToTrackResponse.get(track.getTrackId()) != null)
+            .map(track -> {
                 TrackResponse trackResponse = idToTrackResponse.get(track.getTrackId());
                 if (likedTrackIds != null && likedTrackIds.contains(track.getTrackId())) {
                     trackResponse.setIsLiked(true);
@@ -216,13 +218,16 @@ public class PlaylistService  implements PlaylistServiceInterface{
             playlistResponse.setIsLiked(likedPlaylistIds != null && likedPlaylistIds.contains(playlist.getId()));
             playlistResponse.setPlaylistTags(playlist.getPlaylistTags().stream()
                     .map(tag -> idToTagResponse.get(tag.getTagId())).collect(Collectors.toList()));
-            playlistResponse.setPlaylistTracks(playlist.getPlaylistTracks().stream().map(track -> {
-                TrackResponse trackResponse = idToTrackResponse.get(track.getTrackId());
-                if (likedTrackIds != null && likedTrackIds.contains(track.getTrackId())) {
-                    trackResponse.setIsLiked(true);
-                }
-                return trackResponse;
-            }).collect(Collectors.toList()));
+            playlistResponse.setPlaylistTracks(playlist.getPlaylistTracks()
+                .stream()
+                .filter(track -> idToTrackResponse.get(track.getTrackId()) != null)
+                .map(track -> {
+                    TrackResponse trackResponse = idToTrackResponse.get(track.getTrackId());
+                    if (likedTrackIds != null && likedTrackIds.contains(track.getTrackId())) {
+                        trackResponse.setIsLiked(true);
+                    }
+                    return trackResponse;
+                }).collect(Collectors.toList()));
             if (playlist.getGenreId() != null) {
                 playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
             }
@@ -308,7 +313,10 @@ public class PlaylistService  implements PlaylistServiceInterface{
                 playlistResponse.getPlaylistTags().add(idToTagResponse.get(tag.getTagId()));
             }
             for(var track: playlist.getPlaylistTracks()){
-                playlistResponse.getPlaylistTracks().add(idToTrackResponse.get(track.getTrackId()));
+                var t = idToTrackResponse.get(track.getTrackId());
+                if(t==null)    continue;
+                
+                playlistResponse.getPlaylistTracks().add(t);
             }
             if(playlist.getGenreId()!=null){
                 playlistResponse.setGenre(idToGenreResponse.get(playlist.getGenreId()));
@@ -354,15 +362,19 @@ public class PlaylistService  implements PlaylistServiceInterface{
         if(userId==null){
             throw new AppException(ErrorCode.PROFILE_NOT_FOUND);
         }
+
         Playlist playlist = playlistMapper.toPlaylist(request);
-        
-        List<PlaylistTrack>playlistTracks = playlistTrackMapper.toPlaylistTracksFromTrackIds(request.getTrackIds());
-        AtomicInteger index = new AtomicInteger(0);
-        playlistTracks.forEach(track->{
-            track.setPlaylist(playlist);
-            track.setAddedAt(LocalDateTime.now().plusNanos(index.getAndIncrement() * 1000));
-        });
-        playlist.setPlaylistTracks(playlistTracks);
+        if(request.getTrackIds()!=null&&request.getTrackIds().size()>0){
+            List<PlaylistTrack>playlistTracks = playlistTrackMapper.toPlaylistTracksFromTrackIds(request.getTrackIds());
+            AtomicInteger index = new AtomicInteger(0);
+            playlistTracks.forEach(track->{
+                track.setPlaylist(playlist);
+                track.setAddedAt(LocalDateTime.now().plusNanos(index.getAndIncrement() * 1000));
+            });
+            playlist.setPlaylistTracks(playlistTracks);
+            
+        }
+
         playlist.setUserId(userId);
         Playlist savedPlaylist = playlistRepository.save(playlist);
         PlaylistResponse playlistResponse = convertFromPlaylistToPlaylistResponse(savedPlaylist);

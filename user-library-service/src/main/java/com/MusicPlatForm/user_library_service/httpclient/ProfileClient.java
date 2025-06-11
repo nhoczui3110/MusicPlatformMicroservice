@@ -16,6 +16,6 @@ public interface ProfileClient {
   public ApiResponse<List<ProfileWithCountFollowResponse>> getUserProfileByIds(@RequestParam List<String> userIds);
   @GetMapping("/users/top-followed")
   public ApiResponse<List<ProfileWithCountFollowResponse>> getTopFollowedUser(@RequestParam(name = "limit",defaultValue = "10") int limit );
-  @GetMapping("/{userId}")
+  @GetMapping("/users/{userId}")
   ApiResponse<ProfileWithCountFollowResponse> getUserProfile(@PathVariable("userId") String userId);
 }
