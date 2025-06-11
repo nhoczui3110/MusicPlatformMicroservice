@@ -26,7 +26,7 @@ import java.util.Map;
 @Slf4j
 public class AuthenticateController {
     AuthenticateService authenticateService;
-//    ClientRegistrationRepository clientRegistrationRepository;
+
     @PostMapping("/login")
     ApiResponse<AuthenticatedResponse> login(@RequestBody @Valid AuthenticatedRequest request) {
         AuthenticatedResponse result = authenticateService.authenticate(request);
@@ -57,10 +57,7 @@ public class AuthenticateController {
         return user.getAttributes();
     }
 
-//    @GetMapping("/google-url")
-//    public ApiResponse<UrlLoginGoogleResponse> getGoogleLoginUrl() {
-//        return ApiResponse.<UrlLoginGoogleResponse>builder().data(authenticateService.getUrlGoogle()).build();
-//    }
+
 
     @GetMapping("/check-username/{username}")
     ApiResponse<CheckUsernameResponse> isUsernameExisted(@PathVariable("username") String username) {

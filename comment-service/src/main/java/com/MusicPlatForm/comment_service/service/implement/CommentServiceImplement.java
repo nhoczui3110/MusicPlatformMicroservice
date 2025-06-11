@@ -157,7 +157,9 @@ public class CommentServiceImplement implements CommentService{
         String userId = authentication.getName();
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
-        LikedComment likedComment = LikedComment.builder()
+        LikedComment likedComment = likedCommentRepository.findByCommentIdAndUserId(commentId, userId);
+        if(likedComment!=null) return;
+        likedComment = LikedComment.builder()
                 .userId(userId)
                 .likeAt(LocalDateTime.now())
                 .comment(comment)
@@ -174,7 +176,8 @@ public class CommentServiceImplement implements CommentService{
         LikedComment likedComments = likedCommentRepository.findByCommentIdAndUserId(commentId, userId);
 
         if (likedComments == null) {
-            throw new AppException(ErrorCode.LIKE_NOT_FOUND);
+            // throw new AppException(ErrorCode.ALREADY_UNLIKE);
+            return;
         }
 
         likedCommentRepository.delete(likedComments);
@@ -209,7 +212,7 @@ public class CommentServiceImplement implements CommentService{
     // xóa
     public CommentResponse replyToComment(String commentId, CommentRequest request) {
         Comment parentComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new AppException(ErrorCode.PARENT_COMMENT_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENT_NOT_FOUND));
         Comment replyComment = commentMapper.toComment(request);
         replyComment.setCommentAt(LocalDateTime.now());
         replyComment.setLikeCount(0);

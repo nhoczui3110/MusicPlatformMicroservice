@@ -37,14 +37,14 @@ public class PlaylistTrackService {
     @PreAuthorize("isAuthenticated()")
     public void deleteTrackFromPlaylist(AddPlaylistTrackRequest trackRequest){
         PlaylistTrack playlistTrack = this.playlistTrackRepository.findByTrackIdAndPlaylistId(trackRequest.getTrackId(), trackRequest.getPlaylistId());
-        if(playlistTrack ==null) throw new AppException(ErrorCode.NOT_FOUND);
+        if(playlistTrack ==null) throw new AppException(ErrorCode.TRACK_IN_PLAYLIST_NOT_FOUND);
         this.playlistTrackRepository.delete(playlistTrack);
     }
     @PreAuthorize("isAuthenticated()")
     public PlaylistTrackResponse addTrackToPlaylist(AddPlaylistTrackRequest trackRequest){
         PlaylistTrack playlistTrack = playlistTrackMapper.toPlaylistTrack(trackRequest);
         Playlist playlist = playlistRepository.findById(trackRequest.getPlaylistId())
-                .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(()->new AppException(ErrorCode.PLAYLIST_NOT_FOUND));
         playlistTrack.setPlaylist(playlist);
         playlistTrack.setAddedAt(LocalDateTime.now());
 

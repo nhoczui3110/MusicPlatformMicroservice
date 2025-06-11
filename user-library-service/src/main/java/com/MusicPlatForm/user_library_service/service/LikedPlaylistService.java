@@ -48,9 +48,12 @@ public class LikedPlaylistService {
     public Boolean likePlaylist(String playlistId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
-        LikedPlaylist likedPlaylist = new LikedPlaylist();
+        LikedPlaylist likedPlaylist =
+        this.likedPlaylistRepository.findByUserIdAndPlaylistId(userId, playlistId);
+        if(likedPlaylist!=null) throw new AppException(ErrorCode.ALREADY_LIKED);
         Playlist playlist = this.playlistRepository.findById(playlistId).orElseThrow(()->new AppException(ErrorCode.PLAYLIST_NOT_FOUND));
         if(playlist.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
+        likedPlaylist =new LikedPlaylist();
         likedPlaylist.setPlaylist(playlist);
         likedPlaylist.setUserId(userId);
         this.likedPlaylistRepository.save(likedPlaylist);
@@ -60,7 +63,7 @@ public class LikedPlaylistService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
         LikedPlaylist likedPlaylist = this.likedPlaylistRepository.findByUserIdAndPlaylistId(userId, playlistId);
-        if(likedPlaylist == null) throw new AppException(ErrorCode.NOT_FOUND);
+        if(likedPlaylist == null) throw new AppException(ErrorCode.ALREADY_UNLIKED);
         if(likedPlaylist.getPlaylist().getUserId().equals(userId))throw new AppException(ErrorCode.UNAUTHORIZED);
         this.likedPlaylistRepository.delete(likedPlaylist);
         return true;

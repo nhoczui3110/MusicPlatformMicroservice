@@ -75,12 +75,9 @@ public class LikedTrackService implements LikeTrackServiceInterface {
         TrackResponse track = musicClient.getTrackById(trackId).getData();
 
         if (track == null) {
-            throw new AppException(ErrorCode.TRACK_N0T_FOUND);
+            throw new AppException(ErrorCode.TRACK_NOT_FOUND);
         }
-        // if (track.getUserId().equals(userId)) {
-        //     throw new AppException(ErrorCode.UNAUTHORIZED);
-        // }
-
+ 
         if (likedTrackRepository.findByUserIdAndTrackId(userId, trackId) != null) {
             throw new AppException(ErrorCode.ALREADY_LIKED);
         }
@@ -98,7 +95,7 @@ public class LikedTrackService implements LikeTrackServiceInterface {
         String userId = authentication.getName();
 
         LikedTrack likedTrack = likedTrackRepository.findByUserIdAndTrackId(userId,track_id);
-        if(likedTrack==null) throw new AppException(ErrorCode.NOT_FOUND);
+        if(likedTrack==null) throw new AppException(ErrorCode.ALREADY_UNLIKED);
         if (!likedTrack.getUserId().equals(userId)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }

@@ -150,30 +150,7 @@ public class AuthenticateServiceImplement  implements AuthenticateService{
         return stringJoiner.toString();
     }
 
-//    public UrlLoginGoogleResponse getUrlGoogle() {
-//        ClientRegistration google = clientRegistrationRepository.findByRegistrationId("google");
-//
-//        if (google == null) {
-//            throw new IllegalStateException("Google client registration not found");
-//        }
-//
-//        String authorizationUri = google.getProviderDetails().getAuthorizationUri();
-//        String clientId = google.getClientId();
-//        String redirectUri = google.getRedirectUri();
-//        String scope = String.join(" ", google.getScopes());
-//
-//        String googleLoginUrl = UriComponentsBuilder.fromHttpUrl(authorizationUri)
-//                .queryParam("client_id", clientId)
-//                .queryParam("redirect_uri", redirectUri)
-//                .queryParam("response_type", "code")
-//                .queryParam("scope", scope)
-//                .queryParam("access_type", "offline")
-//                .queryParam("prompt", "consent")
-//                .toUriString();
-//
-//
-//        return UrlLoginGoogleResponse.builder().url(googleLoginUrl).build();
-//    }
+
     public CheckUsernameResponse checkUsername(String username) {
         if ( userRepository.findByUsername(username).isEmpty()) {
             return  CheckUsernameResponse.builder().isExisted(  false).build();

@@ -345,7 +345,7 @@ public class PlaylistService  implements PlaylistServiceInterface{
     //done
     public PlaylistResponse getPlaylistById(String id){
         Playlist playlist = this.playlistRepository.findById(id)
-                    .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
+                    .orElseThrow(()->new AppException(ErrorCode.PLAYLIST_NOT_FOUND));
         ProfileWithCountFollowResponse user = profileClient.getUserProfile(playlist.getUserId()).getData();
         var response = convertFromPlaylistToPlaylistResponse(playlist);
         response.setUser(user);
@@ -359,11 +359,19 @@ public class PlaylistService  implements PlaylistServiceInterface{
     public PlaylistResponse addPlaylist(AddPlaylistRequest request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
+        String privacy = request.getPrivacy();
+        if(privacy==null||!privacy.toLowerCase().equals("private")&&!privacy.toLowerCase().equals("public"))
+            throw new AppException(ErrorCode.INVALID_PRIVACY);
+        if(privacy.toLowerCase().equals("private"))
+            privacy = "PRIVATE";
+        else privacy = "PUBLIC";
+
         if(userId==null){
             throw new AppException(ErrorCode.PROFILE_NOT_FOUND);
         }
 
         Playlist playlist = playlistMapper.toPlaylist(request);
+        playlist.setPrivacy(privacy);
         if(request.getTrackIds()!=null&&request.getTrackIds().size()>0){
             List<PlaylistTrack>playlistTracks = playlistTrackMapper.toPlaylistTracksFromTrackIds(request.getTrackIds());
             AtomicInteger index = new AtomicInteger(0);
@@ -442,7 +450,7 @@ public class PlaylistService  implements PlaylistServiceInterface{
             throw new AppException(ErrorCode.PROFILE_NOT_FOUND);
         }
         Playlist playlist = this.playlistRepository.findById(trackId)
-                                                    .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND));
+                                                    .orElseThrow(()->new AppException(ErrorCode.PLAYLIST_NOT_FOUND));
 
         if(!playlist.getUserId().equals(userId)){
             throw new AppException(ErrorCode.UNAUTHORIZED);

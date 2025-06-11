@@ -30,7 +30,7 @@ public class Playlist {
     @Column(name = "Id")
     String id;
 
-    @Column(name = "Title",nullable = false)
+    @Column(name = "Title",nullable = false,columnDefinition = "NVARCHAR(255)")
     String title;
 
     @Column(name = "Release_date")

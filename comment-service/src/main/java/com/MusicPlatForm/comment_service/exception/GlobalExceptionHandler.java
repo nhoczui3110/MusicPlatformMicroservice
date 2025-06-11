@@ -24,7 +24,6 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = appException.getErrorCode();
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
-        log.warn("vao day");
         return  ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 

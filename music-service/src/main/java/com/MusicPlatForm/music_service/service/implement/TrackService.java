@@ -48,12 +48,15 @@ public class TrackService implements TrackServiceInterface{
     ProfileClient profileClient;
     private KafkaTemplate<String,Object> kafkaTemplate;
     private void sendTrackToSearchService(Track track){
-        com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest request = new com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest();
-        request.setTrackId(track.getId());
-        request.setDescription(track.getDescription());
-        request.setName(track.getTitle());
-        kafkaTemplate.send("add_track_to_search", request);
-
+        try {
+            com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest request = new com.MusicPlatForm.music_service.dto.kafka_request.TrackRequest();
+            request.setTrackId(track.getId());
+            request.setDescription(track.getDescription());
+            request.setName(track.getTitle());
+            kafkaTemplate.send("add_track_to_search", request);            
+        } catch (Exception e) {
+            // ignore
+        }
     }
     private void deleteTrackInKafka(String trackId){
         kafkaTemplate.send("delete_track_from_search", trackId);
@@ -342,7 +345,7 @@ public class TrackService implements TrackServiceInterface{
     @PreAuthorize("isAuthenticated()")
     public void updatePlayCountByTrackId(String trackId) {
         Track track = trackRepository.findById(trackId)
-            .orElseThrow(()->new AppException(ErrorCode.TRACK_N0T_FOUND));
+            .orElseThrow(()->new AppException(ErrorCode.TRACK_NOT_FOUND));
         track.setCountPlay(track.getCountPlay()+1);
         trackRepository.save(track);
         return;
