@@ -249,11 +249,12 @@ public class AuthenticateServiceImplement  implements AuthenticateService{
         User user = userRepository.findById(userProfileResponse.getData().getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        String newPassword = generatePassword();
-        
-        
-        PasswordRequest passwordRequest = PasswordRequest.builder().email(request.getEmail()).password(newPassword).build();
-        notificationClient.sendNewPassword(passwordRequest);
+        String newPassword= request.getNewPassword();
+        if(newPassword==null){
+            newPassword = generatePassword();
+            PasswordRequest passwordRequest = PasswordRequest.builder().email(request.getEmail()).password(newPassword).build();
+            notificationClient.sendNewPassword(passwordRequest);
+        }
         
         // waiting to send email
         user.setPassword(passwordEncoder.encode(newPassword));

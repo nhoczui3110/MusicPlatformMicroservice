@@ -13,5 +13,7 @@ public class ConfirmOtpRequest {
     @Email(message = "EMAIL_INVALID")
     @NotBlank(message = "EMAIL_REQUIRED")
     String email;
+    @NotBlank(message = "OTP_REQUIRED")
     String otp;
+    String newPassword;
 }
