@@ -168,6 +168,7 @@ public class TrackService implements TrackServiceInterface{
         try {
            likedIds = this.likedTrackClient.filterLikedTrackId(ids).getData(); 
         } catch (Exception e) {
+            e.printStackTrace();
             // TODO: handle exception
         }
         Map<String,ProfileWithCountFollowResponse> idToUser = new HashMap<>();
