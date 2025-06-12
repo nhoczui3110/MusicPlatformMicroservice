@@ -23,4 +23,6 @@ public interface LikeTrackServiceInterface {
 
     //unlike theo id
     public Boolean unLikeTrack(String track_id);
+
+    public List<String> filterLikedIds(List<String> ids);
 }

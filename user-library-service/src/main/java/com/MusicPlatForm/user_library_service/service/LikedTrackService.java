@@ -13,13 +13,19 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -101,5 +107,18 @@ public class LikedTrackService implements LikeTrackServiceInterface {
         }
         likedTrackRepository.delete(likedTrack);
         return true;
+    }
+
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public List<String> filterLikedIds(List<String> ids) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        List<LikedTrack> likedTracks = this.likedTrackRepository.findAllByUserId(userId);
+        Set<String> likedIds = new HashSet<>();
+        likedTracks.forEach(t->likedIds.add(t.getTrackId()));
+        ids.removeIf(i->!likedIds.contains(i));
+        return ids;
     }
 }

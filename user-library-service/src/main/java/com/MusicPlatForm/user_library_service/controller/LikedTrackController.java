@@ -54,5 +54,9 @@ public class LikedTrackController {
     public ApiResponse<List<String>> getUserIdsLikedTrack(@PathVariable String trackId){
         return ApiResponse.<List<String>>builder().data(this.likedTrackService.getUserIdsLikedTrack(trackId)).code(200).build();
     }
-    
+    @GetMapping("/tracks/filter_ids")
+    public ApiResponse<List<String>> filterLikedTrackId(@RequestParam List<String> ids){
+        return ApiResponse.<List<String>>builder().data(this.likedTrackService.filterLikedIds(ids)).code(200).build();
+
+    } 
 }

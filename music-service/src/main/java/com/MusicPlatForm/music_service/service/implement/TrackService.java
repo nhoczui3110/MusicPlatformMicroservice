@@ -26,6 +26,7 @@ import com.MusicPlatForm.music_service.entity.TrackTag;
 import com.MusicPlatForm.music_service.exception.AppException;
 import com.MusicPlatForm.music_service.exception.ErrorCode;
 import com.MusicPlatForm.music_service.httpclient.FileClient;
+import com.MusicPlatForm.music_service.httpclient.LikedTrackClient;
 import com.MusicPlatForm.music_service.httpclient.ProfileClient;
 import com.MusicPlatForm.music_service.mapper.GenreMapper;
 import com.MusicPlatForm.music_service.mapper.TagMapper;
@@ -46,6 +47,7 @@ public class TrackService implements TrackServiceInterface{
     TrackRepository trackRepository;
     GenreRepository genreRepository;
     ProfileClient profileClient;
+    LikedTrackClient likedTrackClient;
     private KafkaTemplate<String,Object> kafkaTemplate;
     private void sendTrackToSearchService(Track track){
         try {
@@ -162,7 +164,12 @@ public class TrackService implements TrackServiceInterface{
     @Override
     public List<TrackResponse> getTracksByIds(List<String> ids) {
         List<Track> tracks = this.trackRepository.findAllById(ids);
-
+        List<String> likedIds =null;
+        try {
+           likedIds = this.likedTrackClient.filterLikedTrackId(ids).getData(); 
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
         Map<String,ProfileWithCountFollowResponse> idToUser = new HashMap<>();
         List<TrackResponse> trackResponses = new ArrayList<>();
         List<String> userIds = new ArrayList<>(); 
@@ -188,6 +195,12 @@ public class TrackService implements TrackServiceInterface{
             trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
             trackResponse.setUser(user);
             trackResponses.add(trackResponse);
+            if(likedIds!=null&&likedIds.contains(track.getId())){
+                trackResponse.setLiked(true);
+            }
+            else{
+                trackResponse.setLiked(false);
+            }
         }
         return trackResponses;
     }

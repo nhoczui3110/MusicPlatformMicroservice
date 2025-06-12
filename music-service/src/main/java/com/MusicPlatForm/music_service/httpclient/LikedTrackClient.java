@@ -15,4 +15,7 @@ public interface LikedTrackClient {
 
     @GetMapping("/liked/count/{trackId}")
     public ApiResponse<Integer> getTrackLikeCount(@PathVariable String trackId);
+
+    @GetMapping("/tracks/filter_ids")
+    public ApiResponse<List<String>> filterLikedTrackId(@RequestParam List<String> ids);
 }
