@@ -44,6 +44,10 @@ public class FollowsService {
         UserProfile following = userProfileRepository.findByUserId(request.getFollowingId())
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
+        if(request.getFollowingId().equals(userId)){
+                throw new AppException(ErrorCode.ALREADY_FOLLOWING_YOURSELF);
+        }
+
         if (followsRepository.findByFollowerAndFollowing(follower, following).isPresent()) {
             throw new AppException(ErrorCode.ALREADY_FOLLOWING);
         }

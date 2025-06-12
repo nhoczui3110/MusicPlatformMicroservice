@@ -38,4 +38,6 @@ public interface FileClient {
     
     @DeleteMapping(value = "/audios/{audioName}")
     public ResponseEntity<ApiResponse<String>> deleteAudio(@PathVariable String audioName); 
+    @DeleteMapping(value = "/images/covers/{coverName}")
+    public ResponseEntity<ApiResponse<String>> deleteCover(@PathVariable String coverName); 
 }

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class CoverStrategy implements FileStorageStrategy  {
     @Autowired private CoverRepository coverRepository;
 
     private String addImage(MultipartFile image,String folder)throws IOException{
-        String name = Instant.now().getEpochSecond() + image.getOriginalFilename();
+        String name = Instant.now().getEpochSecond() + toSlug(image.getOriginalFilename());
         Path filePath = Paths.get(uploadDir).resolve(folder).resolve(name);
         Files.write(filePath, image.getBytes());
         return name;
@@ -46,7 +47,11 @@ public class CoverStrategy implements FileStorageStrategy  {
         String newName = addImage(image, folder);
         return newName;
     }
-
+    public String toSlug(String input) {
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return normalized.replaceAll("[^\\p{ASCII}]", "") // remove accents â -> a
+                        .replaceAll("[^a-zA-Z0-9\\.\\-]", "_"); // replace special characters a&&b-> ab
+    }
     @Override
     public Object store(MultipartFile file, String userId) throws IOException {
         String coverName = addImage(file, coversDir);
@@ -71,6 +76,8 @@ public class CoverStrategy implements FileStorageStrategy  {
 
     @Override
     public Object replace(MultipartFile file, String filename,String userId) throws NoSuchFileException, IOException {        
+       
+        if(filename==null) return addImage(file, userId);
         Cover coverEntity = this.coverRepository.findByFileName(filename)
             .orElseThrow(() -> new AppException(ErrorCode.COVER_FILE_NOT_FOUND)); 
         if (!coverEntity.getUserId().equals(userId)) {

@@ -13,6 +13,7 @@ public enum ErrorCode {
     PROFILE_NOT_FOUND(107, "Profile not found", HttpStatus.NOT_FOUND),
     NOT_FOLLOWING(145, "You don't follow this user!", HttpStatus.BAD_REQUEST),
     ALREADY_FOLLOWING(144, "Already following!", HttpStatus.BAD_REQUEST),
+    ALREADY_FOLLOWING_YOURSELF(144, "Already following!", HttpStatus.BAD_REQUEST),
     EMAIL_EXISTED(112, "Email is existed", HttpStatus.BAD_REQUEST)
     ;
 

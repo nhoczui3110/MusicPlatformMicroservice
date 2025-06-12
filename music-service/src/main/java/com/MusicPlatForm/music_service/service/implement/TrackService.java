@@ -204,6 +204,8 @@ public class TrackService implements TrackServiceInterface{
         this.deleteTrackInKafka(trackId);
         try {
             fileClient.deleteAudio(track.getFileName());
+            if(track.getCoverImageName()!=null)
+            fileClient.deleteCover(track.getCoverImageName());
         } catch (Exception e){}
     }
 

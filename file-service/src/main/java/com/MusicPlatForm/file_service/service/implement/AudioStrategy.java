@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,13 +62,18 @@ public class AudioStrategy implements FileStorageStrategy,MultiAudioServiceIntef
               return "";
           }
     }
+    public String toSlug(String input) {
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return normalized.replaceAll("[^\\p{ASCII}]", "") // remove accents â -> a
+                        .replaceAll("[^a-zA-Z0-9\\.\\-]", "_"); // replace special characters a&&b-> ab
+    }
 
     @Override
     @Transactional
     @PreAuthorize("isAuthenticated()")
     public Object store(MultipartFile file, String userId) throws IOException {
        // Generate a unique file name
-        String name = Instant.now().getEpochSecond() + file.getOriginalFilename();
+        String name = Instant.now().getEpochSecond() + toSlug(file.getOriginalFilename());
         Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(name);
 
         // Save the file
@@ -96,7 +102,7 @@ public class AudioStrategy implements FileStorageStrategy,MultiAudioServiceIntef
         List<AudioResponse> trackResponses = new ArrayList<>();
         for (MultipartFile trackFile : trackFiles) {
             // Generate a unique file name
-            String name = Instant.now().getEpochSecond() + trackFile.getOriginalFilename();
+            String name = Instant.now().getEpochSecond() + toSlug(trackFile.getOriginalFilename());
             Path filePath = Paths.get(uploadDir).resolve(musicDir).resolve(name);
 
             // Save the file

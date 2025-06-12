@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class AvatarStrategy implements FileStorageStrategy{
     @Autowired private AvatarRepository avatarRepository;
 
     private String addImage(MultipartFile image,String folder)throws IOException{
-        String name = Instant.now().getEpochSecond() + image.getOriginalFilename();
+        String name = Instant.now().getEpochSecond() + toSlug(image.getOriginalFilename());
         Path filePath = Paths.get(uploadDir).resolve(folder).resolve(name);
         Files.write(filePath, image.getBytes());
         return name;
@@ -46,6 +47,11 @@ public class AvatarStrategy implements FileStorageStrategy{
         return newName;
     }
 
+    public String toSlug(String input) {
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return normalized.replaceAll("[^\\p{ASCII}]", "") // remove accents â -> a
+                        .replaceAll("[^a-zA-Z0-9\\.\\-]", "_"); // replace special characters a&&b-> ab
+    }
     @Override
     public Object store(MultipartFile file, String userId) throws IOException {
         String avatarName = addImage(file, avatarDir);
@@ -72,7 +78,7 @@ public class AvatarStrategy implements FileStorageStrategy{
     }
     @Override
     public Object replace(MultipartFile file, String filename, String userId) throws NoSuchFileException, IOException {
-       
+        if(filename==null) return addImage(file, userId);
         Avatar avatarEntity = this.avatarRepository.findByFileName(filename).orElseThrow(()-> new AppException(ErrorCode.AVATAR_FILE_NOT_FOUND));
         if(!avatarEntity.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
          String avatarName = repaceImage(file, filename, avatarDir);
