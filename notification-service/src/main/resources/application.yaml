@@ -44,4 +44,4 @@ spring:
         max.in.flight.requests.per.connection: 5
 
 app:
-  web-url: http://localhost:4200
+  web-url: ${WEB_URL:http://localhost:4200}

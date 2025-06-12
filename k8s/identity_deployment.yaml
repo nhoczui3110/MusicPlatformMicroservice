@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: identity-service
-          image: phuongnbp/identity-service:0.0.2
+          image: phuongnbp/identity-service:0.0.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -38,6 +38,10 @@ spec:
               value: sa
             - name: DBMS_CONNECTION_PASSWORD
               value: YourStrong!Passw0rd
+            - name: PROFILE_SERVICE_URL
+              value: http://profile-service:8081/profile
+            - name: NOTIFICATION_SERVICE_URL
+              value: http://notification-service:8087/notification-service
             - name: FRONTEND_URL
               value: http://localhost:4200
             - name: REDIS_HOST

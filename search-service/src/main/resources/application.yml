@@ -3,10 +3,10 @@ spring:
   application:
     name: search-service
   elasticsearch:
-    uris: ${ELASTICSEARCH:http://localhost:9200}
+    uris: ${ELASTICSEARCH:http://elasticsearch:9200}
 
   kafka:
-    bootstrap-servers: ${KAFKA_CONNECTION:localhost:9094}
+    bootstrap-servers: ${KAFKA_CONNECTION:kafka:9092}
     consumer:
       group-id: search_group
       auto-offset-reset: earliest

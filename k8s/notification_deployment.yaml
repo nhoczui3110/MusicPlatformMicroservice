@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: notification
-          image: phuongnbp/notification-service:0.0.2
+          image: phuongnbp/notification-service:0.0.3
           ports:
             - containerPort: 8087
           env:

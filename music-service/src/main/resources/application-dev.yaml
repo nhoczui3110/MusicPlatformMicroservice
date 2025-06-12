@@ -32,6 +32,7 @@ app:
         file:  ${FILE_SERVICE_URL:http://file-service:8083/file-service}
         comment: ${COMMENT_SERVICE_URL:http://comment-service:8086/comment-service}
         user-library: ${USERLIB_SERVICE_URL:http://user-library-service:8085/user-library}
+        profile: ${USERLIB_SERVICE_URL:http://profile-service:8081/profile}
 server:
     port: 8082
     servlet:

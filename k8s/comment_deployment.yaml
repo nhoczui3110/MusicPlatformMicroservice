@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: comment-service
-          image: phuongnbp/comment-service:0.0.2
+          image: phuongnbp/comment-service:0.0.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8086
@@ -40,6 +40,8 @@ spec:
             value: YourStrong!Passw0rd
           - name: MUSIC_SERVICE_URL
             value: http://music-service:8082/music-service
+          - name: PROFILE_SERVICE_URL
+            value: http://profile-service:8081/profile
           - name: KAFKA_CONNECTION
             value: kafka:9092
 

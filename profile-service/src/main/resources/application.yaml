@@ -4,16 +4,8 @@ server:
         context-path: /profile
 
 spring:
-    # datasource:
-    #   url: "jdbc:mysql://localhost:3306/profile_service"
-    #   username: "root"
-    #   password: "sa"
-    # jpa:
-    #   hibernate:
-    #     ddl-auto: update
-    #   show-sql: true
     kafka:
-        bootstrap-servers: localhost:9094
+        bootstrap-servers:  ${KAFKA_CONNECTION:kafka:9092}
         producer:
             key-serializer: org.apache.kafka.common.serialization.StringSerializer
             value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -22,9 +14,9 @@ spring:
     application:
         name: profile-service
     datasource:
-        url: jdbc:sqlserver://localhost:1433;databaseName=Profile;encrypt=true;trustServerCertificate=true
-        username: sa
-        password: 123456789
+        url: ${DBMS_CONNECTION_URL:jdbc:sqlserver://sql-server-for-profile:1433;databaseName=Profile;encrypt=true;trustServerCertificate=true}
+        username: ${DBMS_CONNECTION_USERNAME:sa}
+        password: ${DBMS_CONNECTION_PASSWORD:YourStrong!Passw0rd}
         driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
     jpa:
         database-platform: org.hibernate.dialect.SQLServerDialect
@@ -40,4 +32,4 @@ spring:
 
 app:
     services:
-        file: "http://localhost:8083/file-service"
+        file:  ${FILE_SERVICE_URL:http://file-service:8083/file-service}

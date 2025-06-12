@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: profile-service
-          image: phuongnbp/profile-service:0.0.2
+          image: phuongnbp/profile-service:0.0.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081

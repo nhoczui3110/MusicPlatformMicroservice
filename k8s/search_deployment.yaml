@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: search-service
-          image: phuongnbp/search-service:0.0.2
+          image: phuongnbp/search-service:0.0.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8084

@@ -26,6 +26,7 @@ spring:
 app:
     services:
       music:  ${MUSIC_SERVICE_URL:http://music-service:8082/music-service}
+      profile: ${PROFILE_SERVICE_URL:http://profile-service:8081/profile}
 server:
   port: 8086
   servlet:

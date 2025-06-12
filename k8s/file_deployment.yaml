@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
         - name: file-service
-          image: phuongnbp/file-service:0.0.2
+          image: phuongnbp/file-service:0.0.3
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8083
