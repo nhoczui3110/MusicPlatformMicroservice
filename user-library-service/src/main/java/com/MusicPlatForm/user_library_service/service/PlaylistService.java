@@ -424,7 +424,9 @@ public class PlaylistService  implements PlaylistServiceInterface{
                 playlist.getPlaylistTracks().add(updatedTrack);
             }
         }
-
+        if(request.getGenreId()!=null){
+            playlist.setGenreId(request.getGenreId());
+        }
         playlist.getPlaylistTags().clear();
         List<PlaylistTag> playlistTags = request.getTagIds().stream().map(id->{
             var tag = new PlaylistTag();
