@@ -8,6 +8,7 @@ import com.example.identity_service.entity.User;
 import com.example.identity_service.exception.AppException;
 import com.example.identity_service.exception.ErrorCode;
 import com.example.identity_service.repository.InvalidatedTokenRepository;
+import com.example.identity_service.repository.NotificationClient;
 import com.example.identity_service.repository.ProfileClient;
 import com.example.identity_service.repository.UserRepository;
 import com.example.identity_service.service.AuthenticateService;
@@ -16,6 +17,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +60,9 @@ public class AuthenticateServiceImplement  implements AuthenticateService{
     UserRepository userRepository;
     InvalidatedTokenRepository invalidatedTokenRepository;
     ProfileClient profileClient;
+    NotificationClient notificationClient;
+    PasswordEncoder passwordEncoder;
+    private static final long OTP_TTL_MINUTES = 5;
     public AuthenticatedResponse authenticate(AuthenticatedRequest authenticatedRequest) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         String username = authenticatedRequest.getUsername();
@@ -197,5 +203,61 @@ public class AuthenticateServiceImplement  implements AuthenticateService{
 
         redisTemplate.delete(key);
         redisTemplate.delete("reset:user:" + userId);
+    }
+    
+    private String generatePassword() {
+        Random random = new Random();
+        int otp = 10000000 + random.nextInt(90000000); // 6-digit
+        return String.valueOf(otp);
+    }
+    private String generateOtp() {
+        Random random = new Random();
+        int otp = 100000 + random.nextInt(900000); // 6-digit
+        return String.valueOf(otp);
+    }
+
+    public void sendOtp(EmailRequest email){
+        ApiResponse<UserProfileResponse> userProfileResponse;
+        try {
+            userProfileResponse = profileClient.getProfile(email.getEmail());
+            
+        } catch (Exception e) {
+           throw new AppException(ErrorCode.EMAIL_INVALID);
+        }
+        userRepository.findById(userProfileResponse.getData().getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        String otp = generateOtp();
+        String otpKey = "otp:" + email.getEmail();
+        redisTemplate.opsForValue().set(otpKey, otp, Duration.ofMinutes(OTP_TTL_MINUTES));
+        EmailResetPasswordRequest emailResetPasswordRequest = EmailResetPasswordRequest
+                                                            .builder()
+                                                            .otp(otp)
+                                                            .userEmail(email.getEmail())
+                                                            .build();
+        notificationClient.sendOtp(emailResetPasswordRequest);
+    }
+    @Transactional
+    public void confirmOtp(ConfirmOtpRequest request){
+        String otpKey = "otp:" + request.getEmail();
+        String storedOtp = redisTemplate.opsForValue().get(otpKey);
+
+        if (storedOtp == null || !storedOtp.equals(request.getOtp())) {
+            throw new AppException(ErrorCode.OTP_INVALID);
+        }
+
+        ApiResponse<UserProfileResponse> userProfileResponse = profileClient.getProfile(request.getEmail());
+        User user = userRepository.findById(userProfileResponse.getData().getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        String newPassword = generatePassword();
+        
+        
+        PasswordRequest passwordRequest = PasswordRequest.builder().email(request.getEmail()).password(newPassword).build();
+        notificationClient.sendNewPassword(passwordRequest);
+        
+        // waiting to send email
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        redisTemplate.delete(otpKey); // invalidate OTP
     }
 }

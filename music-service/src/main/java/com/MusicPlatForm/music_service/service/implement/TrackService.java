@@ -59,7 +59,12 @@ public class TrackService implements TrackServiceInterface{
         }
     }
     private void deleteTrackInKafka(String trackId){
-        kafkaTemplate.send("delete_track_from_search", trackId);
+        try {
+            kafkaTemplate.send("delete_track_from_search", trackId);
+            
+        } catch (Exception e) {
+            // ignore
+        }
     }
     @Override
     @Transactional
@@ -103,6 +108,7 @@ public class TrackService implements TrackServiceInterface{
     }
 
     @PreAuthorize("isAuthenticated()")
+    @Transactional
     public List<TrackResponse> uploadTracks(List<MultipartFile> trackFiles, List<TrackRequest> trackRequests){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -188,6 +194,7 @@ public class TrackService implements TrackServiceInterface{
 
     @Override
     @PreAuthorize("isAuthenticated()")
+    @Transactional
     public void deleteTrack(String trackId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -195,6 +202,9 @@ public class TrackService implements TrackServiceInterface{
         if(!track.getUserId().equals(userId)) throw new AppException(ErrorCode.UNAUTHORIZED);
         trackRepository.delete(track);
         this.deleteTrackInKafka(trackId);
+        try {
+            fileClient.deleteAudio(track.getFileName());
+        } catch (Exception e){}
     }
 
     @Override

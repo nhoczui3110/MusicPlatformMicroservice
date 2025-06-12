@@ -2,6 +2,7 @@ package com.MusicPlatForm.notification_service.service.implement;
 
 import com.MusicPlatForm.notification_service.dto.request.EmailResetPasswordRequest;
 import com.MusicPlatForm.notification_service.dto.request.NotificationRequest;
+import com.MusicPlatForm.notification_service.dto.request.PasswordRequest;
 import com.MusicPlatForm.notification_service.dto.response.NotificationResponse;
 import com.MusicPlatForm.notification_service.entity.Notification;
 import com.MusicPlatForm.notification_service.repository.NotificationRepository;
@@ -54,21 +55,29 @@ public class NotificationServiceImplement implements NotificationService{
     }
 
     public void emailNotification(EmailResetPasswordRequest request) {
-        Notification notification = Notification.builder()
-                .senderId("system")
-                .recipientId(request.getUserEmail())
-                .message("Your OTP for password reset: " + request.getOtp())
-                .isRead(false)
-                .createdAt(LocalDateTime.now())
-                .build();
 
-        notificationRepository.save(notification);
+        try{
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(request.getUserEmail());
+            mailMessage.setSubject("Password Reset OTP");
+            mailMessage.setText("Your OTP is: " + request.getOtp());
+            mailSender.send(mailMessage);
+        }
+        catch(Exception ex){
 
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(request.getUserEmail());
-        mailMessage.setSubject("Password Reset OTP");
-        mailMessage.setText("Your OTP is: " + request.getOtp());
-        mailSender.send(mailMessage);
+        }
+    }
+    public void emailNewPassword(PasswordRequest passwordRequest){
+        try{
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setTo(passwordRequest.getEmail());
+            mailMessage.setSubject("Password Reset");
+            mailMessage.setText("Your new password is: " + passwordRequest.getPassword());
+            mailSender.send(mailMessage);
+        }
+        catch(Exception ex){
+
+        }
     }
 
     // Gửi thông tin tới các service khác qua WebSocket

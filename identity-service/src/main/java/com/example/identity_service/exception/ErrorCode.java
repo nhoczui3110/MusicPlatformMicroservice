@@ -19,6 +19,7 @@ public enum ErrorCode {
     EMAIL_EXISTED(112, "Email existed!", HttpStatus.BAD_REQUEST),
     EMAIL_REQUIRED(113, "Email is required!", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(114, "Email is invalid", HttpStatus.BAD_REQUEST),
+    OTP_INVALID(114, "OTP is invalid", HttpStatus.BAD_REQUEST),
     WRONG_PASSWORD(115, "Password is wrong!", HttpStatus.BAD_REQUEST),
     PASSWORD_MIN(116, "Password must be at least {min} character", HttpStatus.BAD_REQUEST),
     OLD_PASSWORD_REQUIRED(117, "Old password is required!", HttpStatus.BAD_REQUEST),

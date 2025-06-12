@@ -42,11 +42,12 @@ spring:
 
 jwt:
     signerKey: ${SIGNER_KEY:t47lu0FHQY5XHLeC5uViwOtAuzBT0cpkFdDgWZfrRHF1Y2e6XB2oVVRHzKyb/9Fa}
-    refreshable-duration: 7200 # in second
-    valid-duration: 3600 # in second
+    refreshable-duration: 2764800 # in second
+    valid-duration: 2764800 # in second
 app:
     services:
         profile: ${PROFILE_SERVICE_URL:http://localhost:8081/profile}
+        notification: ${NOTIFICATION_SERVICE_URL:http://localhost:8087/notification-service}
     frontend:
         url: ${FRONTEND_URL:http://localhost:4200}
 

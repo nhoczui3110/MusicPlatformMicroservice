@@ -11,13 +11,16 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: n21dccn075@student.ptithcm.edu.vn
-    password:
+    username: hnguyenphuong09@gmail.com
+    password: okjq xbur dowt rgin
     properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   kafka:
-    bootstrap-servers: ${KAFKA_CONNECTION:kafka:9094}
+    bootstrap-servers: ${KAFKA_CONNECTION:localhost:9094}
     consumer:
       group-id: notification-group
       auto-offset-reset: earliest

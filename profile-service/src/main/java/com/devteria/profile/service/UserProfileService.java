@@ -89,6 +89,7 @@ public class UserProfileService {
     }
     
     public ProfileWithCountFollowResponse get(String userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
 
@@ -96,9 +97,14 @@ public class UserProfileService {
 
         int followingCount = followsRepository.countByFollower_UserId(userId);
         int followerCount = followsRepository.countByFollowing_UserId(userId);
+        boolean isFollowing = false;
+        if(authentication.isAuthenticated()){
+            isFollowing = followsRepository.existsByFollower_UserIdAndFollowing_UserId(authentication.getName(), userId);
 
+        }
         response.setFollowingCount(followingCount);
         response.setFollowerCount(followerCount);
+        response.setFollowing(isFollowing);
 
         return response;
     }

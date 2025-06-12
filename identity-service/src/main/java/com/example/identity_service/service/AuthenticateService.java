@@ -5,6 +5,7 @@ import java.text.ParseException;
 import org.springframework.stereotype.Service;
 
 import com.example.identity_service.dto.request.AuthenticatedRequest;
+import com.example.identity_service.dto.request.ConfirmOtpRequest;
 import com.example.identity_service.dto.request.EmailRequest;
 import com.example.identity_service.dto.request.IntrospectRequest;
 import com.example.identity_service.dto.request.LogoutRequest;
@@ -26,4 +27,6 @@ public interface AuthenticateService {
     public CheckUsernameResponse checkUsername(String username) ;
     public void sendResetLink(EmailRequest request) ;
     public void resetPassword(ResetPasswordRequest request) ;
+    public void sendOtp(EmailRequest email);
+    public void confirmOtp(ConfirmOtpRequest otp);
 }

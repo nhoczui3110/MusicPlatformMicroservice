@@ -75,4 +75,15 @@ public class AuthenticateController {
         authenticateService.resetPassword(request);
         return  ApiResponse.<Void>builder().build();
     }
+
+    @PostMapping("/otp")
+    public ApiResponse<Void> sendOtp(@RequestBody EmailRequest emailRequest){
+        authenticateService.sendOtp(emailRequest);
+        return  ApiResponse.<Void>builder().build();
+    }
+    @PostMapping("/otp/confirm")
+      public ApiResponse<Void> confirmOtp(@RequestBody @Valid ConfirmOtpRequest confirmOtpRequest){
+        authenticateService.confirmOtp(confirmOtpRequest);
+        return  ApiResponse.<Void>builder().build();
+    }
 }
