@@ -23,7 +23,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
                 responseBodyMap = objectMapper.readValue(response.body().asInputStream(), Map.class);
                 Integer code = (Integer) responseBodyMap.get("code");
 //                Email existed
-                if (code == 1014) {
+                if (code == ErrorCode.EMAIL_EXISTED.getCode()) {
                     return new AppException(ErrorCode.EMAIL_EXISTED);
                 }
             } catch (IOException e) {

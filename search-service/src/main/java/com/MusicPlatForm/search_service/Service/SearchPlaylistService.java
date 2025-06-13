@@ -18,8 +18,15 @@ public class SearchPlaylistService {
     @Autowired
     private PlaylistMapper playlistMapper;
 
+    private Playlist toEntity(PlaylistRequest playlistRequest){
+        Playlist playlist = new Playlist();
+        playlist.setDescription(playlistRequest.getDescription());
+        playlist.setPlaylistId(playlistRequest.getPlaylistId());
+        playlist.setTitle(playlistRequest.getTitle());
+        return playlist;
+    }
     public Playlist save(PlaylistRequest request) {
-        Playlist playlist = playlistMapper.toEntity(request);
+        Playlist playlist = toEntity(request);
         return playlistRepository.save(playlist);
     }
     public void update(PlaylistRequest playlistRequest){

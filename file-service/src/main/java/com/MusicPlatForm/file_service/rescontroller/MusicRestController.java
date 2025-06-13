@@ -35,7 +35,8 @@ public class MusicRestController {
     private String uploadDir;
     private FileStorageService fileStorageService;
     private MultiAudioServiceInteface audioServiceInteface;
-    public MusicRestController(FileStorageService fileStorageService){
+    public MusicRestController(FileStorageService fileStorageService,MultiAudioServiceInteface audioServiceInteface){
+        this.audioServiceInteface = audioServiceInteface;
         this.fileStorageService = fileStorageService;
     }
 

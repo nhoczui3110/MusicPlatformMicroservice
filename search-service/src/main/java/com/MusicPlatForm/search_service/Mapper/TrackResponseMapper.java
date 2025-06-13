@@ -17,5 +17,4 @@ public interface TrackResponseMapper {
     List<String> toTrackIds(List<Track> tracks);
     
    
-    Track toEntity(TrackRequest request);
 }

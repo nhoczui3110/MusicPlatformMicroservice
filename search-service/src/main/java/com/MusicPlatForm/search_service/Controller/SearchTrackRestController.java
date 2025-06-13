@@ -1,6 +1,8 @@
 package com.MusicPlatForm.search_service.Controller;
 
 import java.util.List;
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,6 +31,8 @@ public class SearchTrackRestController {
     @PostMapping("test")
     public void testKafka(){
         TrackRequest track = new TrackRequest();
+        track.setDescription("abc");
+        track.setTrackId("abc "+UUID.randomUUID().toString());
         track.setName("abc");
         kafkaTemplate.send("add_track_to_search", track);
     }
@@ -43,6 +47,7 @@ public class SearchTrackRestController {
     // Kafka listener to process track data when received from Kafka topic
     @KafkaListener(topics = "add_track_to_search", groupId = "search_group")
     public void addTrackToSearch(TrackRequest trackRequest) {
+        System.out.println("++++++++++++++++ Đã nhận++++++++++++++++++++++++++++++++++");
         // Send the trackRequest to the service to handle track saving
         trackSearchService.save(trackRequest);
     }

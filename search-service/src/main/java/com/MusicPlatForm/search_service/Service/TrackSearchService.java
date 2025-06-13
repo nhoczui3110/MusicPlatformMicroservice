@@ -19,20 +19,16 @@ public class TrackSearchService {
     private TrackRepository trackRepository;
     @Autowired 
     private TrackResponseMapper trackResponseMapper;
-    public Track save(TrackRequest trackRequest) {
-        Track track = trackResponseMapper.toEntity(trackRequest);
+    
+    public Track save(TrackRequest request) {
+        Track track = new Track();
+        track.setDescription(request.getDescription());
+        track.setName(request.getName());
+        track.setTrackId(request.getTrackId());
+        
         return trackRepository.save(track);
     }
 
-    // public List<String> searchByName(String name) {
-    //     List<Track> tracks=  trackRepository.findByName(name);
-    //     return trackResponseMapper.toTrackResponseList(tracks);
-    // }
-    
-    // public List<TrackResponse> searchByDescription(String description){
-    //     List<Track> tracks= trackRepository.findByDescription(description);
-    //     return trackResponseMapper.toTrackResponseList(tracks);
-    // }
 
     public List<Track> getAllTracks(){
         return (List<Track>) trackRepository.findAll();

@@ -19,7 +19,10 @@ public class SearchAlbumSerivce {
     private AlbumMapper albumMapper;
 
     public Album save(AlbumRequest request) {
-        Album album = albumMapper.toEntity(request);
+        Album album = new Album();
+        album.setAlbumId(request.getAlbumId());
+        album.setDescription(request.getDescription());
+        album.setTitle(request.getTitle());
         return albumRepository.save(album);
     }
     public void update(AlbumRequest request){

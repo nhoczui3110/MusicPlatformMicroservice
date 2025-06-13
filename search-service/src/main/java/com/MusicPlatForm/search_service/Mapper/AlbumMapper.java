@@ -11,7 +11,6 @@ import com.MusicPlatForm.search_service.Entity.Album;
 @Mapper(componentModel = "spring")
 public interface AlbumMapper {
     
-    Album toEntity(AlbumRequest request);
 
     List<String> toAlbumIds(List<Album> albums);
 

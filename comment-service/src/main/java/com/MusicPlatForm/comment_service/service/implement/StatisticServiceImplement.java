@@ -43,7 +43,7 @@ public class StatisticServiceImplement  implements StatisticService{
             });
             dailyComment.setCommentCount(dailyComment.getCommentCount()+1);
             dailyComment.getDetailComment().merge(trackId, 1, Integer::sum);
-            userCommentCounts.merge(commentUserId, null, Integer::sum);  
+            userCommentCounts.merge(commentUserId, 1, Integer::sum);  
         }
         List<DailyComment> dailyComments = groupCommentByDate
             .entrySet()

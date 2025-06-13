@@ -28,12 +28,12 @@ public class UserSearchService {
     public List<User> getAllUsers(){
         return (List<User>) this.userRepository.findAll();
     }
-    // public  List<UserResponse>  searchUsersByName(String query){
-    //     List<User> users =  this.userRepository.findUserByName(query);
-    //     return userResponseMapper.toUserResponseList(users);
-    // }
+
     public User save(UserRequest userRequest){
-        User user = this.userResponseMapper.toUserEntity(userRequest);
+        User user = new User();
+        user.setDisplayName(userRequest.getDisplayName());
+        user.setFullname(userRequest.getFullname());
+        user.setUserId(userRequest.getUserId());
         User savedUser = this.userRepository.save(user);
         return savedUser;
     }
