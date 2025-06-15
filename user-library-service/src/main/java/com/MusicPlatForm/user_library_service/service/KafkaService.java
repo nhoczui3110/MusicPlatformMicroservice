@@ -88,7 +88,7 @@ public class KafkaService {
                                                 .trackId(track.getId())
                                                 .recipientId(track.getUserId())
                                                 .senderId(likedTrack.getUserId())
-                                                .message("like your track \"" + track.getTitle()+"\"")
+                                                .message(track.getUser().getDisplayName()+ " like your track \"" + track.getTitle()+"\"")
                                                 .build();
             this.kafkaTemplate.send("like",notification);
     

@@ -14,6 +14,9 @@ import java.util.List;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
 @RequestMapping("/notifications")
@@ -32,8 +35,7 @@ public class NotificationController {
     }
 
     @KafkaListener(topics = "like", groupId = "notification_group")
-    public void likeListener(NotificationRequest request) {
-        request.setMessage(request.getSenderId() + " liked your track");
+    public void likeListener(NotificationRequest request) {;
         notificationService.sendNotificationWebSocket(request);
     }
 
@@ -98,4 +100,10 @@ public class NotificationController {
             .message("Update successfully")
             .build();
     }
+    @PostMapping("/token/{token}")
+    public void postMethodName(@PathVariable String token) {
+        notificationService.saveToke(token);;
+        return;
+    }
+    
 }

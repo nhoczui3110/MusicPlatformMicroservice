@@ -42,7 +42,7 @@ public class HistoryService implements HistorySerivceInterface {
         String userId = authentication.getName();
         List<History> histories = this.historyRepository.findAllByUserIdOrderByListenedAtDesc(userId);
         List<String> trackIds = new ArrayList<>();
-    
+
         for (History history : histories) {
             if (!trackIds.contains(history.getTrackId())) {
                 trackIds.add(history.getTrackId());
@@ -56,6 +56,7 @@ public class HistoryService implements HistorySerivceInterface {
                 track.setIsLiked(true);
             }
         }
+        
         return trackResponses;
     }
     public static int convertMinuteSecondToSeconds(String time) {

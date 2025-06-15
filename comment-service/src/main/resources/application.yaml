@@ -14,7 +14,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     defer-datasource-initialization: true
   kafka:
-    bootstrap-servers: ${KAFKA_CONNECTION:kafka:9094}
+    bootstrap-servers: ${KAFKA_CONNECTION:localhost:9094}
     producer:
         key-serializer: org.apache.kafka.common.serialization.StringSerializer
         value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

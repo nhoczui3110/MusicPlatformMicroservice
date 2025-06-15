@@ -3,6 +3,8 @@ package com.MusicPlatForm.music_service.service.implement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -164,6 +166,12 @@ public class TrackService implements TrackServiceInterface{
     @Override
     public List<TrackResponse> getTracksByIds(List<String> ids) {
         List<Track> tracks = this.trackRepository.findAllById(ids);
+        Map<String,Track> map = new HashMap<>();
+        tracks.forEach(t->map.put(t.getId(),t));
+        tracks = new LinkedList<>();
+        for(String id:ids){
+            tracks.add(map.get(id));
+        }
         List<String> likedIds =null;
         try {
            likedIds = this.likedTrackClient.filterLikedTrackId(ids).getData(); 
@@ -321,7 +329,16 @@ public class TrackService implements TrackServiceInterface{
         if(userId==null || userId==""){
             userId = authentication.getName();
         }
+        List<String> likedIds =null;
+
         List<Track> tracks = this.trackRepository.findTrackByUserId(userId);
+        List<String> ids = tracks.stream().map(t->t.getId()).toList();
+        try {
+           likedIds = this.likedTrackClient.filterLikedTrackId(ids).getData(); 
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
         List<TrackResponse> trackResponses = new ArrayList<>();
         ProfileWithCountFollowResponse user = profileClient.getUserProfile(userId).getData();
         for(Track track:tracks){
@@ -331,6 +348,9 @@ public class TrackService implements TrackServiceInterface{
             trackResponse.setGenre(genreMapper.toGenreResponseFromGenre(track.getGenre()));
             trackResponse.setUser(user);
             trackResponses.add(trackResponse);
+            if(likedIds!=null&&likedIds.contains(track.getId())){
+                trackResponse.setLiked(true);
+            }
         }
         return trackResponses;
     }

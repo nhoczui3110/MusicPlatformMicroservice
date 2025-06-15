@@ -16,5 +16,6 @@ public interface NotificationService {
     public List<NotificationResponse> getNotificationByIds(List<String> ids);
     public List<String> getAllByUserId();
     public void markAsRead(List<String>ids);
+    public void saveToke(String token);
   
 }

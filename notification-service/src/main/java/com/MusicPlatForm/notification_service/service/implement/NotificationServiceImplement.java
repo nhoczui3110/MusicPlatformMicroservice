@@ -5,8 +5,13 @@ import com.MusicPlatForm.notification_service.dto.request.NotificationRequest;
 import com.MusicPlatForm.notification_service.dto.request.PasswordRequest;
 import com.MusicPlatForm.notification_service.dto.response.NotificationResponse;
 import com.MusicPlatForm.notification_service.entity.Notification;
+import com.MusicPlatForm.notification_service.entity.Token;
 import com.MusicPlatForm.notification_service.repository.NotificationRepository;
+import com.MusicPlatForm.notification_service.repository.TokenRepository;
+import com.MusicPlatForm.notification_service.service.FireBaseService;
 import com.MusicPlatForm.notification_service.service.NotificationService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +19,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,8 +36,10 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 public class NotificationServiceImplement implements NotificationService{
     NotificationRepository notificationRepository;
+    TokenRepository tokenRepository;
     JavaMailSender mailSender;
     SimpMessagingTemplate simpMessagingTemplate;
+    FireBaseService fireBaseService;
 
     public void sendNotificationWebSocket(NotificationRequest request) {
         Notification notification = Notification.builder()
@@ -52,6 +60,9 @@ public class NotificationServiceImplement implements NotificationService{
                 "/queue/message",
                 response
         );
+        Token token = this.tokenRepository.findByUserId(response.getRecipientId());
+        fireBaseService.sendNotifcationWithDataToFirebase(token.getToken(), response);
+
     }
 
     public void emailNotification(EmailResetPasswordRequest request) {
@@ -133,5 +144,21 @@ public class NotificationServiceImplement implements NotificationService{
             response.setType("Comment");
         }
         return response;
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public void saveToke(String token) {
+       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+       String userId = authentication.getName();
+       Token entity = tokenRepository.findByUserId(userId);
+       if(entity == null){
+           entity = Token.builder()
+           .token(token)
+           .userId(userId)
+           .updateAt(LocalDateTime.now()).build();
+       }
+       entity.setToken(token);
+       this.tokenRepository.save(entity);
     }
 }
